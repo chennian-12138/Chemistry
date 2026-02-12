@@ -1,0 +1,52 @@
+import { DataupSchema } from "@/types/dataup-shema";
+
+const API_BASE = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
+
+export async function createReaction(data: DataupSchema) {
+  const res = await fetch(`${API_BASE}/api/reactions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+export async function getReactions(params?: { status?: string }) {
+  const query = params ? `?${new URLSearchParams(params).toString()}` : "";
+  const res = await fetch(`${API_BASE}/api/reactions${query}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 审核通过
+export async function approveReaction(id: string) {
+  const res = await fetch(`${API_BASE}/api/review/${id}/approve`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 审核拒绝
+export async function rejectReaction(id: string, reason: string) {
+  const res = await fetch(`${API_BASE}/api/review/${id}/reject`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ reason }),
+  });
+  return res.json();
+}
+
+// 更新已有反应
+export async function updateReaction(id: string, data: DataupSchema) {
+  const res = await fetch(`${API_BASE}/api/reactions/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
