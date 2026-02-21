@@ -30,6 +30,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/dashboard/review/reviewTable.tsx"  ],
+, "src/dashboard/review/reviewTable/reviewTable.tsx"  ],
   "exclude": ["node_modules"],
 }

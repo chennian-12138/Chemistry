@@ -127,6 +127,18 @@ router.get("/list", async (req, res) => {
   }
 });
 
+// 删除词条
+router.delete("/:id", async (req, res) => {
+  try {
+    await prisma.reaction.delete({
+      where: { id: req.params.id },
+    });
+    res.json({ message: "词条删除成功" });
+  } catch (error) {
+    console.error("删除词条失败:", error);
+    res.status(500).json({ error: "删除失败" });
+  }
+});
 
 // 获取单个词条详情（审核页用）
 router.get("/:id", async (req, res) => {
@@ -198,8 +210,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "获取失败" });
   }
 });
-
-// backend/src/routes/list.ts
 
 // 审核通过
 router.post("/:id/approve", async (req, res) => {

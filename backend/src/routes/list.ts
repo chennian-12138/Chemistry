@@ -32,11 +32,6 @@ router.get("/list", async (req, res) => {
   }
 });
 
-// 原有 /unreviewed 不动，给 ReviewSheet 用
-router.get("/unreviewed", async (req, res) => {
-  // ... 原有代码不动
-});
-
 // 获取单个词条详情（审核页用）
 router.get("/:id", async (req, res) => {
   try {

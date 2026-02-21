@@ -50,3 +50,12 @@ export async function updateReaction(id: string, data: DataupSchema) {
   });
   return res.json();
 }
+
+// 删除反应
+export async function deleteReaction(id: string) {
+  const res = await fetch(`${API_BASE}/api/review/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}

@@ -1,4 +1,4 @@
-import ReviewPage from "@/src/dashboard/review/reviewTable";
+import ReviewPage from "@/src/dashboard/review/reviewTable/reviewTable";
 export default function Review() {
     return (
         <div>

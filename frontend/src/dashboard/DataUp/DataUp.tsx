@@ -16,6 +16,7 @@ import ReactionMetaData from "./ReactionMetaData";
 import SMARTSModuleData from "./SMARTSModuleData";
 import ReactionDiscriptions from "./ReactionDiscriptions";
 import { createReaction, updateReaction } from "@/lib/api";
+import { toast } from "sonner"
 
 // 默认空值
 const defaultValues: DataupSchema = {
@@ -80,12 +81,12 @@ export default function DataUp() {
         : await createReaction(data); // 新建
 
       if (result.success) {
-        alert(data.id ? "修改成功！等待审核" : "提交成功！等待审核");
+        toast.success(data.id ? "修改成功！等待审核" : "提交成功！等待审核",{ position: "top-center" })
       } else {
-        alert("提交失败：" + result.error);
+        toast.error("提交失败：" + result.error,{ position: "top-center" })
       }
     } catch {
-      alert("提交失败，请检查网络");
+      toast.error("提交失败，请检查网络",{ position: "top-center" })
     }
   }, [methods]);
 
