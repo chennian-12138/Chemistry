@@ -104,40 +104,40 @@ export default function ReactionDiscriptions({ index }: Props) {
             />
           </Field>
           <Field>
-          <FieldLabel>反应条件</FieldLabel>
-          <div
-            className="grid  gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${conditionFieldsConfig.length}, minmax(0, 1fr))`,
-            }}
-          >
-            {conditionFieldsConfig.map(({ label, field, options }) => (
-              <Field key={field}>
-                <FieldLabel>{label}</FieldLabel>
-                <Controller
-                  name={`reactionSections.${index}.${field}`}
-                  control={control}
-                  render={({ field: controllerField }) => (
-                    <Combobox
-                      value={controllerField.value || "-"}
-                      onValueChange={controllerField.onChange}
-                    >
-                      <ComboboxInput placeholder={`选择${label}`} />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          {options.map((option) => (
-                            <ComboboxItem key={option} value={option}>
-                              {option}
-                            </ComboboxItem>
-                          ))}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                  )}
-                />
-              </Field>
-            ))}
-          </div>
+            <FieldLabel>反应条件</FieldLabel>
+            <div
+              className="grid  gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${conditionFieldsConfig.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {conditionFieldsConfig.map(({ label, field, options }) => (
+                <Field key={field}>
+                  <FieldLabel>{label}</FieldLabel>
+                  <Controller
+                    name={`reactionSections.${index}.${field}`}
+                    control={control}
+                    render={({ field: controllerField }) => (
+                      <Combobox
+                        value={controllerField.value || "-"}
+                        onValueChange={controllerField.onChange}
+                      >
+                        <ComboboxInput placeholder={`选择${label}`} />
+                        <ComboboxContent>
+                          <ComboboxList>
+                            {options.map((option) => (
+                              <ComboboxItem key={option} value={option}>
+                                {option}
+                              </ComboboxItem>
+                            ))}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    )}
+                  />
+                </Field>
+              ))}
+            </div>
           </Field>
 
           {/* 反应式区域 */}
@@ -163,7 +163,10 @@ export default function ReactionDiscriptions({ index }: Props) {
                   render={({ field: { value, onChange } }) => (
                     <Composer
                       value={value?.value ?? ""}
-                      onChange={(json) => onChange({ value: json })}
+                      onChange={(json) => {
+                        console.log(json);
+                        onChange({ value: json });
+                      }}
                       className="w-full"
                     />
                   )}

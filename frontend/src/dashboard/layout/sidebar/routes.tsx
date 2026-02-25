@@ -35,6 +35,11 @@ export const routes = {
         name:'Review',
         path:'/dashboard/review',
         icon:ShieldCheck
+    },
+    {
+        name:'Test',
+        path:'/dashboard/test',
+        icon:BookSearch,
     }
     ],
     

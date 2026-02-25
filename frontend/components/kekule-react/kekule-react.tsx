@@ -2,6 +2,7 @@
 // components/kekule/KekuleChemWidget.tsx
 "use client";
 
+import { el } from "date-fns/locale";
 import {
   useEffect,
   useRef,
@@ -19,10 +20,12 @@ export interface KekuleChemWidgetProps {
   onElementSelect?: (element: any) => void;
   width?: string;
   height?: string;
-  className?: string; // 支持 Tailwind
+  className?: string;
   predefinedSetting?: string;
   enableToolbar?: boolean;
-  allowEmpty?: boolean; // 是否允许空状态（无分子）
+  allowEmpty?: boolean;
+  syncExternalChemObj?: boolean;
+  // 是否同步外部传入的 chemObj
 }
 
 export interface KekuleChemWidgetRef {
@@ -48,7 +51,8 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
       className = "",
       predefinedSetting = "basic",
       enableToolbar = true,
-      allowEmpty = false,
+      allowEmpty = true,
+      syncExternalChemObj = false,
     },
     ref,
   ) => {
@@ -57,6 +61,9 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
     const [isReady, setIsReady] = useState(false);
     const [KekuleModule, setKekuleModule] = useState<any>(null);
     const [hasChemObj, setHasChemObj] = useState(false);
+
+    const isInitializedRef = useRef(false);
+    const pendingChemObjRef = useRef<any>(null);
 
     useEffect(() => {
       if (typeof window === "undefined") return;
@@ -78,16 +85,15 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
               widget = new Kekule.ChemWidget.Viewer(containerRef.current);
               widget
                 .setDimension("100%", "100%") // 使用百分比填充容器
-                .setEnableToolbar(enableToolbar)
                 .setEnableDirectInteraction(true)
-                .setEnableEdit(true)
-                .setPredefinedSetting(predefinedSetting);
+                .setPredefinedSetting(predefinedSetting)
+                .setRestrainEditorWithCurrObj(false);
 
               widget.on("load", (e: any) => {
                 if (e.target === widget) {
                   const newObj = widget.getChemObj();
                   setHasChemObj(!!newObj);
-                  onChange?.(newObj); // 触发外部回调
+                  onChange?.(newObj);
                 }
               });
 
@@ -105,7 +111,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
                 .setPredefinedSetting(predefinedSetting || "fullFunc")
                 .setEnableOperHistory(true);
 
-              widget.on("operChange", () => {
+              widget.on("userModificationDone", () => {
                 const newObj = widget.getChemObj();
                 setHasChemObj(!!newObj);
                 onChange?.(newObj);
@@ -127,15 +133,19 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
 
           widgetRef.current = widget;
 
-          // 处理初始分子
-          if (initialChemObj) {
+          if (initialChemObj && !isInitializedRef.current) {
             widget.setChemObj(initialChemObj);
             setHasChemObj(true);
-          } else if (!allowEmpty && type !== "periodicTable") {
-            // 自动创建空分子，使编辑按钮可用
-            const emptyMol = new Kekule.Molecule();
+            isInitializedRef.current = true;
+          } else if (
+            !allowEmpty &&
+            type !== "periodicTable" &&
+            !isInitializedRef.current
+          ) {
+            const emptyMol = new KekuleModule.Molecule();
             widget.setChemObj(emptyMol);
             setHasChemObj(true);
+            isInitializedRef.current = true;
           }
 
           setIsReady(true);
@@ -150,20 +160,18 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
         isMounted = false;
         widget?.finalize?.();
       };
-    }, [type]);
+    }, [type, predefinedSetting, allowEmpty]);
 
     // 同步外部 chemObj 变化
     useEffect(() => {
-      if (widgetRef.current && isReady) {
-        if (initialChemObj) {
-          const currentObj = widgetRef.current.getChemObj();
-          if (currentObj !== initialChemObj) {
-            widgetRef.current.setChemObj(initialChemObj);
-            setHasChemObj(true);
-          }
-        }
+      if (!syncExternalChemObj || !widgetRef.current || !isReady) return;
+
+      if (initialChemObj && pendingChemObjRef.current !== initialChemObj) {
+        widgetRef.current.setChemObj(initialChemObj);
+        setHasChemObj(true);
+        pendingChemObjRef.current = initialChemObj;
       }
-    }, [initialChemObj, isReady]);
+    }, [initialChemObj, isReady, syncExternalChemObj]);
 
     useImperativeHandle(ref, () => ({
       getWidget: () => widgetRef.current,
@@ -186,9 +194,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
       },
       exportToSmiles: () => {
         const obj = widgetRef.current?.getChemObj?.();
-        return obj
-          ? KekuleModule?.IO?.saveFormatData(obj, "smi")
-          : null;
+        return obj ? KekuleModule?.IO?.saveFormatData(obj, "smi") : null;
       },
       importFromKekuleJson: (json: string) => {
         if (!KekuleModule || !widgetRef.current) return;

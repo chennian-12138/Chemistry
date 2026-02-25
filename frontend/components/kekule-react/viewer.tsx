@@ -10,15 +10,23 @@ interface ViewerProps {
   value?: string; // Kekule JSON 字符串
   onChange?: (value: string) => void;
   className?: string;
+  enableEdit?: boolean;
 }
 
 const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
-  ({ value, onChange, className }, ref) => {
+  ({ value, onChange, className, enableEdit = false }, ref) => {
     const [chemObj, setChemObj] = useState(null);
     const widgetRef = useRef<KekuleChemWidgetRef>(null);
+    const lastValueRef = useRef<string | undefined>(undefined);
 
     // 当外部 value 变化时，导入到 Viewer
     useEffect(() => {
+
+      if (value === lastValueRef.current) {
+        return;
+      }
+      lastValueRef.current = value;
+
       const loadChemObj = async () => {
         if (!value) {
           setChemObj(null);
@@ -54,7 +62,6 @@ const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
     return (
       <KekuleChemWidget
         ref={(node) => {
-          // 合并 ref
           widgetRef.current = node;
           if (typeof ref === "function") {
             ref(node);
@@ -65,8 +72,11 @@ const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
         type="viewer"
         chemObj={chemObj}
         predefinedSetting="reactionEdit"
-        onChange={handleChange}
+        onChange={enableEdit ? handleChange : undefined}
         className={className}
+        syncExternalChemObj={true}
+        // enableDirectInteraction={enableEdit}
+        // enableDirectInteraction={enableEdit}
       />
     );
   },
