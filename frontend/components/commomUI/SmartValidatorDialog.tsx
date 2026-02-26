@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Composer from "@/components/kekule-react/composer";
+import { KekuleChemWidgetRef } from "@/components/kekule-react/kekule-react";
 import { matchSmart } from "@/lib/rdkit";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
@@ -32,15 +33,16 @@ interface MatchResult {
 }
 
 export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
-  const [molJson, setMolJson] = useState<string>("");
+  const [mol_json, setMolJson] = useState<string>("");
   const [isValid, setIsValid] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
+  const composerRef = useRef<KekuleChemWidgetRef>(null);
 
   const handleValidate = async () => {
-    if (!molJson) {
+    if (!mol_json) {
       setResult({ success: false, message: "请先绘制分子" });
       return;
     }
@@ -48,11 +50,15 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
       setResult({ success: false, message: "请先输入SMARTS模式" });
       return;
     }
+
+    console.log("SMARTS模式:", props.smarts);
+    console.log("分子JSON:", mol_json);
+
     setIsValid(true);
     setResult(null);
 
     try {
-      const response = await matchSmart(props.smarts, molJson);
+      const response = await matchSmart(props.smarts, mol_json);
       if (response.success && response.data) {
         const matchResult = response.data as MatchResult;
 
@@ -61,6 +67,9 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
             success: true,
             message: `SMARTS模式匹配成功，共匹配${matchResult.match_count}次`,
           });
+          if (matchResult.atom_indices?.length) {
+            composerRef.current?.highlightAtoms(matchResult.atom_indices);
+          }
           props.onValidate?.(true);
         } else {
           setResult({ success: false, message: "SMARTS模式未匹配到任何原子" });
@@ -94,9 +103,11 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
         </DialogHeader>
         {/* Composer 组件 - 通过 onChange 获取分子数据 */}
         <div className="space-y-4">
-          <div className="h-[400px] border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden">
             <Composer
-              value={molJson}
+              ref={composerRef}
+              exportFormat="molblock"
+              value={mol_json}
               onChange={(json) => {
                 console.log("Composer onChange:", json); // ← 添加日志
                 setMolJson(json || "");

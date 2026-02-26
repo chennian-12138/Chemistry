@@ -37,6 +37,8 @@ export interface KekuleChemWidgetRef {
   importFromKekuleJson: (json: string) => void;
   exportToSmiles: () => string | null;
   importFromSmiles: (smiles: string) => void;
+  exportToMolBlock: () => string | null;
+  highlightAtoms: (atomIndices: number[]) => void;
 }
 
 const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
@@ -162,7 +164,6 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
       };
     }, [type, predefinedSetting, allowEmpty]);
 
-    // 同步外部 chemObj 变化
     useEffect(() => {
       if (!syncExternalChemObj || !widgetRef.current || !isReady) return;
 
@@ -212,6 +213,86 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
           widgetRef.current.setChemObj(obj);
           setHasChemObj(true);
           onChange?.(obj);
+        }
+      },
+      exportToMolBlock: () => {
+        const obj = widgetRef.current?.getChemObj?.();
+        return obj
+          ? (KekuleModule?.IO?.saveFormatData(obj, "mol") ?? null)
+          : null;
+      },
+      highlightAtoms: (atomIndices: number[]) => {
+        const obj = widgetRef.current?.getChemObj?.();
+
+        if (!obj || !atomIndices?.length) return;
+
+        try {
+          let mol: any = null;
+
+          if (typeof obj.filterChildren === "function") {
+            // 直接获取第一个元素
+            const children = obj.filterChildren(() => true);
+            console.log("filterChildren 结果:", children);
+
+            if (Array.isArray(children) && children[0]) {
+              // 检查第一个元素是否有 getNodes 方法
+              if (typeof children[0].getNodes === "function") {
+                mol = children[0];
+              }
+            }
+          } else if (typeof obj.getNodes === "function") {
+            mol = obj;
+          }
+
+          console.log("找到的 mol:", mol);
+          console.log("mol 是否有 getNodes:", mol ? typeof mol.getNodes : "no");
+
+          if (!mol) {
+            console.warn("未找到分子对象");
+            return;
+          }
+
+          // 获取匹配的原子
+          const matchedAtoms = atomIndices
+            .map((index) => mol.getNodeAt(index))
+            .filter(Boolean);
+
+          console.log("matchedAtoms 数量:", matchedAtoms.length);
+
+          if (!matchedAtoms.length) return;
+
+          // 获取匹配的化学键
+          const matchedBonds: any[] = [];
+          for (const atom of matchedAtoms) {
+            const bonds = atom.getLinkedConnectors();
+            for (const bond of bonds) {
+              if (matchedBonds.includes(bond)) continue;
+              const connectedNodes = bond.getConnectedChemNodes();
+              const allConnected = connectedNodes.every((node) =>
+                matchedAtoms.includes(node),
+              );
+              if (allConnected) matchedBonds.push(bond);
+            }
+          }
+
+          const matchedObjs = [...matchedAtoms, ...matchedBonds];
+
+          // 设置颜色
+          const childObjs = [
+            ...(mol.getNodes?.() || []),
+            ...(mol.getConnectors?.() || []),
+          ];
+          console.log("childObjs 数量:", childObjs.length);
+
+          for (const childObj of childObjs) {
+            if (matchedObjs.includes(childObj)) {
+              childObj.setRenderOption("color", "#ff0000");
+            } else {
+              childObj.setRenderOption("color", "#000000");
+            }
+          }
+        } catch (error) {
+          console.error("高亮失败:", error);
         }
       },
     }));

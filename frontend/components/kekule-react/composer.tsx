@@ -8,10 +8,11 @@ interface ComposerProps {
   value?: string; // SMILES 或 JSON
   onChange?: (value: string) => void;
   className?: string;
+  exportFormat?: "json" | "smiles" | "molblock";
 }
 
 const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
-  ({ value, onChange, className }, ref) => {
+  ({ value, onChange, className, exportFormat = "json" }, ref) => {
     // const [chemObj, setChemObj] = useState(null);
     const widgetRef = useRef<KekuleChemWidgetRef>(null);
     const lastExportedJsonRef = useRef<string>("");
@@ -31,14 +32,25 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
           clearTimeout(debounceTimerRef.current);
         }
         debounceTimerRef.current = setTimeout(() => {
-          const json = widgetRef.current?.exportToKekuleJson();
-          if (json && json !== lastExportedJsonRef.current) {
-            lastExportedJsonRef.current = json;
-            onChange(json);
+          let exportValue:string
+          switch (exportFormat) {
+            case "smiles":
+              exportValue = widgetRef.current?.exportToSmiles?.();
+              break;
+            case "molblock":
+              exportValue = widgetRef.current?.exportToMolBlock?.();
+              break;
+            default:
+              exportValue = widgetRef.current?.exportToKekuleJson();
+          }
+
+          if (exportValue && exportValue !== lastExportedJsonRef.current) {
+            lastExportedJsonRef.current = exportValue;
+            onChange(exportValue);
           }
         }, 300);
       },
-      [onChange],
+      [onChange, exportFormat],
     );
 
     // 导入外部值

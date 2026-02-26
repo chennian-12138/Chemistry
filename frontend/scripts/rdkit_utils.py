@@ -55,7 +55,7 @@ def highlight_atoms_in_mol(smiles: str, atom_indices: list) -> str:
 def find_smart_pattern_in_kekule_json(smarts:str, kekule_json:str) -> dict:
     # 本段代码用于从前端返回的kekule json中查找smarts模式
     try:
-        mol = Chem.MolFromJson(kekule_json)
+        mol = Chem.MolFromMolBlock(kekule_json)
         if mol is None:
             return {"error": "Invalid Kekule JSON"}
         
@@ -77,7 +77,7 @@ def find_smart_pattern_in_kekule_json(smarts:str, kekule_json:str) -> dict:
             "match_count": len(matches),
             "matches": matches,
             "atom_indices": list(all_atom_indices),
-            "matched": True
+            "matched": True if len(matches) > 0 else False
         }
     except Exception as e:
         return {"error": str(e), "matches": [], "matched":False}

@@ -59,33 +59,46 @@ export default function SMARTSModuleData({
 
   // 验证状态 - 使用对象存储多个对话框的状态
   // key 格式: "type-index" (如 "reactant-0", "reagent-1")
-  const [validatorState, setValidatorState] = useState<Record<string, { open: boolean; smarts: string }>>({});
+  const [validatorState, setValidatorState] = useState<
+    Record<string, { open: boolean; smarts: string }>
+  >({});
 
   // 打开验证对话框
-  const openValidator = (type: "reactant" | "reagent" | "product", idx: number) => {
+  const openValidator = (
+    type: "reactant" | "reagent" | "product",
+    idx: number,
+  ) => {
     const key = `${type}-${idx}`;
     let smartsValue = "";
 
     if (type === "reactant") {
-      smartsValue = getValues(`smartsPatterns.${index}.patternReactants.${idx}.smarts`) || "";
+      smartsValue =
+        getValues(`smartsPatterns.${index}.patternReactants.${idx}.smarts`) ||
+        "";
     } else if (type === "reagent") {
-      smartsValue = getValues(`smartsPatterns.${index}.patternRegents.${idx}.smarts`) || "";
+      smartsValue =
+        getValues(`smartsPatterns.${index}.patternRegents.${idx}.smarts`) || "";
     } else {
-      smartsValue = getValues(`smartsPatterns.${index}.patternProducts.${idx}.smarts`) || "";
+      smartsValue =
+        getValues(`smartsPatterns.${index}.patternProducts.${idx}.smarts`) ||
+        "";
     }
 
-    setValidatorState(prev => ({
+    setValidatorState((prev) => ({
       ...prev,
-      [key]: { open: true, smarts: smartsValue }
+      [key]: { open: true, smarts: smartsValue },
     }));
   };
 
   // 关闭验证对话框
-  const closeValidator = (type: "reactant" | "reagent" | "product", idx: number) => {
+  const closeValidator = (
+    type: "reactant" | "reagent" | "product",
+    idx: number,
+  ) => {
     const key = `${type}-${idx}`;
-    setValidatorState(prev => ({
+    setValidatorState((prev) => ({
       ...prev,
-      [key]: { ...prev[key], open: false }
+      [key]: { ...prev[key], open: false },
     }));
   };
 
@@ -121,52 +134,58 @@ export default function SMARTSModuleData({
               </div>
               {reactantFields.map((field, idx) => {
                 const key = `reactant-${idx}`;
-                const state = validatorState[key] || { open: false, smarts: "" };
+                const state = validatorState[key] || {
+                  open: false,
+                  smarts: "",
+                };
                 return (
-                <div key={field.id} className="space-y-2 relative group">
-                  <Input
-                    placeholder="SMARTS 表达式"
-                    {...control.register(
-                      `smartsPatterns.${index}.patternReactants.${idx}.smarts`,
-                    )}
-                  />
+                  <div key={field.id} className="space-y-2 relative group">
+                    <div className="flex justify-between items-center gap-2">
+                    <Input
+                      placeholder="SMARTS 表达式"
+                      {...control.register(
+                        `smartsPatterns.${index}.patternReactants.${idx}.smarts`,
+                      )}
+                    />
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => openValidator("reactant", idx)}
-                    title="验证 SMARTS"
-                  >
-                    <Shield className="w-4 h-4" />
-                  </Button>
-
-                  <SmartValidatorDialog
-                    Open={state.open}
-                    onOpenChange={() => closeValidator("reactant", idx)}
-                    smarts={state.smarts}
-                    onValidate={(success) => {
-                      console.log("反应物验证结果:", success);
-                    }}
-                  />
-
-                  <Input
-                    placeholder="名称描述"
-                    {...control.register(
-                      `smartsPatterns.${index}.patternReactants.${idx}.name`,
-                    )}
-                  />
-                  {reactantFields.length > 1 && (
-                    <button
+                    <Button
                       type="button"
-                      onClick={() => removeReactant(idx)}
-                      className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => openValidator("reactant", idx)}
+                      title="验证 SMARTS"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )})}
+                      <Shield className="w-4 h-4" />
+                    </Button>
+                    </div>
+
+                    <SmartValidatorDialog
+                      Open={state.open}
+                      onOpenChange={() => closeValidator("reactant", idx)}
+                      smarts={state.smarts}
+                      onValidate={(success) => {
+                        console.log("反应物验证结果:", success);
+                      }}
+                    />
+
+                    <Input
+                      placeholder="名称描述"
+                      {...control.register(
+                        `smartsPatterns.${index}.patternReactants.${idx}.name`,
+                      )}
+                    />
+                    {reactantFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeReactant(idx)}
+                        className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* 催化剂/试剂列 */}
@@ -186,52 +205,58 @@ export default function SMARTSModuleData({
               </div>
               {reagentFields.map((field, idx) => {
                 const key = `reagent-${idx}`;
-                const state = validatorState[key] || { open: false, smarts: "" };
+                const state = validatorState[key] || {
+                  open: false,
+                  smarts: "",
+                };
                 return (
-                <div key={field.id} className="space-y-2 relative group">
-                  <Input
-                    placeholder={`[OH-]::氢氧根负离子`}
-                    {...control.register(
-                      `smartsPatterns.${index}.patternRegents.${idx}.smarts`,
-                    )}
-                  />
+                  <div key={field.id} className="space-y-2 relative group">
+                    <div className="flex justify-between items-center gap-2">
+                    <Input
+                      placeholder={`[OH-]::氢氧根负离子`}
+                      {...control.register(
+                        `smartsPatterns.${index}.patternRegents.${idx}.smarts`,
+                      )}
+                    />
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => openValidator("reagent", idx)}
-                    title="验证 SMARTS"
-                  >
-                    <Shield className="w-4 h-4" />
-                  </Button>
-
-                  <SmartValidatorDialog
-                    Open={state.open}
-                    onOpenChange={() => closeValidator("reagent", idx)}
-                    smarts={state.smarts}
-                    onValidate={(success) => {
-                      console.log("试剂验证结果:", success);
-                    }}
-                  />
-
-                  <Input
-                    placeholder="名称"
-                    {...control.register(
-                      `smartsPatterns.${index}.patternRegents.${idx}.name`,
-                    )}
-                  />
-                  {reagentFields.length > 1 && (
-                    <button
+                    <Button
                       type="button"
-                      onClick={() => removeReagent(idx)}
-                      className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => openValidator("reagent", idx)}
+                      title="验证 SMARTS"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )})}
+                      <Shield className="w-4 h-4" />
+                    </Button>
+                    </div>
+
+                    <SmartValidatorDialog
+                      Open={state.open}
+                      onOpenChange={() => closeValidator("reagent", idx)}
+                      smarts={state.smarts}
+                      onValidate={(success) => {
+                        console.log("试剂验证结果:", success);
+                      }}
+                    />
+
+                    <Input
+                      placeholder="名称"
+                      {...control.register(
+                        `smartsPatterns.${index}.patternRegents.${idx}.name`,
+                      )}
+                    />
+                    {reagentFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeReagent(idx)}
+                        className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* 生成物列 */}
@@ -251,52 +276,58 @@ export default function SMARTSModuleData({
               </div>
               {productFields.map((field, idx) => {
                 const key = `product-${idx}`;
-                const state = validatorState[key] || { open: false, smarts: "" };
+                const state = validatorState[key] || {
+                  open: false,
+                  smarts: "",
+                };
                 return (
-                <div key={field.id} className="space-y-2 relative group">
-                  <Input
-                    placeholder="SMARTS 表达式"
-                    {...control.register(
-                      `smartsPatterns.${index}.patternProducts.${idx}.smarts`,
-                    )}
-                  />
+                  <div key={field.id} className="space-y-2 relative group">
+                    <div className="flex justify-between items-center gap-2">
+                    <Input
+                      placeholder="SMARTS 表达式"
+                      {...control.register(
+                        `smartsPatterns.${index}.patternProducts.${idx}.smarts`,
+                      )}
+                    />
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => openValidator("product", idx)}
-                    title="验证 SMARTS"
-                  >
-                    <Shield className="w-4 h-4" />
-                  </Button>
-
-                  <SmartValidatorDialog
-                    Open={state.open}
-                    onOpenChange={() => closeValidator("product", idx)}
-                    smarts={state.smarts}
-                    onValidate={(success) => {
-                      console.log("产物验证结果:", success);
-                    }}
-                  />
-
-                  <Input
-                    placeholder="名称描述"
-                    {...control.register(
-                      `smartsPatterns.${index}.patternProducts.${idx}.name`,
-                    )}
-                  />
-                  {productFields.length > 1 && (
-                    <button
+                    <Button
                       type="button"
-                      onClick={() => removeProduct(idx)}
-                      className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => openValidator("product", idx)}
+                      title="验证 SMARTS"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )})}
+                      <Shield className="w-4 h-4" />
+                    </Button>
+                    </div>
+
+                    <SmartValidatorDialog
+                      Open={state.open}
+                      onOpenChange={() => closeValidator("product", idx)}
+                      smarts={state.smarts}
+                      onValidate={(success) => {
+                        console.log("产物验证结果:", success);
+                      }}
+                    />
+
+                    <Input
+                      placeholder="名称描述"
+                      {...control.register(
+                        `smartsPatterns.${index}.patternProducts.${idx}.name`,
+                      )}
+                    />
+                    {productFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeProduct(idx)}
+                        className="absolute -right-2 -top-2 text-red-500 opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </FieldGroup>

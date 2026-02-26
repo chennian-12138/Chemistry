@@ -4,14 +4,14 @@ interface RDKitResult {
   error?: string;
 }
 
-export async function matchSmart(smarts: string, mol_Data: string): Promise<RDKitResult> {
+export async function matchSmart(smarts: string, mol_json: string): Promise<RDKitResult> {
   try {
     const response = await fetch("/api/rdkit/match", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ smarts, mol_Data }),
+      body: JSON.stringify({ smarts, mol_json }),
     });
 
     const result = await response.json();
