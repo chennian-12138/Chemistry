@@ -4,14 +4,14 @@ interface RDKitResult {
   error?: string;
 }
 
-export async function matchSmart(smarts: string, mol_json: string): Promise<RDKitResult> {
+export async function matchSmart(smarts: string, molBlock: string): Promise<RDKitResult> {
   try {
-    const response = await fetch("/api/rdkit/match", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/rdkit/match-smarts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ smarts, mol_json }),
+      body: JSON.stringify({ smarts, molBlock }),
     });
 
     const result = await response.json();

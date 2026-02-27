@@ -4,7 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "../lib/auth";
 import reactionsRouter from "./routes/reactions"
 import reviewRouter from "./routes/review"
-
+import rdkitRouter from "./routes/rdkit"
 
 const app = express();
 const port = 8000;
@@ -22,8 +22,14 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 app.use(express.json());
 app.use("/api/reactions", reactionsRouter);
 app.use("/api/review", reviewRouter);
+app.use("/api/rdkit", rdkitRouter);
 
 
 app.listen(port, () => {
     console.log(`Better Auth app listening on port ${port}`);
+});
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
 });

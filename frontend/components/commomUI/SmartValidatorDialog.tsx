@@ -33,7 +33,7 @@ interface MatchResult {
 }
 
 export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
-  const [mol_json, setMolJson] = useState<string>("");
+  const [molBlock, setMolBlock] = useState<string>("");
   const [isValid, setIsValid] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
@@ -42,7 +42,7 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
   const composerRef = useRef<KekuleChemWidgetRef>(null);
 
   const handleValidate = async () => {
-    if (!mol_json) {
+    if (!molBlock) {
       setResult({ success: false, message: "请先绘制分子" });
       return;
     }
@@ -52,15 +52,18 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
     }
 
     console.log("SMARTS模式:", props.smarts);
-    console.log("分子JSON:", mol_json);
+    console.log("分子MOLBLOCK:", molBlock);
 
     setIsValid(true);
     setResult(null);
 
     try {
-      const response = await matchSmart(props.smarts, mol_json);
-      if (response.success && response.data) {
+      const response = await matchSmart(props.smarts, molBlock);
+      console.log("服务器响应:", response);
+
+      if (response.success && response) {
         const matchResult = response.data as MatchResult;
+        console.log("匹配结果:", matchResult);
 
         if (matchResult.matched) {
           setResult({
@@ -77,6 +80,7 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
         }
       }
     } catch (error) {
+      console.error("SMARTS匹配错误:", error);
       setResult({
         success: false,
         message: "匹配过程中发生错误，请检查SMARTS模式是否正确",
@@ -88,7 +92,7 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
   };
   const handleClose = () => {
     setResult(null);
-    setMolJson("");
+    setMolBlock("");
     props.onOpenChange(false);
   };
 
@@ -107,10 +111,10 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
             <Composer
               ref={composerRef}
               exportFormat="molblock"
-              value={mol_json}
-              onChange={(json) => {
-                console.log("Composer onChange:", json); // ← 添加日志
-                setMolJson(json || "");
+              value={molBlock}
+              onChange={(block) => {
+                console.log("Composer onChange:", block); // ← 添加日志
+                setMolBlock(block || "");
               }}
               className="w-full h-full"
             />
