@@ -25,7 +25,7 @@ export default function SMARTSModuleData({
   index,
   onRemove,
 }: SMARTSModuleDataProps) {
-  const { control, getValues } = useFormContext<DataupSchema>();
+  const { control, getValues, setValue } = useFormContext<DataupSchema>();
 
   // 反应物数组
   const {
@@ -141,22 +141,22 @@ export default function SMARTSModuleData({
                 return (
                   <div key={field.id} className="space-y-2 relative group">
                     <div className="flex justify-between items-center gap-2">
-                    <Input
-                      placeholder="SMARTS 表达式"
-                      {...control.register(
-                        `smartsPatterns.${index}.patternReactants.${idx}.smarts`,
-                      )}
-                    />
+                      <Input
+                        placeholder="SMARTS 表达式"
+                        {...control.register(
+                          `smartsPatterns.${index}.patternReactants.${idx}.smarts`,
+                        )}
+                      />
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openValidator("reactant", idx)}
-                      title="验证 SMARTS"
-                    >
-                      <Shield className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openValidator("reactant", idx)}
+                        title="验证 SMARTS"
+                      >
+                        <Shield className="w-4 h-4" />
+                      </Button>
                     </div>
 
                     <SmartValidatorDialog
@@ -164,7 +164,12 @@ export default function SMARTSModuleData({
                       onOpenChange={() => closeValidator("reactant", idx)}
                       smarts={state.smarts}
                       onValidate={(success) => {
-                        console.log("反应物验证结果:", success);
+                        if (success) {
+                          setValue(
+                            `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                            true,
+                          );
+                        }
                       }}
                     />
 
@@ -212,22 +217,22 @@ export default function SMARTSModuleData({
                 return (
                   <div key={field.id} className="space-y-2 relative group">
                     <div className="flex justify-between items-center gap-2">
-                    <Input
-                      placeholder={`[OH-]::氢氧根负离子`}
-                      {...control.register(
-                        `smartsPatterns.${index}.patternRegents.${idx}.smarts`,
-                      )}
-                    />
+                      <Input
+                        placeholder={`[OH-]::氢氧根负离子`}
+                        {...control.register(
+                          `smartsPatterns.${index}.patternRegents.${idx}.smarts`,
+                        )}
+                      />
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openValidator("reagent", idx)}
-                      title="验证 SMARTS"
-                    >
-                      <Shield className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openValidator("reagent", idx)}
+                        title="验证 SMARTS"
+                      >
+                        <Shield className="w-4 h-4" />
+                      </Button>
                     </div>
 
                     <SmartValidatorDialog
@@ -235,7 +240,12 @@ export default function SMARTSModuleData({
                       onOpenChange={() => closeValidator("reagent", idx)}
                       smarts={state.smarts}
                       onValidate={(success) => {
-                        console.log("试剂验证结果:", success);
+                        if (success) {
+                          setValue(
+                            `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                            true,
+                          );
+                        }
                       }}
                     />
 
@@ -283,22 +293,22 @@ export default function SMARTSModuleData({
                 return (
                   <div key={field.id} className="space-y-2 relative group">
                     <div className="flex justify-between items-center gap-2">
-                    <Input
-                      placeholder="SMARTS 表达式"
-                      {...control.register(
-                        `smartsPatterns.${index}.patternProducts.${idx}.smarts`,
-                      )}
-                    />
+                      <Input
+                        placeholder="SMARTS 表达式"
+                        {...control.register(
+                          `smartsPatterns.${index}.patternProducts.${idx}.smarts`,
+                        )}
+                      />
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openValidator("product", idx)}
-                      title="验证 SMARTS"
-                    >
-                      <Shield className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openValidator("product", idx)}
+                        title="验证 SMARTS"
+                      >
+                        <Shield className="w-4 h-4" />
+                      </Button>
                     </div>
 
                     <SmartValidatorDialog
@@ -306,7 +316,12 @@ export default function SMARTSModuleData({
                       onOpenChange={() => closeValidator("product", idx)}
                       smarts={state.smarts}
                       onValidate={(success) => {
-                        console.log("产物验证结果:", success);
+                        if (success) {
+                          setValue(
+                            `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                            true,
+                          );
+                        }
                       }}
                     />
 

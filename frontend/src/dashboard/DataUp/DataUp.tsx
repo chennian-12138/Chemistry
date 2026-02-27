@@ -16,7 +16,7 @@ import ReactionMetaData from "./ReactionMetaData";
 import SMARTSModuleData from "./SMARTSModuleData";
 import ReactionDiscriptions from "./ReactionDiscriptions";
 import { createReaction, updateReaction } from "@/lib/api";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 // 默认空值
 const defaultValues: DataupSchema = {
@@ -29,9 +29,15 @@ const defaultValues: DataupSchema = {
   smartsPatterns: [
     {
       name: "",
-      patternReactants: [{ smarts: "", name: "", role: "反应物" }],
-      patternRegents: [{ smarts: "", name: "", role: "反应试剂" }],
-      patternProducts: [{ smarts: "", name: "", role: "产物" }],
+      patternReactants: [
+        { smarts: "", name: "", role: "反应物", validated: false },
+      ],
+      patternRegents: [
+        { smarts: "", name: "", role: "反应试剂", validated: false },
+      ],
+      patternProducts: [
+        { smarts: "", name: "", role: "产物", validated: false },
+      ],
     },
   ],
   reactionSections: [
@@ -74,22 +80,88 @@ export default function DataUp() {
 
   const handleSubmit = useCallback(async () => {
     const data = methods.getValues();
+
+    if (!data.meta.name?.trim()) {
+      toast.error("请填写反应名称", { position: "top-center" });
+      return;
+    }
+
+    let hasUnvalidatedSMARTS = false;
+
+    for (const pattern of data.smartsPatterns) {
+      for (const reactant of pattern.patternReactants) {
+        if (reactant.smarts && !reactant.validated) {
+          hasUnvalidatedSMARTS = true;
+          break;
+        }
+      }
+      for (const regent of pattern.patternRegents) {
+        if (regent.smarts && !regent.validated) {
+          hasUnvalidatedSMARTS = true;
+          break;
+        }
+      }
+      for (const product of pattern.patternProducts) {
+        if (product.smarts && !product.validated) {
+          hasUnvalidatedSMARTS = true;
+          break;
+        }
+      }
+    }
+
+    if (hasUnvalidatedSMARTS) {
+      toast.error("请校验所有SMARTS模式", { position: "top-center" });
+      console.log("=== SMARTS 验证状态检查 ===");
+      data.smartsPatterns.forEach((pattern, pIdx) => {
+        console.log(`\n--- 模式 ${pIdx + 1} ---`);
+
+        pattern.patternReactants.forEach((r, i) => {
+          console.log(
+            `反应物${i + 1}: smarts="${r.smarts}", validated=${r.validated}`,
+          );
+        });
+        pattern.patternRegents.forEach((r, i) => {
+          console.log(
+            `试剂${i + 1}: smarts="${r.smarts}", validated=${r.validated}`,
+          );
+        });
+        pattern.patternProducts.forEach((r, i) => {
+          console.log(
+            `产物${i + 1}: smarts="${r.smarts}", validated=${r.validated}`,
+          );
+        });
+      });
+      return;
+    }
+
     try {
+
+      const dataToSubmit = {
+    ...data,
+    smartsPatterns: data.smartsPatterns.map((pattern) => ({
+      ...pattern,
+      patternReactants: pattern.patternReactants.map(({ validated, ...rest }) => rest),
+      patternRegents: pattern.patternRegents.map(({ validated, ...rest }) => rest),
+      patternProducts: pattern.patternProducts.map(({ validated, ...rest }) => rest),
+    })),
+  };
+
       // 判断是更新还是新建
       const result = data.id
-        ? await updateReaction(data.id, data) // 更新
-        : await createReaction(data); // 新建
+        ? await updateReaction(data.id, dataToSubmit) // 更新
+        : await createReaction(dataToSubmit); // 新建
 
       if (result.success) {
-        toast.success(data.id ? "修改成功！等待审核" : "提交成功！等待审核",{ position: "top-center" })
+        toast.success(data.id ? "修改成功！等待审核" : "提交成功！等待审核", {
+          position: "top-center",
+        });
       } else {
-        toast.error("提交失败：" + result.error,{ position: "top-center" })
+        toast.error("提交失败：" + result.error, { position: "top-center" });
       }
     } catch {
-      toast.error("提交失败，请检查网络",{ position: "top-center" })
+      toast.error("提交失败，请检查网络", { position: "top-center" });
     }
   }, [methods]);
-
 
   const handleExport = useCallback(() => {
     const data = methods.getValues();
@@ -120,8 +192,6 @@ export default function DataUp() {
     handleExport,
     handleLoadData,
   ]);
-  const patterns = methods.watch("smartsPatterns");
-  const sections = methods.watch("reactionSections");
 
   return (
     <>

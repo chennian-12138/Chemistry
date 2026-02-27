@@ -58,13 +58,33 @@ export const sectionTypes = [
 ] as const;
 
 export const conditionFieldsConfig = [
-  { key: "Temperature", label: "温度", field: "temperature", options: temperatures },
+  {
+    key: "Temperature",
+    label: "温度",
+    field: "temperature",
+    options: temperatures,
+  },
   { key: "Pressure", label: "压力", field: "pressure", options: pressures },
   { key: "Duration", label: "时间", field: "duration", options: durations },
-  { key: "Concentration", label: "浓度", field: "concentration", options: concentrations },
-  { key: "SolventTypes", label: "溶剂类型", field: "solvent", options: solvents },
+  {
+    key: "Concentration",
+    label: "浓度",
+    field: "concentration",
+    options: concentrations,
+  },
+  {
+    key: "SolventTypes",
+    label: "溶剂类型",
+    field: "solvent",
+    options: solvents,
+  },
   { key: "Microwave", label: "微波", field: "microwave", options: microwaves },
-  { key: "AcidityBasicity", label: "酸碱性", field: "acidityBasicity", options: acidBase },
+  {
+    key: "AcidityBasicity",
+    label: "酸碱性",
+    field: "acidityBasicity",
+    options: acidBase,
+  },
   { key: "HydroOpts", label: "水含量", field: "hydro", options: hydroOpts },
 ] as const;
 
@@ -80,13 +100,11 @@ export const reviewInfo = z
   })
   .optional();
 
-
 // 定义frontend/pages/dashboard/DataUp中四个组件分别需要的type。
 
 // 第一个metaShema，用于frontend/pages/dashboard/DataUp/ReactionMetaData.tsx
 const metaSchema = z.object({
-  name: z.string(),
-  // .min(1, "反应名称不能为空")
+  name: z.string().min(1, "反应名称不能为空"),
   mechanismType: z.enum(mechanismTypes),
   form: z.enum(reactionForms),
   tags: z.string().optional(), //tags可有可无，使用optional()
@@ -113,6 +131,7 @@ const moleculeRoleSchema = z.object({
   smarts: z.string(),
   name: z.string(),
   role: z.enum(roles),
+  validated: z.boolean().optional(),
 });
 
 // 第二个smartsPatterns，用于frontend/pages/dashboard/DataUp/SMARTSPatterns.tsx
@@ -149,7 +168,7 @@ const reactionSectionSchema = z.object({
 
 // 组合，导出
 export const dataupSchema = z.object({
-  id:z.string().optional(),
+  id: z.string().optional(),
   meta: metaSchema,
   smartsPatterns: z.array(smartsPatternsSchema),
   reactionSections: z.array(reactionSectionSchema),
