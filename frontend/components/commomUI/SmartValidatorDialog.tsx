@@ -59,11 +59,9 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
 
     try {
       const response = await matchSmart(props.smarts, molBlock);
-      console.log("服务器响应:", response);
 
       if (response.success && response) {
         const matchResult = response.data as MatchResult;
-        console.log("匹配结果:", matchResult);
 
         if (matchResult.matched) {
           setResult({
@@ -97,8 +95,25 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
   };
 
   return (
-    <Dialog open={props.Open} onOpenChange={props.onOpenChange}>
-      <DialogContent>
+    <Dialog open={props.Open} onOpenChange={props.onOpenChange} modal={false}>
+      {props.Open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          aria-hidden="true"
+        />
+      )}
+
+      <DialogContent
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+        }}
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        onFocusOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>验证SMARTS模式</DialogTitle>
           <DialogDescription>
@@ -107,13 +122,12 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
         </DialogHeader>
         {/* Composer 组件 - 通过 onChange 获取分子数据 */}
         <div className="space-y-4">
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg">
             <Composer
               ref={composerRef}
               exportFormat="molblock"
               value={molBlock}
               onChange={(block) => {
-                console.log("Composer onChange:", block); // ← 添加日志
                 setMolBlock(block || "");
               }}
               className="w-full h-full"

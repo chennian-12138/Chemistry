@@ -16,7 +16,7 @@ import {
 import { CardContent } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import Composer from "@/components/kekule-react/composer";
 import { X, Plus } from "lucide-react";
@@ -209,12 +209,17 @@ export default function ReactionDiscriptions({ index }: Props) {
             <div className="space-y-4">
               {descriptionFields.map((field, idx) => (
                 <div key={field.id} className="relative group p-3 space-y-3">
-                  <Field>
+                  <Field className="flex flex-col gap-2">
                     <FieldLabel>描述文本</FieldLabel>
-                    <Textarea
-                      placeholder="输入该反应的描述..."
-                      {...register(
-                        `reactionSections.${index}.descriptions.${idx}.description`,
+                    <Controller
+                      name={`reactionSections.${index}.descriptions.${idx}.description`}
+                      control={control}
+                      render={({ field }) => (
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="输入该反应的描述"
+                        />
                       )}
                     />
                   </Field>

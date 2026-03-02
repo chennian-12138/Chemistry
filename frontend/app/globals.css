@@ -123,19 +123,25 @@
     @apply bg-background text-foreground;
   }
   :root {
-    --font-serif: "Times New Roman", "SimSun", "STSong", "Songti SC", "Noto Serif CJK SC", serif;
+    --font-serif:
+      "Times New Roman", "SimSun", "STSong", "Songti SC", "Noto Serif CJK SC",
+      serif;
   }
 
   body {
     @apply font-serif antialiased;
   }
 
-  code, pre, kbd {
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  code,
+  pre,
+  kbd {
+    font-family:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
 }
 
-html, body {
+html,
+body {
   overflow-y: auto !important;
   height: auto !important;
 }
@@ -144,3 +150,10 @@ html, body {
 [data-slot="sidebar-inset"] {
   overflow-y: auto !important;
 }
+
+/* 解决 Dialog 遮挡 Kekule 弹窗的问题
+.Kekule-PopupMenu,
+.Kekule-Widget-Popup,
+[class*="Kekule-DropDown"] {
+  z-index: 99999 !important;
+} */
