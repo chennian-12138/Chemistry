@@ -28,19 +28,14 @@ export const routes = {
     },
     {
         name:'DataUp',
-        path:'/dashboard/dataup',
+        Path:'/dashboard/dataup',
         icon:BookUp,
     },
     {
         name:'Review',
-        path:'/dashboard/review',
+        Path:'/dashboard/review',
         icon:ShieldCheck
     },
-    {
-        name:'Test',
-        path:'/dashboard/test',
-        icon:BookSearch,
-    }
     ],
     
     // History这里先放点东西占位，后面再调整。

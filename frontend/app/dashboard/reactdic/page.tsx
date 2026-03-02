@@ -1,10 +1,9 @@
-import Composer from "@/components/kekule-react/composer";
-import Viewer from "@/components/kekule-react/viewer";
+import ReactDic from "@/src/dashboard/ReactDic/ReactDic";
+
 export default function DashboardPage() {
   return (
     <>
-      <Composer />
-      <Viewer />
+      <ReactDic />
     </>
   );
 }

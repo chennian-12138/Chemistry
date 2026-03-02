@@ -1,127 +1,95 @@
-// 反应主表
 model Reaction {
-  id   String @id @default(cuid())
-  name String // 反应名称（如"羟醛缩合"）
-
-  // 元数据
-  mechanismType String // 反应机理类型
-  form          String // 反应形式
-  tags          String? // 逗号分隔的标签
-
-  // 审核状态
-  status ReviewStatus @default(PENDING)
-
-  // 关联
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id])
-
-  // 审核记录（多对多，一个反应可被多次审核）
-  reviews Review[]
-
-  // 子表
-  patterns ReactionPattern[] // SMARTS 模式（每个模式有自己的条件）
-  sections ReactionSection[] // 描述小节
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String            @id @default(cuid())
+  name          String
+  mechanismType String
+  form          String
+  tags          String?
+  status        ReviewStatus      @default(PENDING)
+  authorId      String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  author        User              @relation(fields: [authorId], references: [id])
+  patterns      ReactionPattern[]
+  sections      ReactionSection[]
+  reviews       Review[]
 
   @@map("reaction")
 }
 
-enum ReviewStatus {
-  PENDING // 待审核
-  APPROVED // 已通过
-  REJECTED // 已拒绝
-}
-
-// 审核记录
 model Review {
-  id         String   @id @default(cuid())
+  id         String       @id @default(cuid())
   reactionId String
-  reaction   Reaction @relation(fields: [reactionId], references: [id], onDelete: Cascade)
-
   reviewerId String
-  reviewer   User   @relation(fields: [reviewerId], references: [id])
-
-  status    ReviewStatus // 审核结果
-  comment   String? // 审核意见
-  createdAt DateTime     @default(now())
+  status     ReviewStatus
+  comment    String?
+  createdAt  DateTime     @default(now())
+  reaction   Reaction     @relation(fields: [reactionId], references: [id], onDelete: Cascade)
+  reviewer   User         @relation(fields: [reviewerId], references: [id])
 
   @@map("review")
 }
 
-// SMARTS 反应模式（每个模式包含自己的条件）
 model ReactionPattern {
-  id   String @id @default(cuid())
-  name String // 模式名称（如"Hofmann降解:卤素分子"）
-
-  // 关联
+  id         String         @id @default(cuid())
+  name       String
   reactionId String
-  reaction   Reaction @relation(fields: [reactionId], references: [id], onDelete: Cascade)
-
-  // 子表
-  molecules MoleculeRole[]
+  molecules  MoleculeRole[]
+  reaction   Reaction       @relation(fields: [reactionId], references: [id], onDelete: Cascade)
 
   @@map("reaction_pattern")
 }
 
-// 分子角色（反应物/试剂/产物）
 model MoleculeRole {
-  id     String @id @default(cuid())
-  smarts String // SMARTS 表达式
-  name   String // 名称描述
-  role   String // "反应物" | "反应试剂" | "产物"
-
+  id        String          @id @default(cuid())
+  smarts    String
+  name      String
+  role      String
   patternId String
   pattern   ReactionPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
 
   @@map("molecule_role")
 }
 
-// 反应描述小节
 model ReactionSection {
-  id          String @id @default(cuid())
-  sectionType String
-
-// 反应条件（每个小节有自己的条件）
-  temperature     String  @default("-")
-  pressure        String  @default("-")
-  duration        String  @default("-")
-  concentration   String  @default("-")
-  solvent         String  @default("-")
-  microwave       String  @default("-")
-  acidityBasicity String  @default("-")
-  hydro           String  @default("-")
-
-  reactionId String
-  reaction   Reaction @relation(fields: [reactionId], references: [id], onDelete: Cascade)
-
-  // 子表
-  reactions    SectionReaction[]
-  descriptions SectionDescription[]
+  id              String               @id @default(cuid())
+  sectionType     String
+  reactionId      String
+  acidityBasicity String               @default("-")
+  concentration   String               @default("-")
+  duration        String               @default("-")
+  hydro           String               @default("-")
+  microwave       String               @default("-")
+  pressure        String               @default("-")
+  solvent         String               @default("-")
+  temperature     String               @default("-")
+  reaction        Reaction             @relation(fields: [reactionId], references: [id], onDelete: Cascade)
+  descriptions    SectionDescription[]
+  reactions       SectionReaction[]
 
   @@map("reaction_section")
 }
 
-// 小节中的反应式（Kekule JSON）
 model SectionReaction {
-  id    String @id @default(cuid())
-  value String // Kekule JSON 字符串
-
+  id        String          @id @default(cuid())
+  value     String
   sectionId String
   section   ReactionSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@map("section_reaction")
 }
 
-// 描述条目
 model SectionDescription {
-  id          String  @id @default(cuid())
+  id          String          @id @default(cuid())
   description String
-  refPageNo   String? // 参考页码
-
-  sectionId String
-  section   ReactionSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  refPageNo   String?
+  sectionId   String
+  section     ReactionSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@map("section_description")
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

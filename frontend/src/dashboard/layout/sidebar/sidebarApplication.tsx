@@ -1,33 +1,44 @@
-"use client"
+"use client";
 
-import * as React from "react"
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import {routes} from "./routes"
+} from "@/components/ui/sidebar";
+import { routes } from "./routes";
+import { usePathname } from "next/navigation";
 
 const applicationRoutes = routes.Application;
 
 export default function AppSidebarApplication() {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Application</SidebarGroupLabel>
       <SidebarMenu>
-        {applicationRoutes.map((route) => (
-          <SidebarMenuItem key={route.name}>
-            <SidebarMenuButton asChild tooltip={route.name}>
-              <a href={route.Path || route.path}>
-                <route.icon />
-                <span>{route.name}</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        {applicationRoutes.map((route) => {
+          const isActive =
+            pathname === route.Path ||
+            (route.Path !== "/" && pathname.startsWith(route.Path));
+          return (
+            <SidebarMenuItem key={route.name}>
+              <SidebarMenuButton
+                asChild
+                isActive={isActive}
+                tooltip={route.name}
+              >
+                <a href={route.Path}>
+                  <route.icon />
+                  <span>{route.name}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

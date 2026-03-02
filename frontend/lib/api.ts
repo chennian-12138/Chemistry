@@ -1,6 +1,7 @@
 import { DataupSchema } from "@/types/dataup-shema";
 
-const API_BASE = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
 
 export async function createReaction(data: DataupSchema) {
   const res = await fetch(`${API_BASE}/api/reactions`, {
@@ -55,6 +56,36 @@ export async function updateReaction(id: string, data: DataupSchema) {
 export async function deleteReaction(id: string) {
   const res = await fetch(`${API_BASE}/api/review/${id}`, {
     method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function searchReactDicKeyword(term: string) {
+  const res = await fetch(
+    `${API_BASE}/api/reactdic/search/keyword?term=${encodeURIComponent(term)}`,
+    {
+      credentials: "include",
+    },
+  );
+  return res.json();
+}
+
+export async function searchReactDicStructure(
+  smarts: string,
+  mode: "exact" | "substructure",
+) {
+  const res = await fetch(`${API_BASE}/api/reactdic/search/structure`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ smarts, mode }),
+  });
+  return res.json();
+}
+
+export async function getReactionById(id: string) {
+  const res = await fetch(`${API_BASE}/api/reactdic/${id}`, {
     credentials: "include",
   });
   return res.json();
