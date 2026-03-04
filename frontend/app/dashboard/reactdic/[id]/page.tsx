@@ -9,7 +9,7 @@ import { ArrowLeft, Beaker } from "lucide-react";
 
 import Header from "@/src/dashboard/ReactDic/Detail/Header";
 import MainContent from "@/src/dashboard/ReactDic/Detail/MainContent";
-import Sidebar from "@/src/dashboard/ReactDic/Detail/Sidebar";
+import ReactionPredict from "@/src/dashboard/ReactDic/Detail/ReactionPredict";
 
 export default function ReactionDetailPage() {
   const params = useParams();
@@ -38,19 +38,11 @@ export default function ReactionDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-8 md:p-12 space-y-12 max-w-7xl mx-auto animate-pulse">
-        <Skeleton className="h-12 w-40" />
-        <Skeleton className="h-16 w-3/4 mb-10" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-12">
-          <div className="lg:col-span-2 space-y-6">
-            <Skeleton className="h-[550px] w-full rounded-2xl" />
-            <Skeleton className="h-40 w-full rounded-2xl" />
-          </div>
-          <div className="space-y-6">
-            <Skeleton className="h-[400px] w-full rounded-2xl" />
-            <Skeleton className="h-[300px] w-full rounded-2xl" />
-          </div>
-        </div>
+      <div className="p-8 md:p-12 space-y-8 max-w-5xl mx-auto animate-pulse">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-14 w-2/3" />
+        <Skeleton className="h-[400px] w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
     );
   }
@@ -81,15 +73,10 @@ export default function ReactionDetailPage() {
   }
 
   return (
-    <div className="flex-1 w-full space-y-10 pt-10 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-700 ease-out">
+    <div className="flex-1 w-full space-y-6 pt-6 pb-24 px-6 md:px-12 max-w-[1100px] mx-auto animate-in fade-in zoom-in-95 duration-700 ease-out">
       <Header reaction={reaction} onBack={() => router.back()} />
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-12 xl:gap-16">
-        <MainContent reaction={reaction} />
-        <div className="xl:col-span-1">
-          <Sidebar reaction={reaction} />
-        </div>
-      </div>
+      <MainContent reaction={reaction} />
+      <ReactionPredict reaction={reaction} />
     </div>
   );
 }

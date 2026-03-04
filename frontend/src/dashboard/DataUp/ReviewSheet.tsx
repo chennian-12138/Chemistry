@@ -16,6 +16,7 @@ interface Entry {
   name: string;
   reviewed: boolean;
   uploadedBy: string;
+  rejectReason?: string;
   // 完整数据，点击后注入到 DataUp
   fullData: DataupSchema;
 }
@@ -33,7 +34,7 @@ export default function ReviewSheet({
   // 加载未审查词条
   useEffect(() => {
     if (!open) return;
-    fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/rejected`,{
+    fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/rejected`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -58,7 +59,7 @@ export default function ReviewSheet({
         <SheetHeader>
           <SheetTitle>待审查词条</SheetTitle>
         </SheetHeader>
-        
+
         <div className="mt-4 mr-1 ml-1 space-y-2 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {entries.length === 0 ? (
             <p className="text-center text-gray-500 py-8">没有待审查的词条</p>
@@ -70,6 +71,7 @@ export default function ReviewSheet({
                 name={entry.name}
                 reviewstatus={entry.reviewed}
                 uploadBy={entry.uploadedBy}
+                rejectReason={entry.rejectReason}
                 onClick={() => handleCardClick(entry)}
               />
             ))

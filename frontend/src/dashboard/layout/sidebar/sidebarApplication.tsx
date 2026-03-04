@@ -9,17 +9,29 @@ import {
 } from "@/components/ui/sidebar";
 import { routes } from "./routes";
 import { usePathname } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 const applicationRoutes = routes.Application;
 
 export default function AppSidebarApplication() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Application</SidebarGroupLabel>
       <SidebarMenu>
         {applicationRoutes.map((route) => {
+          const user = session?.user as unknown as { role?: string };
+          const role = user?.role?.toLowerCase();
+          if (
+            route.name === "Review" &&
+            role !== "admin" &&
+            role !== "superadmin"
+          ) {
+            return null;
+          }
+
           const isActive =
             pathname === route.Path ||
             (route.Path !== "/" && pathname.startsWith(route.Path));

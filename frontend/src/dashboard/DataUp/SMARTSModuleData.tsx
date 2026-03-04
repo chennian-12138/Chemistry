@@ -9,7 +9,7 @@ import {
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Shield } from "lucide-react";
+import { X, Plus, Shield, Check } from "lucide-react";
 
 import { type DataupSchema } from "@/types/dataup-shema";
 import { useFormContext, useFieldArray } from "react-hook-form";
@@ -18,14 +18,15 @@ import { useState } from "react";
 
 interface SMARTSModuleDataProps {
   index: number;
-  onRemove?: () => void;
+  onRemove: () => void;
 }
 
 export default function SMARTSModuleData({
   index,
   onRemove,
 }: SMARTSModuleDataProps) {
-  const { control, getValues, setValue } = useFormContext<DataupSchema>();
+  const { control, getValues, setValue, watch } =
+    useFormContext<DataupSchema>();
 
   // 反应物数组
   const {
@@ -150,12 +151,37 @@ export default function SMARTSModuleData({
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant={
+                          watch(
+                            `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                          )
+                            ? "default"
+                            : "outline"
+                        }
+                        className={
+                          watch(
+                            `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                          )
+                            ? "bg-white hover:bg-white text-green-500"
+                            : ""
+                        }
                         size="icon"
                         onClick={() => openValidator("reactant", idx)}
-                        title="验证 SMARTS"
+                        title={
+                          watch(
+                            `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                          )
+                            ? "验证成功"
+                            : "验证 SMARTS"
+                        }
                       >
-                        <Shield className="w-4 h-4" />
+                        {watch(
+                          `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                        ) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Shield className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
 
@@ -226,12 +252,37 @@ export default function SMARTSModuleData({
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant={
+                          watch(
+                            `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                          )
+                            ? "default"
+                            : "outline"
+                        }
+                        className={
+                          watch(
+                            `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                          )
+                            ? "bg-green-500 hover:bg-green-600 border-green-500 text-white"
+                            : ""
+                        }
                         size="icon"
                         onClick={() => openValidator("reagent", idx)}
-                        title="验证 SMARTS"
+                        title={
+                          watch(
+                            `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                          )
+                            ? "验证成功"
+                            : "验证 SMARTS"
+                        }
                       >
-                        <Shield className="w-4 h-4" />
+                        {watch(
+                          `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                        ) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Shield className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
 
@@ -302,12 +353,37 @@ export default function SMARTSModuleData({
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant={
+                          watch(
+                            `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                          )
+                            ? "default"
+                            : "outline"
+                        }
+                        className={
+                          watch(
+                            `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                          )
+                            ? "bg-green-500 hover:bg-green-600 border-green-500 text-white"
+                            : ""
+                        }
                         size="icon"
                         onClick={() => openValidator("product", idx)}
-                        title="验证 SMARTS"
+                        title={
+                          watch(
+                            `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                          )
+                            ? "验证成功"
+                            : "验证 SMARTS"
+                        }
                       >
-                        <Shield className="w-4 h-4" />
+                        {watch(
+                          `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                        ) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Shield className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
 

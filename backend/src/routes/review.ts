@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
-import {auth} from "../../lib/auth";
+import { auth } from "../../lib/auth";
 
 const router = Router();
 
@@ -8,7 +8,7 @@ const router = Router();
 router.get("/rejected", async (req, res) => {
   try {
     const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any)
+      headers: new Headers(req.headers as any),
     });
     const userId = session?.user?.id;
 
@@ -16,17 +16,35 @@ router.get("/rejected", async (req, res) => {
       return res.status(401).json({ error: "请先登录" });
     }
 
+    // 查询用户角色
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    // SUPERADMIN 可以看到所有被拒词条，普通用户只能看自己的
+    const whereClause =
+      currentUser?.role === "SUPERADMIN"
+        ? { status: "REJECTED" as const }
+        : { status: "REJECTED" as const, authorId: userId };
+
     const entries = await prisma.reaction.findMany({
-      where: {
-        status: "REJECTED", 
-        authorId: userId,
-      },
+      where: whereClause,
       include: {
         author: {
           select: {
             name: true,
             email: true,
           },
+        },
+        reviews: {
+          where: {
+            status: "REJECTED",
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
         },
         patterns: {
           include: {
@@ -51,6 +69,7 @@ router.get("/rejected", async (req, res) => {
       name: entry.name,
       reviewed: entry.status !== "PENDING", // 是否已审核
       uploadedBy: entry.author?.name || entry.author?.email || "未知",
+      rejectReason: entry.reviews?.[0]?.comment || "未知原因",
       // 完整数据，格式化成 DataupSchema
       fullData: {
         meta: {
@@ -105,14 +124,14 @@ router.get("/list", async (req, res) => {
     const entries = await prisma.reaction.findMany({
       include: {
         author: {
-          select: { name: true, email: true }
-        }
+          select: { name: true, email: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
     // 简化返回，只给列表需要的数据
-    const list = entries.map(entry => ({
+    const list = entries.map((entry) => ({
       id: entry.id,
       name: entry.name,
       uploadedBy: entry.author?.name || entry.author?.email || "未知",
@@ -214,33 +233,62 @@ router.get("/:id", async (req, res) => {
 // 审核通过
 router.post("/:id/approve", async (req, res) => {
   try {
-    await prisma.reaction.update({
-      where: { id: req.params.id },
-      data: { status: "APPROVED" }
-    })
-    res.json({ success: true })
+    const session = await auth.api.getSession({
+      headers: new Headers(req.headers as any),
+    });
+    const reviewerId = session?.user?.id;
+    if (!reviewerId) return res.status(401).json({ error: "Unauthorized" });
+
+    await prisma.$transaction([
+      prisma.reaction.update({
+        where: { id: req.params.id },
+        data: { status: "APPROVED" },
+      }),
+      prisma.review.create({
+        data: {
+          reactionId: req.params.id,
+          reviewerId,
+          status: "APPROVED",
+        },
+      }),
+    ]);
+    res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: "审核失败" })
+    res.status(500).json({ error: "审核失败" });
   }
-})
+});
 
 // 审核拒绝
 router.post("/:id/reject", async (req, res) => {
   try {
-    const { reason } = req.body
-    await prisma.reaction.update({
-      where: { id: req.params.id },
-      data: { 
-        status: "REJECTED",
-        // 如果需要记录原因，需要在 schema 中添加字段
-      }
-    })
-    res.json({ success: true })
+    const { reason } = req.body;
+    const session = await auth.api.getSession({
+      headers: new Headers(req.headers as any),
+    });
+    const reviewerId = session?.user?.id;
+    if (!reviewerId) return res.status(401).json({ error: "Unauthorized" });
+
+    await prisma.$transaction([
+      prisma.reaction.update({
+        where: { id: req.params.id },
+        data: {
+          status: "REJECTED",
+        },
+      }),
+      prisma.review.create({
+        data: {
+          reactionId: req.params.id,
+          reviewerId,
+          status: "REJECTED",
+          comment: reason,
+        },
+      }),
+    ]);
+    res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: "拒绝失败" })
+    console.error(error);
+    res.status(500).json({ error: "拒绝失败" });
   }
-})
-
-
+});
 
 export default router;

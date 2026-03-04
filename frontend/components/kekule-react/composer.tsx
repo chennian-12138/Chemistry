@@ -13,16 +13,47 @@ interface ComposerProps {
 
 const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
   ({ value, onChange, className, exportFormat = "json" }, ref) => {
-    // const [chemObj, setChemObj] = useState(null);
     const widgetRef = useRef<KekuleChemWidgetRef>(null);
     const lastExportedJsonRef = useRef<string>("");
+    const lastImportedValueRef = useRef<string | undefined>(undefined);
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const [initialChemObj] = useState(() => {
-      if (!value) return null;
-      // 注意：这里只是初始化，不依赖 Kekule 模块
-      return value; // 传递字符串，在内部解析
-    });
+    const [chemObj, setChemObj] = useState(null);
+
+    // 监听外部 value 变化（例如 methods.reset），解析后更新 chemObj
+    useEffect(() => {
+      // 跳过：没有值
+      if (!value) return;
+      // 跳过：与上次导入的值相同（未变化）
+      if (value === lastImportedValueRef.current) return;
+      // 跳过：与自身最近一次 onChange 导出的值相同（防反馈循环）
+      if (value === lastExportedJsonRef.current) return;
+
+      lastImportedValueRef.current = value;
+
+      const loadChemObj = async () => {
+        try {
+          const { Kekule } = await import("kekule");
+          let obj;
+
+          if (value.startsWith("{")) {
+            obj = Kekule.IO.loadFormatData(value, "Kekule-JSON");
+          } else if (value.includes("M  END")) {
+            obj = Kekule.IO.loadFormatData(value, "mol");
+          } else {
+            obj = Kekule.IO.loadFormatData(value, "smi");
+          }
+
+          if (obj) {
+            setChemObj(obj);
+          }
+        } catch (e) {
+          console.error("Composer 加载化学对象失败:", e);
+        }
+      };
+
+      loadChemObj();
+    }, [value]);
 
     const handleChange = useCallback(
       (newObj: unknown) => {
@@ -32,7 +63,7 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
           clearTimeout(debounceTimerRef.current);
         }
         debounceTimerRef.current = setTimeout(() => {
-          let exportValue:string
+          let exportValue: string;
           switch (exportFormat) {
             case "smiles":
               exportValue = widgetRef.current?.exportToSmiles?.();
@@ -53,40 +84,6 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
       [onChange, exportFormat],
     );
 
-    // 导入外部值
-    // useEffect(() => {
-    //   const loadChemObj = async () => {
-    //     if (!value) {
-    //       setChemObj(null);
-    //       return;
-    //     }
-
-    //     try {
-    //       const { Kekule } = await import("kekule");
-    //       let obj;
-
-    //       if (value.startsWith("{")) {
-    //         obj = Kekule.IO.loadFormatData(value, "Kekule-JSON");
-    //       } else {
-    //         obj = Kekule.IO.loadFormatData(value, "smi");
-    //       }
-
-    //       setChemObj(obj);
-    //     } catch (e) {
-    //       console.error("加载化学对象失败:", e);
-    //     }
-    //   };
-
-    //   loadChemObj();
-    // }, [value]);
-
-    // const handleChange = () => {
-    //   if (onChange && widgetRef.current) {
-    //     const json = widgetRef.current.exportToKekuleJson();
-    //     onChange(json || "");
-    //   }
-    // };
-
     useEffect(() => {
       return () => {
         if (debounceTimerRef.current) {
@@ -106,11 +103,11 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
           }
         }}
         type="composer"
-        chemObj={initialChemObj}
+        chemObj={chemObj}
         predefinedSetting="reactionEdit"
         onChange={handleChange}
         className={className}
-        syncExternalChemObj={false}
+        syncExternalChemObj={true}
       />
     );
   },

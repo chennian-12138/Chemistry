@@ -3,7 +3,8 @@
 // 使用React-hook-form，zod进行进行处理。
 
 "use client";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSession } from "@/lib/auth-client";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,23 @@ const defaultValues: DataupSchema = {
 };
 
 export default function DataUp() {
+  const { data: session } = useSession();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      const userRole = (session.user as any)?.role?.toLowerCase();
+      const storageKey = `dataupVisited_${session.user.id}`;
+      if (
+        (userRole === "user" || !userRole) &&
+        !localStorage.getItem(storageKey)
+      ) {
+        setShowWelcome(true);
+        localStorage.setItem(storageKey, "true");
+      }
+    }
+  }, [session]);
+
   const methods = useForm<DataupSchema>({
     resolver: zodResolver(dataupSchema),
     defaultValues,
@@ -135,16 +153,21 @@ export default function DataUp() {
     }
 
     try {
-
       const dataToSubmit = {
-    ...data,
-    smartsPatterns: data.smartsPatterns.map((pattern) => ({
-      ...pattern,
-      patternReactants: pattern.patternReactants.map(({ validated, ...rest }) => rest),
-      patternRegents: pattern.patternRegents.map(({ validated, ...rest }) => rest),
-      patternProducts: pattern.patternProducts.map(({ validated, ...rest }) => rest),
-    })),
-  };
+        ...data,
+        smartsPatterns: data.smartsPatterns.map((pattern) => ({
+          ...pattern,
+          patternReactants: pattern.patternReactants.map(
+            ({ validated, ...rest }) => rest,
+          ),
+          patternRegents: pattern.patternRegents.map(
+            ({ validated, ...rest }) => rest,
+          ),
+          patternProducts: pattern.patternProducts.map(
+            ({ validated, ...rest }) => rest,
+          ),
+        })),
+      };
 
       // 判断是更新还是新建
       const result = data.id
@@ -195,6 +218,27 @@ export default function DataUp() {
 
   return (
     <>
+      {showWelcome && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md text-center space-y-6 mx-4">
+            <h2 className="text-2xl font-bold text-gray-800">
+              欢迎来到 DataUp
+            </h2>
+            <p className="text-gray-600 leading-relaxed">
+              您可以在这里输入您没有搜索到的化学式，我们核验后会将其录入到我们的数据库中！
+              <br />
+              感谢您为我校化学事业做出的一份贡献！
+            </p>
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => setShowWelcome(false)}
+            >
+              我知道了
+            </Button>
+          </div>
+        </div>
+      )}
       <FormProvider {...methods}>
         <form className="space-y-8 max-w-6xl mx-auto p-6">
           <FieldSet className="w-full!">
@@ -250,7 +294,7 @@ export default function DataUp() {
                               current.filter((_, i) => i !== index),
                             );
                           }
-                        : undefined
+                        : () => {}
                     }
                   />
                 ))}

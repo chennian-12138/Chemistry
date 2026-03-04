@@ -21,7 +21,6 @@ const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
 
     // 当外部 value 变化时，导入到 Viewer
     useEffect(() => {
-
       if (value === lastValueRef.current) {
         return;
       }
@@ -39,6 +38,8 @@ const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
 
           if (value.startsWith("{")) {
             obj = Kekule.IO.loadFormatData(value, "Kekule-JSON");
+          } else if (value.includes("M  END")) {
+            obj = Kekule.IO.loadFormatData(value, "mol");
           } else {
             obj = Kekule.IO.loadFormatData(value, "smi");
           }

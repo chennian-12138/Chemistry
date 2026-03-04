@@ -81,3 +81,30 @@ def find_smart_pattern_in_kekule_json(smarts:str, kekule_json:str) -> dict:
         }
     except Exception as e:
         return {"error": str(e), "matches": [], "matched":False}
+
+def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) -> list:
+    """
+    使用 Reaction SMARTS 和反应物 SMILES 列表推断产物。
+    返回产物 MolBlock 的二维列表：[[molblock, ...], ...]
+    每个内层列表代表一组可能的产物。
+    """
+    rxn = AllChem.ReactionFromSmarts(smart)
+    if rxn is None:
+        raise ValueError(f"Invalid Reaction SMARTS: {smart}")
+
+    reactants = []
+    for smi in reactant_smiles_list:
+        mol = Chem.MolFromSmiles(smi)
+        if mol is None:
+            raise ValueError(f"Invalid reactant SMILES: {smi}")
+        reactants.append(mol)
+
+    product_series = rxn.RunReactants(reactants)
+    if len(product_series) == 0:
+        return []
+
+    result = []
+    for products in product_series:
+        product_mol_blocks = [Chem.MolToMolBlock(product) for product in products]
+        result.append(product_mol_blocks)
+    return result

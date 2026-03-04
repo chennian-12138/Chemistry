@@ -61,3 +61,61 @@ export async function matchSmartsPattern(
     });
   });
 }
+
+export interface PredictResult {
+  productSets: string[][];
+  error?: string;
+}
+
+export async function predictProducts(
+  reactionSmarts: string,
+  smilesList: string[],
+): Promise<PredictResult> {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn(
+      PYTHON_PATH,
+      [
+        join(SCRIPT_DIR, "predict_products.py"),
+        reactionSmarts,
+        JSON.stringify(smilesList),
+      ],
+      {
+        timeout: 60000,
+        killSignal: "SIGTERM",
+      },
+    );
+
+    let stdout = "";
+    let stderr = "";
+
+    pythonProcess.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    pythonProcess.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`Python 进程退出码 ${code}: ${stderr}`));
+        return;
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        if (result.error) {
+          reject(new Error(result.error));
+        } else {
+          resolve(result);
+        }
+      } catch (e) {
+        reject(new Error(`解析 Python 输出失败: ${stdout}`));
+      }
+    });
+
+    pythonProcess.on("error", (err) => {
+      reject(new Error(`Python 进程启动失败: ${err.message}`));
+    });
+  });
+}
