@@ -56,6 +56,7 @@ def find_smart_pattern_in_kekule_json(smarts:str, kekule_json:str) -> dict:
     # 本段代码用于从前端返回的kekule json中查找smarts模式
     try:
         mol = Chem.MolFromMolBlock(kekule_json)
+        mol = Chem.AddHs(mol)         
         if mol is None:
             return {"error": "Invalid Kekule JSON"}
         
@@ -95,6 +96,7 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
     reactants = []
     for smi in reactant_smiles_list:
         mol = Chem.MolFromSmiles(smi)
+        mol = Chem.AddHs(mol)
         if mol is None:
             raise ValueError(f"Invalid reactant SMILES: {smi}")
         reactants.append(mol)
@@ -105,6 +107,6 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
 
     result = []
     for products in product_series:
-        product_mol_blocks = [Chem.MolToMolBlock(product) for product in products]
+        product_mol_blocks = [Chem.MolToMolBlock(Chem.RemoveHs(product)) for product in products]
         result.append(product_mol_blocks)
     return result
