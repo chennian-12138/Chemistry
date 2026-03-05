@@ -5,7 +5,7 @@ import { auth } from "../lib/auth";
 import reactionsRouter from "./routes/reactions";
 import reviewRouter from "./routes/review";
 import rdkitRouter from "./routes/rdkit";
-import reactdicRouter from "./routes/reactdic"
+import reactdicRouter from "./routes/reactdic";
 
 const app = express();
 const port = 8000;

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useReviewStore } from "@/store/review-store";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,7 +17,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import {
-  ColumnFiltersState,
   getSortedRowModel,
   useReactTable,
   getCoreRowModel,
@@ -37,25 +37,36 @@ import {
   AlertDialogMedia,
 } from "@/components/ui/alert-dialog";
 import { Trash2Icon, Search, CheckIcon, XIcon } from "lucide-react";
-import { ReviewItem, columns } from "./reviewColumns";
+import { columns } from "./reviewColumns";
 import { deleteReaction, approveReaction, rejectReaction } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 export default function ReviewPage() {
-  const [data, setData] = useState<ReviewItem[]>([]);
+  const {
+    data,
+    setData,
+    columnFilters,
+    setColumnFilters,
+    dateFilter,
+    setDateFilter,
+    hasFetched,
+    pageIndex,
+    setPageIndex,
+    removeItem,
+    removeItems,
+    updateItem,
+  } = useReviewStore();
+
   const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [dateFilter, setDateFilter] = useState<
-    { from?: Date; to?: Date } | undefined
-  >(undefined);
 
   useEffect(() => {
+    if (hasFetched) return; // 已缓存，不重复请求
     fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/list`)
       .then((res) => res.json())
       .then(setData);
-  }, []);
+  }, [hasFetched, setData]);
 
   const table = useReactTable({
     data,
@@ -63,41 +74,40 @@ export default function ReviewPage() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
-    // onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (updater) => {
+      const next =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      setColumnFilters(next);
+    },
     getFilteredRowModel: getFilteredRowModel(),
-    state: { rowSelection, columnFilters },
-    initialState: {
-      pagination: {
-        pageSize: 14,
-      },
+    state: {
+      rowSelection,
+      columnFilters,
+      pagination: { pageIndex, pageSize: 14 },
+    },
+    onPaginationChange: (updater) => {
+      const prev = { pageIndex, pageSize: 14 };
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      setPageIndex(next.pageIndex);
     },
     meta: {
       onDelete: (deletedId: string) => {
-        setData((prev) => prev.filter((item) => item.id !== deletedId));
+        removeItem(deletedId);
       },
       onBatchDelete: async (ids: string[]) => {
         await Promise.all(ids.map((id) => deleteReaction(id)));
-        setData((prev) => prev.filter((item) => !ids.includes(item.id)));
+        removeItems(ids);
         setRowSelection({});
       },
       onBatchApprove: async (ids: string[]) => {
         await Promise.all(ids.map((id) => approveReaction(id)));
-        setData((prev) =>
-          prev.map((item) =>
-            ids.includes(item.id) ? { ...item, status: "APPROVED" } : item,
-          ),
-        );
+        ids.forEach((id) => updateItem(id, { status: "APPROVED" }));
         setRowSelection({});
       },
       onBatchReject: async (ids: string[], reason: string) => {
         await Promise.all(ids.map((id) => rejectReaction(id, reason)));
-        setData((prev) =>
-          prev.map((item) =>
-            ids.includes(item.id) ? { ...item, status: "REJECTED" } : item,
-          ),
-        );
+        ids.forEach((id) => updateItem(id, { status: "REJECTED" }));
         setRowSelection({});
       },
       dateFilter: dateFilter as DateRange | undefined,

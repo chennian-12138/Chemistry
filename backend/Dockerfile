@@ -35,4 +35,4 @@ RUN npx prisma generate
 
 EXPOSE 8000
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npx prisma db push && npm run start"]

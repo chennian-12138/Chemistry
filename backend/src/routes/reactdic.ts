@@ -77,7 +77,7 @@ router.get("/search/keyword", async (req, res) => {
   }
 });
 
-// 2. Structure Search
+// 2. 结构搜索
 router.post("/search/structure", async (req, res) => {
   try {
     const { smarts, mode = "substructure" } = req.body;
@@ -106,8 +106,9 @@ router.post("/search/structure", async (req, res) => {
         // (pattern, targetMolBlock). We'll assume the target is smarts/smiles from DB
         // and query is the molBlock drawing.
         const isMatch = await matchSmartsPattern(mol.smarts, smarts);
-        if (isMatch) {
+        if (isMatch.matched) {
           matchedPatternIds.add(mol.patternId);
+          console.log(`✅ 匹配 | smarts=${mol.smarts}`);
         }
       } catch (err) {
         // Ignore parsing errors for individual molecules to not break the whole search
