@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     libfontconfig1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir rdkit
+COPY python_service/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir rdkit -r /tmp/requirements.txt
 
 FROM node:20-slim
 
@@ -28,11 +29,15 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# Environment variables
 ENV PYTHON_PATH=/usr/local/bin/python3
 ENV NODE_ENV=production
+ENV PYTHON_URL=http://localhost:5000
 
 RUN npx prisma generate
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "npx prisma db push && npm run start"]
+# Start both FastAPI service and Node backend
+CMD ["sh", "-c", "cd python_service && uvicorn app:app --host 127.0.0.1 --port 5000 & cd /app && npx prisma db push && npm run start"]

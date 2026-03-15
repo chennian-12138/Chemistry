@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +33,7 @@ import {
   Droplets,
   Clock,
   Activity,
+  Loader2,
 } from "lucide-react";
 
 interface ReviewDetail {
@@ -130,11 +130,14 @@ export default function ReviewDetailPage() {
   // --- Loading State ---
   if (loading) {
     return (
-      <div className="p-8 md:p-12 space-y-8 max-w-6xl mx-auto animate-pulse">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-14 w-2/3" />
-        <Skeleton className="h-[400px] w-full rounded-2xl" />
-        <Skeleton className="h-48 w-full rounded-2xl" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+          <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
+        </div>
+        <p className="text-lg font-medium text-muted-foreground animate-pulse tracking-wide">
+          正在加载审核详情...
+        </p>
       </div>
     );
   }

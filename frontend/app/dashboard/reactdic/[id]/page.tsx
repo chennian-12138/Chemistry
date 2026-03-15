@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getReactionById } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Beaker } from "lucide-react";
+import { ArrowLeft, Beaker, Loader2 } from "lucide-react";
 
 import Header from "@/src/dashboard/ReactDic/Detail/Header";
 import MainContent from "@/src/dashboard/ReactDic/Detail/MainContent";
@@ -38,11 +37,14 @@ export default function ReactionDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-8 md:p-12 space-y-8 max-w-5xl mx-auto animate-pulse">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-14 w-2/3" />
-        <Skeleton className="h-[400px] w-full rounded-2xl" />
-        <Skeleton className="h-48 w-full rounded-2xl" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+          <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
+        </div>
+        <p className="text-lg font-medium text-muted-foreground animate-pulse tracking-wide">
+          正在加载反应详情...
+        </p>
       </div>
     );
   }

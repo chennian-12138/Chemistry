@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import Composer from "@/components/kekule-react/composer";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 
 import {
   DataupSchema,
@@ -30,30 +30,13 @@ import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 
 interface Props {
   index: number;
+  onRemove?: () => void;
 }
 
-const labelMap: Record<string, string> = {
-  Temperature: "温度",
-  Pressure: "压力",
-  Duration: "时间",
-  Concentration: "浓度",
-  SolventTypes: "溶剂类型",
-  AcidityBasicity: "酸碱性",
-  HydroOpts: "水含量",
-};
 
-const fieldNameMap: Record<string, string> = {
-  Temperature: "temperature",
-  Pressure: "pressure",
-  Duration: "duration",
-  Concentration: "concentration",
-  SolventTypes: "solvent",
-  AcidityBasicity: "acidityBasicity",
-  HydroOpts: "hydro",
-};
 
-export default function ReactionDiscriptions({ index }: Props) {
-  const { control, register } = useFormContext<DataupSchema>();
+export default function ReactionDiscriptions({ index, onRemove }: Props) {
+  const { control } = useFormContext<DataupSchema>();
 
   // 管理反应式数组（Kekule JSON 字符串数组）
   const {
@@ -78,7 +61,20 @@ export default function ReactionDiscriptions({ index }: Props) {
   return (
     <CardContent>
       <FieldSet className="border p-4 rounded-lg">
-        <FieldLegend>反应介绍{index + 1}</FieldLegend>
+        <div className="flex justify-between items-center mb-4">
+          <FieldLegend className="mb-0">反应介绍{index + 1}</FieldLegend>
+          {onRemove && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onRemove}
+              className="bg-red-100 hover:bg-red-200"
+            >
+              <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600 font-bold" />
+            </Button>
+          )}
+        </div>
 
         <FieldGroup className="space-y-6">
           {/* 反应类型选择 */}
@@ -225,12 +221,67 @@ export default function ReactionDiscriptions({ index }: Props) {
                   </Field>
 
                   <Field>
-                    <FieldLabel>教科书页码</FieldLabel>
-                    <Input
-                      placeholder="如：第123页"
-                      {...register(
-                        `reactionSections.${index}.descriptions.${idx}.refPageNo`,
-                      )}
+                    <FieldLabel>参考出处与页码</FieldLabel>
+                    <Controller
+                      name={`reactionSections.${index}.descriptions.${idx}.refPageNo`}
+                      control={control}
+                      render={({ field }) => {
+                        const val = field.value || "";
+                        let currentBook = "";
+                        let currentPage = val;
+
+                        // Parse the stored "Book:Page" format
+                        if (val.includes(":")) {
+                          const splitIdx = val.indexOf(":");
+                          currentBook = val.substring(0, splitIdx);
+                          currentPage = val.substring(splitIdx + 1);
+                        } else if (val) {
+                          // Compatibility for legacy unformatted data
+                          if (val.includes("陆涛第九版") || val.includes("陆涛")) {
+                            currentBook = "陆涛第九版《有机化学》";
+                            currentPage = val.replace(/.*?陆涛.*?有机化学》?/, "").replace("第", "").replace("页", "").trim();
+                          } else if (val.includes("邢其毅第四版") || val.includes("邢其毅")) {
+                            currentBook = "邢其毅第四版《基础有机化学》";
+                            currentPage = val.replace(/.*?邢其毅.*?基础有机化学》?/, "").replace("第", "").replace("页", "").trim();
+                          } else {
+                            currentBook = "其他";
+                             // Clean up "第119页" -> "119" for aesthetics
+                            currentPage = val.replace("第", "").replace("页", "").trim();
+                          }
+                        }
+
+                        const handleBookChange = (newBook: string | null) => {
+                          field.onChange(newBook ? `${newBook}:${currentPage}` : currentPage);
+                        };
+
+                        const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newPage = e.target.value;
+                          field.onChange(currentBook ? `${currentBook}:${newPage}` : newPage);
+                        };
+
+                        return (
+                          <div className="flex gap-3">
+                            <div className="w-[280px] shrink-0">
+                              <Combobox value={currentBook} onValueChange={handleBookChange}>
+                                <ComboboxInput placeholder="选择教材或出处" />
+                                <ComboboxContent>
+                                  <ComboboxList>
+                                    <ComboboxItem value="陆涛第九版《有机化学》">陆涛第九版《有机化学》</ComboboxItem>
+                                    <ComboboxItem value="邢其毅第四版《基础有机化学》">邢其毅第四版《基础有机化学》</ComboboxItem>
+                                    <ComboboxItem value="其他">其他</ComboboxItem>
+                                  </ComboboxList>
+                                </ComboboxContent>
+                              </Combobox>
+                            </div>
+                            <Input
+                              placeholder="页码 (如：119 或 119-121)"
+                              value={currentPage}
+                              onChange={handlePageChange}
+                              className="flex-1"
+                            />
+                          </div>
+                        );
+                      }}
                     />
                   </Field>
 

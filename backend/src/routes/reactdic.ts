@@ -15,7 +15,7 @@ router.get("/search/keyword", async (req, res) => {
           status: "APPROVED" as const,
           OR: [
             { name: { contains: String(term), mode: "insensitive" as const } },
-            { tags: { contains: String(term), mode: "insensitive" as const } },
+            { tags: { some: { name: { contains: String(term), mode: "insensitive" as const } } } },
             {
               sections: {
                 some: {
@@ -56,16 +56,11 @@ router.get("/search/keyword", async (req, res) => {
     const formattedData = reactions.map((reaction) => ({
       id: reaction.id,
       name: reaction.name,
-      tags: reaction.tags
-        ? reaction.tags.split(",").map((tag) => tag.trim())
-        : [],
-      status: reaction.status,
-      // For Viewer we need structureData. We try to grab the first MolBlock.
-      // If none exists, ReactCard will just show the empty state icon.
       structureData: reaction.sections?.[0]?.reactions?.[0]?.value || null,
+      tags: reaction.tags.map((t: any) => t.name),
       description:
         reaction.sections
-          ?.flatMap((s) => s.descriptions?.map((d) => d.description))
+          ?.flatMap((s: any) => s.descriptions?.map((d: any) => d.description))
           .filter(Boolean)
           .join("; ") || "",
     }));
@@ -147,14 +142,12 @@ router.post("/search/structure", async (req, res) => {
     const formattedData = reactions.map((reaction) => ({
       id: reaction.id,
       name: reaction.name,
-      tags: reaction.tags
-        ? reaction.tags.split(",").map((tag) => tag.trim())
-        : [],
+      tags: reaction.tags.map((t: any) => t.name),
       status: reaction.status,
       structureData: reaction.sections?.[0]?.reactions?.[0]?.value || null,
       description:
         reaction.sections
-          ?.flatMap((s) => s.descriptions?.map((d) => d.description))
+          ?.flatMap((s: any) => s.descriptions?.map((d: any) => d.description))
           .filter(Boolean)
           .join("; ") || "",
     }));
@@ -177,6 +170,7 @@ router.get("/:id", async (req, res) => {
         author: {
           select: { name: true, image: true },
         },
+        tags: true,
         patterns: {
           include: {
             molecules: true,
@@ -195,10 +189,10 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Reaction not found." });
     }
 
-    // Format tags into an array
+    // Format tags into an array of strings
     const formattedReaction = {
       ...reaction,
-      tags: reaction.tags ? reaction.tags.split(",").map((t) => t.trim()) : [],
+      tags: reaction.tags ? reaction.tags.map((t: any) => t.name) : [],
     };
 
     res.json({ success: true, data: formattedReaction });

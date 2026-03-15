@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,11 +11,8 @@ import {
   AlertCircle,
   Beaker,
   ArrowRight,
-  Plus,
-  X,
   Atom,
 } from "lucide-react";
-import Composer from "@/components/kekule-react/composer";
 import Viewer from "@/components/kekule-react/viewer";
 import { KekuleChemWidgetRef } from "@/components/kekule-react/kekule-react";
 import { predictProducts } from "@/lib/rdkit";
@@ -57,9 +54,7 @@ function buildReactionSmarts(reaction: any): string[] {
 }
 
 export default function ReactionPredict({ reaction }: ReactionPredictProps) {
-  // 多个 Composer 的 ref 列表
-  const composerRefs = useRef<(KekuleChemWidgetRef | null)[]>([null]);
-  const [reactantCount, setReactantCount] = useState(1);
+  const viewerRefs = useRef<Map<string, KekuleChemWidgetRef>>(new Map());
   const [isPredicting, setIsPredicting] = useState(false);
   const [productMolBlocks, setProductMolBlocks] = useState<string[][]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -68,22 +63,18 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
 
   const reactionSmartsList = buildReactionSmarts(reaction);
 
-  // 当前 pattern 需要多少个反应物
+  // Derive reactant count directly from the current pattern
   const currentPattern = reaction.patterns?.[selectedPatternIdx];
-  const expectedReactantCount =
+  const reactantCount =
     currentPattern?.molecules?.filter((m: any) => m.role === "反应物")
       ?.length || 1;
 
-  const addReactant = () => {
-    setReactantCount((c) => c + 1);
-    composerRefs.current.push(null);
-  };
-
-  const removeReactant = (idx: number) => {
-    if (reactantCount <= 1) return;
-    setReactantCount((c) => c - 1);
-    composerRefs.current.splice(idx, 1);
-  };
+  // Reset prediction results when switching patterns
+  useEffect(() => {
+    setError(null);
+    setProductMolBlocks([]);
+    setHasResult(false);
+  }, [selectedPatternIdx]);
 
   const handlePredict = useCallback(async () => {
     setError(null);
@@ -94,15 +85,16 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
       const smilesList: string[] = [];
 
       for (let i = 0; i < reactantCount; i++) {
-        const ref = composerRefs.current[i];
+        const refKey = `${selectedPatternIdx}-${i}`;
+        const ref = viewerRefs.current.get(refKey);
         if (!ref) {
-          setError(`反应物 ${i + 1} 的 Composer 未就绪`);
+          setError(`反应物 ${i + 1} 的编辑器未就绪`);
           return;
         }
 
         const smiles = ref.exportToSmiles?.();
         if (!smiles) {
-          setError(`请在反应物 ${i + 1} 中绘制分子结构`);
+          setError(`请在反应物 ${i + 1} 中绘制分子结构（点击工具栏编辑按钮绘制）`);
           return;
         }
         smilesList.push(smiles);
@@ -152,9 +144,9 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
         </CardTitle>
         <p className="text-muted-foreground text-sm mt-1">
           绘制反应物分子，预测该反应的产物
-          {expectedReactantCount > 0 && (
+          {reactantCount > 0 && (
             <span className="text-primary font-medium ml-1">
-              （该反应需要 {expectedReactantCount} 个反应物）
+              （该反应需要 {reactantCount} 个反应物）
             </span>
           )}
         </p>
@@ -213,24 +205,12 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
 
         <Separator />
 
-        {/* Reactants Input — 多个 Composer */}
+        {/* Reactants Input — Compact Viewer with Edit button */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-semibold flex items-center gap-2">
-              <Beaker className="w-4 h-4 text-primary/80" />
-              Reactants ({reactantCount})
-            </label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addReactant}
-              className="gap-1 text-xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              添加反应物
-            </Button>
-          </div>
+          <label className="text-sm font-semibold flex items-center gap-2">
+            <Beaker className="w-4 h-4 text-primary/80" />
+            反应物 ({reactantCount})
+          </label>
 
           <div
             className="grid gap-4"
@@ -238,31 +218,29 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
               gridTemplateColumns: `repeat(${Math.min(reactantCount, 3)}, minmax(0, 1fr))`,
             }}
           >
-            {Array.from({ length: reactantCount }).map((_, idx) => (
-              <div key={idx} className="relative group">
-                <div className="text-xs text-muted-foreground font-medium mb-1.5 pl-1">
-                  反应物 {idx + 1}
+            {Array.from({ length: reactantCount }).map((_, idx) => {
+              const refKey = `${selectedPatternIdx}-${idx}`;
+              return (
+                <div key={refKey}>
+                  <div className="text-xs text-muted-foreground font-medium mb-1.5 pl-1">
+                    反应物 {idx + 1}
+                  </div>
+                  <div className="w-full h-[200px] rounded-lg overflow-hidden border border-muted/60 bg-background">
+                    <Viewer
+                      ref={(node) => {
+                        if (node) {
+                          viewerRefs.current.set(refKey, node);
+                        } else {
+                          viewerRefs.current.delete(refKey);
+                        }
+                      }}
+                      className="w-full h-full"
+                      enableEdit={true}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-[400px] rounded-lg overflow-hidden border border-muted/60 bg-background">
-                  <Composer
-                    ref={(node) => {
-                      composerRefs.current[idx] = node;
-                    }}
-                    className="w-full h-full"
-                    exportFormat="smiles"
-                  />
-                </div>
-                {reactantCount > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeReactant(idx)}
-                    className="absolute -right-1.5 -top-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

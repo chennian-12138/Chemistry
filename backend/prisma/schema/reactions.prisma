@@ -3,17 +3,25 @@ model Reaction {
   name          String
   mechanismType String
   form          String
-  tags          String?
   status        ReviewStatus      @default(PENDING)
   authorId      String
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   author        User              @relation(fields: [authorId], references: [id])
+  tags          ReactionTag[]
   patterns      ReactionPattern[]
   sections      ReactionSection[]
   reviews       Review[]
 
   @@map("reaction")
+}
+
+model ReactionTag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  reactions Reaction[]
+
+  @@map("reaction_tag")
 }
 
 model Review {
@@ -54,14 +62,14 @@ model ReactionSection {
   id              String               @id @default(cuid())
   sectionType     String
   reactionId      String
-  acidityBasicity String               @default("-")
-  concentration   String               @default("-")
-  duration        String               @default("-")
-  hydro           String               @default("-")
-  microwave       String               @default("-")
-  pressure        String               @default("-")
-  solvent         String               @default("-")
-  temperature     String               @default("-")
+  acidityBasicity String?
+  concentration   String?
+  duration        String?
+  hydro           String?
+  microwave       String?
+  pressure        String?
+  solvent         String?
+  temperature     String?
   reaction        Reaction             @relation(fields: [reactionId], references: [id], onDelete: Cascade)
   descriptions    SectionDescription[]
   reactions       SectionReaction[]

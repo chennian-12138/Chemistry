@@ -76,8 +76,9 @@ const Viewer = forwardRef<KekuleChemWidgetRef, ViewerProps>(
         onChange={enableEdit ? handleChange : undefined}
         className={className}
         syncExternalChemObj={true}
-        // enableDirectInteraction={enableEdit}
-        // enableDirectInteraction={enableEdit}
+        enableEdit={enableEdit}
+        enableToolbar={enableEdit}
+        allowEmpty={!enableEdit}
       />
     );
   },

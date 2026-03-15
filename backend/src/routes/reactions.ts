@@ -25,7 +25,15 @@ router.post("/", async (req, res) => {
         name: data.meta.name,
         mechanismType: data.meta.mechanismType,
         form: data.meta.form,
-        tags: data.meta.tags,
+        tags: {
+          connectOrCreate: (data.meta.tags ? data.meta.tags.split(",") : []).map((tag: string) => {
+            const trimmedTag = tag.trim();
+            return {
+              where: { name: trimmedTag },
+              create: { name: trimmedTag },
+            };
+          }).filter((t: any) => t.create.name.length > 0),
+        },
         status: "PENDING",
         authorId: userId,
 
@@ -56,14 +64,14 @@ router.post("/", async (req, res) => {
         sections: {
           create: data.reactionSections.map((section: any) => ({
             sectionType: section.sectionType,
-            temperature: section.temperature || "-",
-            pressure: section.pressure || "-",
-            duration: section.duration || "-",
-            concentration: section.concentration || "-",
-            solvent: section.solvent || "-",
-            microwave: section.microwave || "-",
-            acidityBasicity: section.acidityBasicity || "-",
-            hydro: section.hydro || "-",
+            temperature: section.temperature === "-" ? null : section.temperature || null,
+            pressure: section.pressure === "-" ? null : section.pressure || null,
+            duration: section.duration === "-" ? null : section.duration || null,
+            concentration: section.concentration === "-" ? null : section.concentration || null,
+            solvent: section.solvent === "-" ? null : section.solvent || null,
+            microwave: section.microwave === "-" ? null : section.microwave || null,
+            acidityBasicity: section.acidityBasicity === "-" ? null : section.acidityBasicity || null,
+            hydro: section.hydro === "-" ? null : section.hydro || null,
 
             reactions: {
               create: section.reactions.map((r: any) => ({ value: r.value })),
@@ -77,9 +85,16 @@ router.post("/", async (req, res) => {
           })),
         },
       },
+      include: { tags: true },
     });
 
-    res.json({ success: true, data: reaction });
+    // Format tags for response
+    const formattedReaction = {
+      ...reaction,
+      tags: reaction.tags.map((t: any) => t.name),
+    };
+
+    res.json({ success: true, data: formattedReaction });
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -95,6 +110,7 @@ router.get("/", async (req, res) => {
       where: status ? { status: status as ReviewStatus } : {},
       include: {
         author: { select: { name: true, email: true } },
+        tags: true,
         patterns: {
           include: { molecules: true },
         },
@@ -107,7 +123,12 @@ router.get("/", async (req, res) => {
       },
     });
 
-    res.json({ data: reactions });
+    const formattedData = reactions.map((reaction) => ({
+      ...reaction,
+      tags: reaction.tags.map((t: any) => t.name),
+    }));
+
+    res.json({ data: formattedData });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -150,7 +171,16 @@ router.put("/:id", async (req, res) => {
         name: data.meta.name,
         mechanismType: data.meta.mechanismType,
         form: data.meta.form,
-        tags: data.meta.tags,
+        tags: {
+          set: [], // Clear existing tags first, then connect/create the newly provided ones
+          connectOrCreate: (data.meta.tags ? data.meta.tags.split(",") : []).map((tag: string) => {
+            const trimmedTag = tag.trim();
+            return {
+              where: { name: trimmedTag },
+              create: { name: trimmedTag },
+            };
+          }).filter((t: any) => t.create.name.length > 0),
+        },
         status: "PENDING",  // 重置为待审核
         
         patterns: {
@@ -168,22 +198,29 @@ router.put("/:id", async (req, res) => {
         sections: {
           create: data.reactionSections.map((section: any) => ({
             sectionType: section.sectionType,
-            temperature: section.temperature,
-            pressure: section.pressure,
-            duration: section.duration,
-            concentration: section.concentration,
-            solvent: section.solvent,
-            microwave: section.microwave,
-            acidityBasicity: section.acidityBasicity,
-            hydro: section.hydro,
+            temperature: section.temperature === "-" ? null : section.temperature || null,
+            pressure: section.pressure === "-" ? null : section.pressure || null,
+            duration: section.duration === "-" ? null : section.duration || null,
+            concentration: section.concentration === "-" ? null : section.concentration || null,
+            solvent: section.solvent === "-" ? null : section.solvent || null,
+            microwave: section.microwave === "-" ? null : section.microwave || null,
+            acidityBasicity: section.acidityBasicity === "-" ? null : section.acidityBasicity || null,
+            hydro: section.hydro === "-" ? null : section.hydro || null,
             reactions: { create: section.reactions.map((r: any) => ({ value: r.value })) },
             descriptions: { create: section.descriptions.map((d: any) => ({ ...d })) },
           })),
         },
       },
+      include: { tags: true },
     });
 
-    res.json({ success: true, data: reaction });
+    // Format tags for response
+    const formattedReaction = {
+      ...reaction,
+      tags: reaction.tags.map((t: any) => t.name),
+    };
+
+    res.json({ success: true, data: formattedReaction });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

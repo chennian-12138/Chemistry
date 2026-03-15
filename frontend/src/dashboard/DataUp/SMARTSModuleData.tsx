@@ -9,7 +9,7 @@ import {
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Shield, Check } from "lucide-react";
+import { X, Plus, Shield, Check, Trash2 } from "lucide-react";
 
 import { type DataupSchema } from "@/types/dataup-shema";
 import { useFormContext, useFieldArray } from "react-hook-form";
@@ -18,7 +18,7 @@ import { useState } from "react";
 
 interface SMARTSModuleDataProps {
   index: number;
-  onRemove: () => void;
+  onRemove?: () => void;
 }
 
 export default function SMARTSModuleData({
@@ -106,7 +106,22 @@ export default function SMARTSModuleData({
   return (
     <CardContent>
       <FieldSet className="border p-4 rounded-lg relative">
-        <FieldLegend className="text-base">第{index + 1}部分</FieldLegend>
+        <div className="flex justify-between items-center mb-4">
+          <FieldLegend className="text-base mb-0">
+            第{index + 1}部分
+          </FieldLegend>
+          {onRemove && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onRemove}
+              className="bg-red-100 hover:bg-red-200"
+            >
+              <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600 font-bold" />
+            </Button>
+          )}
+        </div>
 
         <FieldGroup className="space-y-4">
           <Field>
@@ -263,7 +278,7 @@ export default function SMARTSModuleData({
                           watch(
                             `smartsPatterns.${index}.patternRegents.${idx}.validated`,
                           )
-                            ? "bg-green-500 hover:bg-green-600 border-green-500 text-white"
+                            ? "bg-white hover:bg-white text-green-500"
                             : ""
                         }
                         size="icon"
@@ -364,7 +379,7 @@ export default function SMARTSModuleData({
                           watch(
                             `smartsPatterns.${index}.patternProducts.${idx}.validated`,
                           )
-                            ? "bg-green-500 hover:bg-green-600 border-green-500 text-white"
+                            ? "bg-white hover:bg-white text-green-500"
                             : ""
                         }
                         size="icon"

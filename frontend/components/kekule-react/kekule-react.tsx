@@ -2,7 +2,6 @@
 // components/kekule/KekuleChemWidget.tsx
 "use client";
 
-import { el } from "date-fns/locale";
 import {
   useEffect,
   useRef,
@@ -23,6 +22,7 @@ export interface KekuleChemWidgetProps {
   className?: string;
   predefinedSetting?: string;
   enableToolbar?: boolean;
+  enableEdit?: boolean;
   allowEmpty?: boolean;
   syncExternalChemObj?: boolean;
   // 是否同步外部传入的 chemObj
@@ -53,6 +53,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
       className = "",
       predefinedSetting = "basic",
       enableToolbar = true,
+      enableEdit = false,
       allowEmpty = true,
       syncExternalChemObj = false,
     },
@@ -88,8 +89,16 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
               widget
                 .setDimension("100%", "100%") // 使用百分比填充容器
                 .setEnableDirectInteraction(true)
-                .setPredefinedSetting(predefinedSetting)
-                .setRestrainEditorWithCurrObj(false);
+                .setPredefinedSetting(predefinedSetting);
+
+              // Enable edit mode: shows toolbar with Edit button that opens popup editor
+              if (enableEdit) {
+                widget.setEnableToolbar(true);
+                widget.setEnableEdit(true);
+                widget.setToolButtons(["openEditor"]); // 仅保留编辑按钮
+                // 必须在 enableEdit 之后设置，允许在编辑器中添加新分子/箭头等
+                widget.setRestrainEditorWithCurrObj(false);
+              }
 
               widget.on("load", (e: any) => {
                 if (e.target === widget) {
@@ -144,7 +153,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
             type !== "periodicTable" &&
             !isInitializedRef.current
           ) {
-            const emptyMol = new KekuleModule.Molecule();
+            const emptyMol = new Kekule.Molecule();
             widget.setChemObj(emptyMol);
             setHasChemObj(true);
             isInitializedRef.current = true;
@@ -162,7 +171,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
         isMounted = false;
         widget?.finalize?.();
       };
-    }, [type, predefinedSetting, allowEmpty]);
+    }, [type, predefinedSetting, allowEmpty, enableEdit]);
 
     useEffect(() => {
       if (!syncExternalChemObj || !widgetRef.current || !isReady) return;

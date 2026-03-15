@@ -51,6 +51,7 @@ router.get("/rejected", async (req, res) => {
             molecules: true, // 分子角色（反应物/试剂/产物）
           },
         },
+        tags: true,
         sections: {
           include: {
             reactions: true, // 反应式（Kekule JSON）
@@ -76,7 +77,7 @@ router.get("/rejected", async (req, res) => {
           name: entry.name,
           mechanismType: entry.mechanismType,
           form: entry.form,
-          tags: entry.tags || "",
+          tags: entry.tags.map((t: any) => t.name).join(", "),
         },
         // 把 patterns 转换成 smartsPatterns 格式
         smartsPatterns: entry.patterns.map((pattern) => ({
@@ -93,18 +94,18 @@ router.get("/rejected", async (req, res) => {
           // 反应条件从 pattern 里取
         })),
         // 描述小节
-        reactionSections: entry.sections.map((section) => ({
+        reactionSections: entry.sections.map((section: any) => ({
           sectionType: section.sectionType,
-          temperature: section.temperature,
-          pressure: section.pressure,
-          duration: section.duration,
-          concentration: section.concentration,
-          solvent: section.solvent,
-          microwave: section.microwave,
-          acidityBasicity: section.acidityBasicity,
-          hydro: section.hydro,
-          reactions: section.reactions.map((r) => ({ value: r.value })),
-          descriptions: section.descriptions.map((d) => ({
+          temperature: section.temperature || "-",
+          pressure: section.pressure || "-",
+          duration: section.duration || "-",
+          concentration: section.concentration || "-",
+          solvent: section.solvent || "-",
+          microwave: section.microwave || "-",
+          acidityBasicity: section.acidityBasicity || "-",
+          hydro: section.hydro || "-",
+          reactions: section.reactions.map((r: any) => ({ value: r.value })),
+          descriptions: section.descriptions.map((d: any) => ({
             description: d.description,
             refPageNo: d.refPageNo || "",
           })),
@@ -166,6 +167,7 @@ router.get("/:id", async (req, res) => {
       where: { id: req.params.id },
       include: {
         author: { select: { name: true, email: true } },
+        tags: true,
         patterns: { include: { molecules: true } },
         sections: {
           include: {
@@ -190,32 +192,32 @@ router.get("/:id", async (req, res) => {
           name: entry.name,
           mechanismType: entry.mechanismType,
           form: entry.form,
-          tags: entry.tags || "",
+          tags: entry.tags.map((t: any) => t.name).join(", "),
         },
         smartsPatterns: entry.patterns.map((pattern) => ({
           name: pattern.name,
           patternReactants: pattern.molecules
-            .filter((m) => m.role === "反应物")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
+            .filter((m: any) => m.role === "反应物")
+            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
           patternRegents: pattern.molecules
-            .filter((m) => m.role === "反应试剂")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
+            .filter((m: any) => m.role === "反应试剂")
+            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
           patternProducts: pattern.molecules
-            .filter((m) => m.role === "产物")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
+            .filter((m: any) => m.role === "产物")
+            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
         })),
-        reactionSections: entry.sections.map((section) => ({
+        reactionSections: entry.sections.map((section: any) => ({
           sectionType: section.sectionType,
-          temperature: section.temperature,
-          pressure: section.pressure,
-          duration: section.duration,
-          concentration: section.concentration,
-          solvent: section.solvent,
-          microwave: section.microwave,
-          acidityBasicity: section.acidityBasicity,
-          hydro: section.hydro,
-          reactions: section.reactions.map((r) => ({ value: r.value })),
-          descriptions: section.descriptions.map((d) => ({
+          temperature: section.temperature || "-",
+          pressure: section.pressure || "-",
+          duration: section.duration || "-",
+          concentration: section.concentration || "-",
+          solvent: section.solvent || "-",
+          microwave: section.microwave || "-",
+          acidityBasicity: section.acidityBasicity || "-",
+          hydro: section.hydro || "-",
+          reactions: section.reactions.map((r: any) => ({ value: r.value })),
+          descriptions: section.descriptions.map((d: any) => ({
             description: d.description,
             refPageNo: d.refPageNo || "",
           })),

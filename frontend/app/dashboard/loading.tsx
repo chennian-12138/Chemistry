@@ -1,13 +1,6 @@
-"use client"
+// app/dashboard/loading.tsx
+import Loader from "@/src/loading/loading_hamster";
 
-const Loader = dynamic(
-  () => import("@/src/loading/loading_text"),
-  { ssr: false }
-);
-import dynamic from 'next/dynamic';
-
-export default function loading(){
-    return (
-        <Loader/>
-    )
+export default function Loading() {
+  return <Loader />;
 }

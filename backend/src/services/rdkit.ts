@@ -1,8 +1,3 @@
-import { spawn } from "child_process";
-import { join } from "path";
-
-const PYTHON_PATH = process.env.RDKIT_PYTHON_PATH as string;
-const SCRIPT_DIR = join(process.cwd(), "scripts");
 
 interface MatchResult {
   smarts: string;
@@ -17,49 +12,33 @@ export async function matchSmartsPattern(
   smarts: string,
   molBlock: string,
 ): Promise<MatchResult> {
-  return new Promise((resolve, reject) => {
-    const pythonProcess = spawn(
-      PYTHON_PATH,
-      [join(SCRIPT_DIR, "match_smarts.py"), smarts, molBlock],
-      {
-        timeout: 30000,
-        killSignal: "SIGTERM",
-      },
-    );
+  const baseUrl = process.env.PYTHON_URL || "http://127.0.0.1:5000";
+  const url = `${baseUrl}/api/match-smarts`;
+  const body = { smarts, molBlock };
 
-    let stdout = "";
-    let stderr = "";
-
-    pythonProcess.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    pythonProcess.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    pythonProcess.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`Python 进程退出码 ${code}: ${stderr}`));
-        return;
-      }
-
-      try {
-        const result = JSON.parse(stdout);
-        if (result.error) {
-          reject(new Error(result.error));
-        } else {
-          resolve(result);
-        }
-      } catch (e) {
-        reject(new Error(`解析 Python 输出失败: ${stdout}`));
-      }
-    });
-
-    pythonProcess.on("error", (err) => {
-      reject(new Error(`Python 进程启动失败: ${err.message}`));
-    });
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
+
+  if (!response.ok) {
+    let errorDetail = response.statusText;
+    try {
+      const errorData = await response.json();
+      if (errorData.detail) {
+        errorDetail = errorData.detail;
+      }
+    } catch (e) {
+      // Ignore JSON parse error if invalid json response
+    }
+    throw new Error(`Python 服务调用失败: ${errorDetail}`);
+  }
+
+  const result = await response.json();
+  return result as MatchResult;
 }
 
 export interface PredictResult {
@@ -71,51 +50,31 @@ export async function predictProducts(
   reactionSmarts: string,
   smilesList: string[],
 ): Promise<PredictResult> {
-  return new Promise((resolve, reject) => {
-    const pythonProcess = spawn(
-      PYTHON_PATH,
-      [
-        join(SCRIPT_DIR, "predict_products.py"),
-        reactionSmarts,
-        JSON.stringify(smilesList),
-      ],
-      {
-        timeout: 60000,
-        killSignal: "SIGTERM",
-      },
-    );
+  const baseUrl = process.env.PYTHON_URL || "http://127.0.0.1:5000";
+  const url = `${baseUrl}/api/predict-products`;
+  const body = { reactionSmarts, smilesList };
 
-    let stdout = "";
-    let stderr = "";
-
-    pythonProcess.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    pythonProcess.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    pythonProcess.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`Python 进程退出码 ${code}: ${stderr}`));
-        return;
-      }
-
-      try {
-        const result = JSON.parse(stdout);
-        if (result.error) {
-          reject(new Error(result.error));
-        } else {
-          resolve(result);
-        }
-      } catch (e) {
-        reject(new Error(`解析 Python 输出失败: ${stdout}`));
-      }
-    });
-
-    pythonProcess.on("error", (err) => {
-      reject(new Error(`Python 进程启动失败: ${err.message}`));
-    });
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
+
+  if (!response.ok) {
+    let errorDetail = response.statusText;
+    try {
+      const errorData = await response.json();
+      if (errorData.detail) {
+        errorDetail = errorData.detail;
+      }
+    } catch (e) {
+      // Ignore JSON parse error
+    }
+    throw new Error(`Python 服务调用失败: ${errorDetail}`);
+  }
+
+  const result = await response.json();
+  return result as PredictResult;
 }

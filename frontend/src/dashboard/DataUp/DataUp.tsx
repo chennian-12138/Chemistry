@@ -18,6 +18,7 @@ import SMARTSModuleData from "./SMARTSModuleData";
 import ReactionDiscriptions from "./ReactionDiscriptions";
 import { createReaction, updateReaction } from "@/lib/api";
 import { toast } from "sonner";
+import { ListPlus } from "lucide-react";
 
 // 默认空值
 const defaultValues: DataupSchema = {
@@ -247,9 +248,6 @@ export default function DataUp() {
                 {/* 第一部分：反应元数据 */}
                 <ReactionMetaData />
               </Field>
-              {/* <Field>
-                <ReactionConditions />
-              </Field> */}
               {/* 第三部分：SMARTS 模式（动态数组） */}
               <Card>
                 <CardHeader>
@@ -276,7 +274,10 @@ export default function DataUp() {
                         ]);
                       }}
                     >
-                      <Button type="button"> 添加模式</Button>
+                      <Button type="button" variant="outline" size="sm">
+                        <ListPlus className="w-4 h-4" />
+                        添加反应模式
+                      </Button>
                     </CardAction>
                   </div>
                 </CardHeader>
@@ -294,7 +295,7 @@ export default function DataUp() {
                               current.filter((_, i) => i !== index),
                             );
                           }
-                        : () => {}
+                        : undefined
                     }
                   />
                 ))}
@@ -331,7 +332,10 @@ export default function DataUp() {
                         ]);
                       }}
                     >
-                      <Button type="button">添加描述</Button>
+                      <Button type="button" variant="outline" size="sm">
+                        <ListPlus className="w-4 h-4" />
+                        添加反应介绍
+                      </Button>
                     </CardAction>
                   </div>
                 </CardHeader>
@@ -340,17 +344,18 @@ export default function DataUp() {
                   <ReactionDiscriptions
                     key={index}
                     index={index}
-                    // onRemove={
-                    //   methods.watch("smartsPatterns").length > 1
-                    //     ? () => {
-                    //         const current = methods.getValues("smartsPatterns");
-                    //         methods.setValue(
-                    //           "smartsPatterns",
-                    //           current.filter((_, i) => i !== index),
-                    //         );
-                    //       }
-                    //     : undefined
-                    // }
+                    onRemove={
+                      methods.watch("reactionSections").length > 1
+                        ? () => {
+                            const current =
+                              methods.getValues("reactionSections");
+                            methods.setValue(
+                              "reactionSections",
+                              current.filter((_, i) => i !== index),
+                            );
+                          }
+                        : undefined
+                    }
                   />
                 ))}
               </Card>
