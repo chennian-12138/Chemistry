@@ -15,7 +15,16 @@ router.get("/search/keyword", async (req, res) => {
           status: "APPROVED" as const,
           OR: [
             { name: { contains: String(term), mode: "insensitive" as const } },
-            { tags: { some: { name: { contains: String(term), mode: "insensitive" as const } } } },
+            {
+              tags: {
+                some: {
+                  name: {
+                    contains: String(term),
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
             {
               sections: {
                 some: {
@@ -168,7 +177,7 @@ router.get("/:id", async (req, res) => {
       where: { id },
       include: {
         author: {
-          select: { name: true, image: true },
+          select: { name: true },
         },
         tags: true,
         patterns: {
