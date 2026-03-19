@@ -140,6 +140,7 @@ const smartsPatternsSchema = z.object({
   patternReactants: z.array(moleculeRoleSchema), //不一定有一个反应物，所以用数组收集
   patternRegents: z.array(moleculeRoleSchema),
   patternProducts: z.array(moleculeRoleSchema),
+  reactionPredictValidated: z.boolean().optional(),
 });
 
 // 定义第四个之前需要对descriptions进行定义。

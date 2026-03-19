@@ -153,21 +153,39 @@ export default function DataUp() {
       return;
     }
 
+    // 检查反应预测校验
+    let hasUnvalidatedPrediction = false;
+    for (const pattern of data.smartsPatterns) {
+      if (!pattern.reactionPredictValidated) {
+        hasUnvalidatedPrediction = true;
+        break;
+      }
+    }
+
+    if (hasUnvalidatedPrediction) {
+      toast.error("请完成所有反应模式的反应预测校验", {
+        position: "top-center",
+      });
+      return;
+    }
+
     try {
       const dataToSubmit = {
         ...data,
-        smartsPatterns: data.smartsPatterns.map((pattern) => ({
-          ...pattern,
-          patternReactants: pattern.patternReactants.map(
-            ({ validated, ...rest }) => rest,
-          ),
-          patternRegents: pattern.patternRegents.map(
-            ({ validated, ...rest }) => rest,
-          ),
-          patternProducts: pattern.patternProducts.map(
-            ({ validated, ...rest }) => rest,
-          ),
-        })),
+        smartsPatterns: data.smartsPatterns.map(
+          ({ reactionPredictValidated, ...pattern }) => ({
+            ...pattern,
+            patternReactants: pattern.patternReactants.map(
+              ({ validated, ...rest }) => rest,
+            ),
+            patternRegents: pattern.patternRegents.map(
+              ({ validated, ...rest }) => rest,
+            ),
+            patternProducts: pattern.patternProducts.map(
+              ({ validated, ...rest }) => rest,
+            ),
+          }),
+        ),
       };
 
       // 判断是更新还是新建

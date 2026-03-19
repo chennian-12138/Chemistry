@@ -9,11 +9,12 @@ import {
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Shield, Check, Trash2 } from "lucide-react";
+import { X, Plus, Shield, Check, Trash2, FlaskConical } from "lucide-react";
 
 import { type DataupSchema } from "@/types/dataup-shema";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import SmartValidatorDialog from "@/components/commomUI/SmartValidatorDialog";
+import ReactionPredictDialog from "./ReactionPredictDialog";
 import { useState } from "react";
 
 interface SMARTSModuleDataProps {
@@ -103,6 +104,15 @@ export default function SMARTSModuleData({
     }));
   };
 
+  // 反应预测校验对话框状态
+  const [predictDialogOpen, setPredictDialogOpen] = useState(false);
+
+  // 当前 pattern 的数据
+  const currentPattern = watch(`smartsPatterns.${index}`);
+  const isPredictValidated = watch(
+    `smartsPatterns.${index}.reactionPredictValidated`,
+  );
+
   return (
     <CardContent>
       <FieldSet className="border p-4 rounded-lg relative">
@@ -121,6 +131,29 @@ export default function SMARTSModuleData({
               <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600 font-bold" />
             </Button>
           )}
+          <Button
+            type="button"
+            variant={isPredictValidated ? "default" : "outline"}
+            size="sm"
+            className={
+              isPredictValidated
+                ? "bg-green-50 hover:bg-green-100 text-green-600 border-green-200 gap-1.5"
+                : "gap-1.5"
+            }
+            onClick={() => setPredictDialogOpen(true)}
+            title={
+              isPredictValidated
+                ? "反应预测校验已通过"
+                : "进行反应预测校验"
+            }
+          >
+            {isPredictValidated ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <FlaskConical className="w-4 h-4" />
+            )}
+            {isPredictValidated ? "预测校验通过" : "反应预测校验"}
+          </Button>
         </div>
 
         <FieldGroup className="space-y-4">
@@ -438,6 +471,20 @@ export default function SMARTSModuleData({
           </div>
         </FieldGroup>
       </FieldSet>
+
+      <ReactionPredictDialog
+        open={predictDialogOpen}
+        onOpenChange={setPredictDialogOpen}
+        pattern={currentPattern}
+        onValidate={(success) => {
+          if (success) {
+            setValue(
+              `smartsPatterns.${index}.reactionPredictValidated`,
+              true,
+            );
+          }
+        }}
+      />
     </CardContent>
   );
 }

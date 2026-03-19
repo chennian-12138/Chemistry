@@ -21,6 +21,7 @@ import Viewer from "@/components/kekule-react/viewer";
 import DOMPurify from "dompurify";
 import { approveReaction, rejectReaction } from "@/lib/api";
 import { toast } from "sonner";
+import { useReviewStore } from "@/store/review-store";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -34,7 +35,9 @@ import {
   Clock,
   Activity,
   Loader2,
+  FlaskConical,
 } from "lucide-react";
+import ReactionPredictDialog from "@/src/dashboard/DataUp/ReactionPredictDialog";
 
 interface ReviewDetail {
   id: string;
@@ -63,6 +66,10 @@ export default function ReviewDetailPage() {
   const [status, setStatus] = useState<string>("PENDING");
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [predictDialogState, setPredictDialogState] = useState<{
+    open: boolean;
+    patternIdx: number;
+  }>({ open: false, patternIdx: 0 });
   const id = params?.id as string;
 
   useEffect(() => {
@@ -94,6 +101,7 @@ export default function ReviewDetailPage() {
       const result = await approveReaction(id);
       if (result.success) {
         setStatus("APPROVED");
+        useReviewStore.getState().updateItem(id, { status: "APPROVED" });
         toast.success("审核通过！", { position: "top-center" });
       } else {
         toast.error("操作失败", { position: "top-center" });
@@ -115,6 +123,7 @@ export default function ReviewDetailPage() {
       const result = await rejectReaction(id, rejectReason.trim());
       if (result.success) {
         setStatus("REJECTED");
+        useReviewStore.getState().updateItem(id, { status: "REJECTED" });
         setRejectReason("");
         toast.success("已拒绝", { position: "top-center" });
       } else {
@@ -249,9 +258,21 @@ export default function ReviewDetailPage() {
         <CardContent className="p-6 space-y-6">
           {smartsPatterns.map((pattern, idx) => (
             <div key={idx} className="space-y-4">
-              <h4 className="text-base font-semibold border-l-4 border-primary pl-3 bg-muted/20 py-1.5 pr-2 rounded-r-md">
+              <h4 className="text-base font-semibold border-l-4 border-primary pl-3 bg-muted/20 py-1.5 pr-2 rounded-r-md flex items-center">
                 {pattern.name || `Pattern ${idx + 1}`}
-              </h4>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="ml-auto gap-1.5"
+                onClick={() =>
+                  setPredictDialogState({ open: true, patternIdx: idx })
+                }
+              >
+                <FlaskConical className="w-4 h-4" />
+                反应预测校验
+              </Button>
+            </h4>
 
               {/* 分子角色列表 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-1">
@@ -319,6 +340,20 @@ export default function ReviewDetailPage() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Reaction Predict Dialog */}
+      {data && smartsPatterns.length > 0 && (
+        <ReactionPredictDialog
+          open={predictDialogState.open}
+          onOpenChange={(open) =>
+            setPredictDialogState((prev) => ({ ...prev, open }))
+          }
+          pattern={smartsPatterns[predictDialogState.patternIdx]}
+          onValidate={() => {
+            // In review mode, validation is informational only
+          }}
+        />
+      )}
 
       {/* Reaction Sections */}
       {reactionSections.map((section, idx) => (
