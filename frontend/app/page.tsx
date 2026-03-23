@@ -1,4 +1,7 @@
 import Image from "next/image";
+import ClicksChart from "@/components/commonUI/ClicksChart";
+import UsersChart from "@/components/commonUI/UsersChart";
+import ReactionsChart from "@/components/commonUI/ReactionsChart";
 
 export default function Home() {
   return (
@@ -58,6 +61,11 @@ export default function Home() {
           >
             Documentation
           </a>
+        </div>
+        <div className="w-full flex-col md:flex-row flex gap-6 mt-8 w-max-[3xl]">
+          {/* <ClicksChart />
+          <UsersChart />
+          <ReactionsChart /> */}
         </div>
       </main>
     </div>

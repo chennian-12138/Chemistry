@@ -37,25 +37,6 @@ export const routes = {
         icon:ShieldCheck
     },
     ],
-    
-    // History这里先放点东西占位，后面再调整。
-    History:[
-    {
-        title:'DA-Reaction',
-        url:'#',
-        icon: BookSearch,
-    },
-    {
-        title:'Synthesis-of-Aspirin',
-        url:'#',
-        icon:FlaskConical,
-    },
-    {
-        title:'Dialogue',
-        url:'#',
-        icon:Bot,
-    },
-    ],
 
     // secondary navigation
     NavSecondary:[
@@ -75,15 +56,4 @@ export const routes = {
             icon: Users
         },
     ],
-
-    User: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-
-}
-
-export default function RoutesPage() {
-  return null;
 }

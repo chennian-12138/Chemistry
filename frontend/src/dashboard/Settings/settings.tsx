@@ -30,23 +30,38 @@ export default function UserSettings() {
     setIsLoading(false);
   };
 
-  // 更新头像（Base64）
+  // 更新头像（上传到后端并返回 URL）
   const updateImage = async (file: File) => {
     setIsLoading(true);
-    const base64 = await convertImageToBase64(file);
     
-    const { error } = await authClient.updateUser({
-      image: base64,
-    });
-    
-    if (error) {
-      toast.error(error.message);
-    } else {
+    // 构造 FormData
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      // 获取 API Base URL (同 authClient 的配置)
+      const API_BASE = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
+      
+      const res = await fetch(`${API_BASE}/api/avatar`, {
+        method: "POST",
+        credentials: "include", // 携带 cookie 认证
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "上传失败");
+      }
+
       toast.success("头像已更新");
-      setImagePreview(base64);
-      refetch();
+      setImagePreview(data.url);
+      refetch(); // 刷新 session
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   // 更新邮箱（需要验证）
@@ -127,13 +142,4 @@ export default function UserSettings() {
       </div>
     </div>
   );
-}
-
-function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

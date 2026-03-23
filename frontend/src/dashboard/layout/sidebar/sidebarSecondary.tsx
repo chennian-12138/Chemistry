@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -29,10 +30,10 @@ export default function AppSidebarSecondary() {
             return(
               <SidebarMenuItem key={item.name}>
                 <SidebarMenuButton asChild isActive={isActive} size="sm">
-                  <a href={item.Path}>
+                  <Link href={item.Path}>
                     <item.icon />
                     <span>{item.name}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )

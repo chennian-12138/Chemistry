@@ -13,7 +13,7 @@ import { X, Plus, Shield, Check, Trash2, FlaskConical } from "lucide-react";
 
 import { type DataupSchema } from "@/types/dataup-shema";
 import { useFormContext, useFieldArray } from "react-hook-form";
-import SmartValidatorDialog from "@/components/commomUI/SmartValidatorDialog";
+import SmartValidatorDialog from "@/components/commonUI/SmartValidatorDialog";
 import ReactionPredictDialog from "./ReactionPredictDialog";
 import { useState } from "react";
 
@@ -142,9 +142,7 @@ export default function SMARTSModuleData({
             }
             onClick={() => setPredictDialogOpen(true)}
             title={
-              isPredictValidated
-                ? "反应预测校验已通过"
-                : "进行反应预测校验"
+              isPredictValidated ? "反应预测校验已通过" : "进行反应预测校验"
             }
           >
             {isPredictValidated ? (
@@ -478,10 +476,7 @@ export default function SMARTSModuleData({
         pattern={currentPattern}
         onValidate={(success) => {
           if (success) {
-            setValue(
-              `smartsPatterns.${index}.reactionPredictValidated`,
-              true,
-            );
+            setValue(`smartsPatterns.${index}.reactionPredictValidated`, true);
           }
         }}
       />

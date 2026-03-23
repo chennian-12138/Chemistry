@@ -12,6 +12,7 @@ model User {
   reactions     Reaction[]
   reviews       Review[]
   sessions      Session[]
+  browsingHistory BrowsingHistory[]
 
   @@map("user")
 }

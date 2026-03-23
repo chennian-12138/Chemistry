@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import DataCard from "@/components/commomUI/DataCard";
+import DataCard from "@/components/commonUI/DataCard";
 import { DataupSchema } from "@/types/dataup-shema";
 import { useDataUpActions } from "@/hooks/use-dataup-action";
 

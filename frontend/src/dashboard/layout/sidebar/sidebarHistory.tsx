@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowUpToLine, MoreHorizontal, Share, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MoreHorizontal, Trash2, BookSearch, FlaskConical, Bot } from "lucide-react";
+import Link from "next/link";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -14,29 +15,78 @@ import {
   SidebarGroupLabel,
   SidebarMenuSubItem,
   SidebarMenuAction,
-  SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { routes } from "./routes";
+import { getHistoryList, deleteHistory } from "@/lib/api";
 
-const records = routes.History;
+// 根据 history type 返回对应的图标和路径前缀
+const typeConfig: Record<string, { icon: typeof BookSearch; pathPrefix: string }> = {
+  REACTDIC: { icon: BookSearch, pathPrefix: "/dashboard/reactdic" },
+  RETRO_SYNTHESIS: { icon: FlaskConical, pathPrefix: "/dashboard/retrosynthesisanalysis" },
+  AI_CHAT: { icon: Bot, pathPrefix: "/dashboard/askai" },
+};
+
+interface HistoryItem {
+  id: string;
+  type: string;
+  targetId: string;
+  title: string;
+  createdAt: string;
+}
 
 export default function AppSidebarHistory() {
   const { isMobile } = useSidebar();
+  const [records, setRecords] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchHistory = async () => {
+      try {
+        const res = await getHistoryList(10);
+        if (!cancelled && res.success) {
+          setRecords(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch history:", err);
+      }
+    };
+    fetchHistory();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await deleteHistory(id);
+      if (res.success) {
+        setRecords((prev) => prev.filter((r) => r.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete history:", err);
+    }
+  };
+
+  if (records.length === 0) {
+    return null;
+  }
 
   return (
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel>History</SidebarGroupLabel>
-        <SidebarMenuSub>
-          {records.map((item) => (
-            <SidebarMenuSubItem key={item.title}>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel>History</SidebarGroupLabel>
+      <SidebarMenuSub>
+        {records.map((item) => {
+          const config = typeConfig[item.type] || typeConfig.REACTDIC;
+          const Icon = config.icon;
+          const href = `${config.pathPrefix}/${item.targetId}`;
+
+          return (
+            <SidebarMenuSubItem key={item.id}>
               <SidebarMenuSubButton asChild>
-                <a href={item.url}>
-                  <item.icon />
+                <Link href={href}>
+                  <Icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuSubButton>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -50,30 +100,16 @@ export default function AppSidebarHistory() {
                   side={isMobile ? "bottom" : "right"}
                   align={isMobile ? "end" : "start"}
                 >
-                  <DropdownMenuItem>
-                    <ArrowUpToLine className="text-muted-foreground" />
-                    <span>置顶</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Share className="text-muted-foreground" />
-                    <span>分享</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDelete(item.id)}>
                     <Trash2 className="text-muted-foreground" />
                     <span>删除</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuSubItem>
-          ))}
-          <SidebarMenuSubItem>
-            <SidebarMenuButton>
-              <MoreHorizontal />
-              <span>更多</span>
-            </SidebarMenuButton>
-          </SidebarMenuSubItem>
-        </SidebarMenuSub>
-      </SidebarGroup>
+          );
+        })}
+      </SidebarMenuSub>
+    </SidebarGroup>
   );
 }

@@ -10,6 +10,7 @@ import {
 import { routes } from "./routes";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
+import Link from "next/link";
 
 const applicationRoutes = routes.Application;
 
@@ -42,10 +43,10 @@ export default function AppSidebarApplication() {
                 isActive={isActive}
                 tooltip={route.name}
               >
-                <a href={route.Path}>
+                <Link href={route.Path}>
                   <route.icon />
                   <span>{route.name}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           );

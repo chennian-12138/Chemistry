@@ -90,3 +90,44 @@ export async function getReactionById(id: string) {
   });
   return res.json();
 }
+
+// ========== Browsing History ==========
+
+export async function recordHistory(
+  type: string,
+  targetId: string,
+  title: string,
+) {
+  const res = await fetch(`${API_BASE}/api/history`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ type, targetId, title }),
+  });
+  return res.json();
+}
+
+export async function getHistoryList(limit: number = 20) {
+  const res = await fetch(`${API_BASE}/api/history?limit=${limit}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function deleteHistory(id: string) {
+  const res = await fetch(`${API_BASE}/api/history/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// ========== Analytics ==========
+
+export async function getDashboardAnalytics() {
+  const res = await fetch(`${API_BASE}/api/analytics/dashboard`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+

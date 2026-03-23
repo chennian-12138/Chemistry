@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getReactionById } from "@/lib/api";
+import { getReactionById, recordHistory } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Beaker, Loader2 } from "lucide-react";
 
@@ -25,6 +25,8 @@ export default function ReactionDetailPage() {
         const res = await getReactionById(id);
         if (res.success) {
           setReaction(res.data);
+          // Fire-and-forget: 记录浏览历史
+          recordHistory("REACTDIC", id, res.data.name).catch(() => {});
         }
       } catch (err) {
         console.error("Failed to fetch reaction details", err);

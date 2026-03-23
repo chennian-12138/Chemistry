@@ -1,0 +1,13 @@
+model BrowsingHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "REACTDIC" | "AI_CHAT" | "RETRO_SYNTHESIS" | ...
+  targetId  String   // 目标资源ID
+  title     String   // 冗余存储标题，避免查询时 JOIN
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, targetId])
+  @@index([userId, createdAt])
+  @@map("browsing_history")
+}

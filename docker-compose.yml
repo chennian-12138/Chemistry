@@ -9,6 +9,8 @@ services:
     environment:
       - NODE_ENV=production
     command: sh -c "npx prisma migrate deploy && npm run dev"
+    volumes:
+      - uploads:/app/uploads
 
   frontend:
     build: ./frontend
@@ -19,3 +21,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:
