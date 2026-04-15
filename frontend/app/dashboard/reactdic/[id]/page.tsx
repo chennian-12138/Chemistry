@@ -38,17 +38,9 @@ export default function ReactionDetailPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-          <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
-        </div>
-        <p className="text-lg font-medium text-muted-foreground animate-pulse tracking-wide">
-          正在加载反应详情...
-        </p>
-      </div>
-    );
+    // 根据你的要求移除了这里的加载动画。
+    // 返回 null 可以保证在网络请求期间什么都不显示，而不是闪烁出 "Not Found" 页面。
+    return null;
   }
 
   if (!reaction) {

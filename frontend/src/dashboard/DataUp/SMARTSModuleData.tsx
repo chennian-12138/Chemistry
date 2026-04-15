@@ -120,38 +120,40 @@ export default function SMARTSModuleData({
           <FieldLegend className="text-base mb-0">
             第{index + 1}部分
           </FieldLegend>
-          {onRemove && (
+          <div className="flex gap-2">
+            {onRemove && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={onRemove}
+                className="bg-red-100 hover:bg-red-200"
+              >
+                <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600 font-bold" />
+              </Button>
+            )}
             <Button
               type="button"
-              variant="destructive"
+              variant={"outline"}
               size="sm"
-              onClick={onRemove}
-              className="bg-red-100 hover:bg-red-200"
+              className={
+                isPredictValidated
+                  ? "bg-green-50 hover:bg-green-100 text-green-600 border-green-200 gap-1.5"
+                  : "gap-1.5"
+              }
+              onClick={() => setPredictDialogOpen(true)}
+              title={
+                isPredictValidated ? "反应预测校验已通过" : "进行反应预测校验"
+              }
             >
-              <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600 font-bold" />
+              {isPredictValidated ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <FlaskConical className="w-4 h-4" />
+              )}
+              {/* {isPredictValidated ? "预测校验通过" : "反应预测校验"} */}
             </Button>
-          )}
-          <Button
-            type="button"
-            variant={isPredictValidated ? "default" : "outline"}
-            size="sm"
-            className={
-              isPredictValidated
-                ? "bg-green-50 hover:bg-green-100 text-green-600 border-green-200 gap-1.5"
-                : "gap-1.5"
-            }
-            onClick={() => setPredictDialogOpen(true)}
-            title={
-              isPredictValidated ? "反应预测校验已通过" : "进行反应预测校验"
-            }
-          >
-            {isPredictValidated ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <FlaskConical className="w-4 h-4" />
-            )}
-            {isPredictValidated ? "预测校验通过" : "反应预测校验"}
-          </Button>
+          </div>
         </div>
 
         <FieldGroup className="space-y-4">

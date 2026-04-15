@@ -18,7 +18,7 @@ import SMARTSModuleData from "./SMARTSModuleData";
 import ReactionDiscriptions from "./ReactionDiscriptions";
 import { createReaction, updateReaction } from "@/lib/api";
 import { toast } from "sonner";
-import { ListPlus } from "lucide-react";
+import { ListPlus, AlertCircle } from "lucide-react";
 
 // 默认空值
 const defaultValues: DataupSchema = {
@@ -260,6 +260,23 @@ export default function DataUp() {
       )}
       <FormProvider {...methods}>
         <form className="space-y-8 max-w-6xl mx-auto p-6">
+          {methods.watch("id") && (
+            <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 p-4 rounded-lg flex flex-col gap-2 relative shadow-sm">
+              <div className="flex items-center gap-2 font-semibold text-base">
+                <AlertCircle className="w-5 h-5" />
+                正在修改退回的反应草稿
+              </div>
+              <p className="text-sm opacity-90 pl-7">
+                请仔细参考审核人员的意见进行修改，重新提交后将重新进入审核队列。
+              </p>
+              {methods.watch("reviewInfo")?.rejectionReason && (
+                <div className="mt-2 ml-7 bg-white dark:bg-black/40 border border-amber-100 dark:border-amber-900/50 p-3 rounded-md text-sm">
+                  <span className="font-semibold mr-2">审核意见:</span>
+                  {methods.watch("reviewInfo")?.rejectionReason}
+                </div>
+              )}
+            </div>
+          )}
           <FieldSet className="w-full!">
             <FieldGroup>
               <Field>

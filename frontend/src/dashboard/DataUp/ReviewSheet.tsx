@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
@@ -45,8 +46,18 @@ export default function ReviewSheet({
 
   const handleCardClick = (entry: Entry) => {
     if (actions.isAvailable) {
-      actions.loadData({ ...entry.fullData, id: entry.id });
+      actions.loadData({
+        ...entry.fullData,
+        id: entry.id,
+        reviewInfo: {
+          ...entry.fullData.reviewInfo,
+          rejectionReason: entry.rejectReason,
+        },
+      });
       setOpen(false);
+      toast.info("已加载待修改反应", {
+        position: "top-center",
+      });
     } else {
       alert("无法加载");
     }
@@ -57,12 +68,12 @@ export default function ReviewSheet({
       <SheetTrigger asChild>{triggerButton}</SheetTrigger>
       <SheetContent side="right">
         <SheetHeader>
-          <SheetTitle>待审查词条</SheetTitle>
+          <SheetTitle>待修改词条</SheetTitle>
         </SheetHeader>
 
         <div className="mt-4 mr-1 ml-1 space-y-2 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {entries.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">没有待审查的词条</p>
+            <p className="text-center text-gray-500 py-8">没有待修改的词条</p>
           ) : (
             entries.map((entry) => (
               <DataCard
