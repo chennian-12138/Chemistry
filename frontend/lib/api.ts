@@ -131,3 +131,45 @@ export async function getDashboardAnalytics() {
   return res.json();
 }
 
+// ========== Drafts ==========
+
+export async function uploadDraft(
+  id: string | undefined,
+  name: string,
+  data: DataupSchema,
+) {
+  const res = await fetch(`${API_BASE}/api/drafts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ id, name, data }),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `Status: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function getDraftsList() {
+  const res = await fetch(`${API_BASE}/api/drafts`, {
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `Status: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function deleteDraftItem(id: string) {
+  const res = await fetch(`${API_BASE}/api/drafts/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `Status: ${res.status}`);
+  }
+  return res.json();
+}

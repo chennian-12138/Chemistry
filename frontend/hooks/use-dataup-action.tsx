@@ -17,9 +17,9 @@ interface DataUpActions {
   exportJSON: () => void;
   submit: () => void;
   loadData: (data: DataupSchema & { id?: string }) => void;
+  saveDraft: (silent?: boolean) => void;
   isAvailable: boolean;
 }
-
 // createContext：用于创建一个“空间”，由该hook创建的“父组件”，其内容可以传递给“子组件”，而无需写极度复杂的props。
 // 当中，.provider就是所谓的“”父组件
 // 如下DataUpActionsContext包含了三个属性：register、unregister、actions
@@ -41,10 +41,10 @@ const DataUpActionsContext = createContext<{
     exportJSON: () => {},
     submit: () => {},
     loadData: () => {},
+    saveDraft: () => {},
     isAvailable: false,
   },
 });
-
 // 这里定义了Provider，其实就是DataUpActionsContext的具体实现
 // 之所以不写在一起，“定义与功能不要写在一起”。谁知道呢
 export function DataUpActionsProvider({ children }: { children: ReactNode }) {
@@ -54,9 +54,9 @@ export function DataUpActionsProvider({ children }: { children: ReactNode }) {
     exportJSON: () => {},
     submit: () => {},
     loadData: () => {},
+    saveDraft: () => {},
     isAvailable: false,
   });
-
   // 如果有组件注册了函数，那么isAvailable就为true，否则为false
   // 将除了isAvailable属性的其他属性赋值给actionsRef.current，
   const register = useCallback(
@@ -72,6 +72,7 @@ export function DataUpActionsProvider({ children }: { children: ReactNode }) {
       exportJSON: () => {},
       submit: () => {},
       loadData: () => {},
+      saveDraft: () => {},
       isAvailable: false,
     });
   }, []);

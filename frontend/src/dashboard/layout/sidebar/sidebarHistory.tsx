@@ -1,50 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MoreHorizontal, Trash2, BookSearch, FlaskConical, Bot } from "lucide-react";
+import { useEffect } from "react";
+import {
+  BookSearch,
+  FlaskConical,
+  Bot,
+  History as HistoryIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenuSubItem,
-  SidebarMenuAction,
+  SidebarMenu,
+  SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubItem,
   SidebarMenuSubButton,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import { getHistoryList, deleteHistory } from "@/lib/api";
+import { getHistoryList } from "@/lib/api";
+import { useHistoryStore } from "@/store/history-store";
 
 // 根据 history type 返回对应的图标和路径前缀
-const typeConfig: Record<string, { icon: typeof BookSearch; pathPrefix: string }> = {
+const typeConfig: Record<
+  string,
+  { icon: typeof BookSearch; pathPrefix: string }
+> = {
   REACTDIC: { icon: BookSearch, pathPrefix: "/dashboard/reactdic" },
-  RETRO_SYNTHESIS: { icon: FlaskConical, pathPrefix: "/dashboard/retrosynthesisanalysis" },
+  RETRO_SYNTHESIS: {
+    icon: FlaskConical,
+    pathPrefix: "/dashboard/retrosynthesisanalysis",
+  },
   AI_CHAT: { icon: Bot, pathPrefix: "/dashboard/askai" },
 };
 
-interface HistoryItem {
-  id: string;
-  type: string;
-  targetId: string;
-  title: string;
-  createdAt: string;
-}
-
 export default function AppSidebarHistory() {
-  const { isMobile } = useSidebar();
-  const [records, setRecords] = useState<HistoryItem[]>([]);
+  const { records, setRecords } = useHistoryStore();
 
   useEffect(() => {
     let cancelled = false;
     const fetchHistory = async () => {
       try {
-        const res = await getHistoryList(10);
+        const res = await getHistoryList(20);
         if (!cancelled && res.success) {
           setRecords(res.data);
         }
@@ -53,19 +50,10 @@ export default function AppSidebarHistory() {
       }
     };
     fetchHistory();
-    return () => { cancelled = true; };
-  }, []);
-
-  const handleDelete = async (id: string) => {
-    try {
-      const res = await deleteHistory(id);
-      if (res.success) {
-        setRecords((prev) => prev.filter((r) => r.id !== id));
-      }
-    } catch (err) {
-      console.error("Failed to delete history:", err);
-    }
-  };
+    return () => {
+      cancelled = true;
+    };
+  }, [setRecords]);
 
   if (records.length === 0) {
     return null;
@@ -73,43 +61,60 @@ export default function AppSidebarHistory() {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .history-item-enter {
+          animation: slideIn 0.3s ease-out forwards;
+        }
+      `}</style>
       <SidebarGroupLabel>History</SidebarGroupLabel>
-      <SidebarMenuSub>
-        {records.map((item) => {
-          const config = typeConfig[item.type] || typeConfig.REACTDIC;
-          const Icon = config.icon;
-          const href = `${config.pathPrefix}/${item.targetId}`;
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuSub>
+            {records.slice(0, 9).map((item) => {
+              const config = typeConfig[item.type] || typeConfig.REACTDIC;
+              const Icon = config.icon;
+              const href = `${config.pathPrefix}/${item.targetId}`;
 
-          return (
-            <SidebarMenuSubItem key={item.id}>
-              <SidebarMenuSubButton asChild>
-                <Link href={href}>
-                  <Icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuSubButton>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuAction showOnHover>
-                    <MoreHorizontal />
-                    <span className="sr-only">More</span>
-                  </SidebarMenuAction>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-48"
-                  side={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "end" : "start"}
+              return (
+                <SidebarMenuSubItem
+                  key={item.id}
+                  className="history-item-enter"
                 >
-                  <DropdownMenuItem onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="text-muted-foreground" />
-                    <span>删除</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuSubItem>
-          );
-        })}
-      </SidebarMenuSub>
+                  <SidebarMenuSubButton asChild>
+                    <Link href={href}>
+                      <Icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+            {records.length > 9 && (
+              <SidebarMenuSubItem className="history-item-enter">
+                <SidebarMenuSubButton asChild>
+                  <Link
+                    href="/dashboard/history"
+                    className="text-muted-foreground hover:text-foreground italic"
+                  >
+                    <HistoryIcon />
+                    <span>查看更多...</span>
+                  </Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            )}
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      </SidebarMenu>
     </SidebarGroup>
   );
 }

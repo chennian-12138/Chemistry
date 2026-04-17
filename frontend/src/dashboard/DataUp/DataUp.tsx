@@ -16,7 +16,7 @@ import { useDataUpActions } from "@/hooks/use-dataup-action";
 import ReactionMetaData from "./ReactionMetaData";
 import SMARTSModuleData from "./SMARTSModuleData";
 import ReactionDiscriptions from "./ReactionDiscriptions";
-import { createReaction, updateReaction } from "@/lib/api";
+import { createReaction, updateReaction, uploadDraft } from "@/lib/api";
 import { toast } from "sonner";
 import { ListPlus, AlertCircle } from "lucide-react";
 
@@ -217,12 +217,61 @@ export default function DataUp() {
     a.click();
   }, [methods]);
 
+  const handleSaveDraft = useCallback(
+    async (silent?: boolean) => {
+      const data = methods.getValues();
+      const storageKey = session?.user?.id
+        ? `dataup_draft_history_${session.user.id}`
+        : "dataup_draft_history_default";
+
+      const draftsStr = localStorage.getItem(storageKey);
+      let drafts: any[] = [];
+      try {
+        if (draftsStr) drafts = JSON.parse(draftsStr);
+      } catch (e) {}
+
+      const reactionName = data.meta.name?.trim() || "未命名草稿";
+
+      const existingIdx = drafts.findIndex(
+        (d: any) =>
+          (data.id && d.fullData.id === data.id) ||
+          (d.name === reactionName && reactionName !== "未命名草稿"),
+      );
+
+      // Local storage mechanism
+      if (existingIdx !== -1) {
+        drafts[existingIdx].fullData = data;
+        drafts[existingIdx].updatedAt = Date.now();
+      } else {
+        drafts.push({
+          draftId: Date.now().toString(),
+          name: reactionName,
+          updatedAt: Date.now(),
+          fullData: data,
+        });
+      }
+      localStorage.setItem(storageKey, JSON.stringify(drafts));
+
+      if (!silent) {
+        try {
+          // Also upload to DB
+          await uploadDraft(data.id, reactionName, data);
+          toast.success("云端暂存成功！", { position: "top-center" });
+        } catch (e) {
+          toast.error("云端暂存失败，已保存在本地", { position: "top-center" });
+        }
+      }
+    },
+    [methods, session],
+  );
+
   useEffect(() => {
     register({
       reset: () => methods.reset(defaultValues),
       exportJSON: handleExport,
       submit: handleSubmit,
       loadData: (data: DataupSchema) => methods.reset(data),
+      saveDraft: handleSaveDraft,
     });
 
     return () => unregister();
@@ -233,7 +282,33 @@ export default function DataUp() {
     handleSubmit,
     handleExport,
     handleLoadData,
+    handleSaveDraft,
   ]);
+
+  // Check for existing draft on mount and Setup 1-minute auto-save
+  useEffect(() => {
+    const storageKey = session?.user?.id
+      ? `dataup_draft_history_${session.user.id}`
+      : "dataup_draft_history_default";
+    const draftsStr = localStorage.getItem(storageKey);
+
+    let hasDrafts = false;
+    try {
+      if (draftsStr && JSON.parse(draftsStr).length > 0) hasDrafts = true;
+    } catch {}
+
+    // Setup 1-minute auto-save
+    // "只要当前DataUp上有了输入内容就开始计时", so we check if the form is dirty inside the interval
+    // If dirty, auto-save every 1 minute.
+    const timer = setInterval(() => {
+      const isDirty = Object.keys(methods.formState.dirtyFields).length > 0;
+      if (isDirty) {
+        handleSaveDraft(true);
+      }
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [session, methods, handleSaveDraft]);
 
   return (
     <>

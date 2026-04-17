@@ -8,9 +8,11 @@ import ReviewSheet from "../../DataUp/ReviewSheet";
 import {
   CloudUpload,
   CloudDownload,
-  FileBracesCorner,
   ListRestart,
+  Save,
+  FolderOpen,
 } from "lucide-react";
+import DraftListSheet from "../../DataUp/DraftListSheet";
 
 export default function NavbarDataUpActions() {
   const pathname = usePathname();
@@ -37,13 +39,22 @@ export default function NavbarDataUpActions() {
         <ListRestart className="h-4 w-4" />
       </Button>
 
+      <DraftListSheet
+        triggerButton={
+          <Button variant="ghost" size="icon" className="gap-1" title="草稿箱">
+            <FolderOpen className="h-4 w-4" />
+          </Button>
+        }
+      />
+
       <Button
         variant="ghost"
         size="icon"
-        onClick={actions.exportJSON}
+        onClick={() => actions.saveDraft(false)}
         className="gap-1"
+        title="暂存草稿"
       >
-        <FileBracesCorner className="h-4 w-4" />
+        <Save className="h-4 w-4" />
       </Button>
 
       <Button
@@ -57,11 +68,7 @@ export default function NavbarDataUpActions() {
 
       <ReviewSheet
         triggerButton={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="gap-1"
-          >
+          <Button variant="ghost" size="icon" className="gap-1">
             <CloudDownload className="h-4 w-4" />
           </Button>
         }

@@ -20,6 +20,7 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import Composer from "@/components/kekule-react/composer";
 import { X, Plus, Trash2 } from "lucide-react";
+import { useDataUpActions } from "@/hooks/use-dataup-action";
 
 import {
   DataupSchema,
@@ -33,10 +34,9 @@ interface Props {
   onRemove?: () => void;
 }
 
-
-
 export default function ReactionDiscriptions({ index, onRemove }: Props) {
   const { control } = useFormContext<DataupSchema>();
+  const { actions } = useDataUpActions();
 
   // 管理反应式数组（Kekule JSON 字符串数组）
   const {
@@ -214,6 +214,11 @@ export default function ReactionDiscriptions({ index, onRemove }: Props) {
                         <RichTextEditor
                           value={field.value}
                           onChange={field.onChange}
+                          onFocus={() => {
+                            if (actions.isAvailable) {
+                              actions.saveDraft(true);
+                            }
+                          }}
                           placeholder="输入该反应的描述"
                         />
                       )}
@@ -237,38 +242,70 @@ export default function ReactionDiscriptions({ index, onRemove }: Props) {
                           currentPage = val.substring(splitIdx + 1);
                         } else if (val) {
                           // Compatibility for legacy unformatted data
-                          if (val.includes("陆涛第九版") || val.includes("陆涛")) {
+                          if (
+                            val.includes("陆涛第九版") ||
+                            val.includes("陆涛")
+                          ) {
                             currentBook = "陆涛第九版《有机化学》";
-                            currentPage = val.replace(/.*?陆涛.*?有机化学》?/, "").replace("第", "").replace("页", "").trim();
-                          } else if (val.includes("邢其毅第四版") || val.includes("邢其毅")) {
+                            currentPage = val
+                              .replace(/.*?陆涛.*?有机化学》?/, "")
+                              .replace("第", "")
+                              .replace("页", "")
+                              .trim();
+                          } else if (
+                            val.includes("邢其毅第四版") ||
+                            val.includes("邢其毅")
+                          ) {
                             currentBook = "邢其毅第四版《基础有机化学》";
-                            currentPage = val.replace(/.*?邢其毅.*?基础有机化学》?/, "").replace("第", "").replace("页", "").trim();
+                            currentPage = val
+                              .replace(/.*?邢其毅.*?基础有机化学》?/, "")
+                              .replace("第", "")
+                              .replace("页", "")
+                              .trim();
                           } else {
                             currentBook = "其他";
-                             // Clean up "第119页" -> "119" for aesthetics
-                            currentPage = val.replace("第", "").replace("页", "").trim();
+                            // Clean up "第119页" -> "119" for aesthetics
+                            currentPage = val
+                              .replace("第", "")
+                              .replace("页", "")
+                              .trim();
                           }
                         }
 
                         const handleBookChange = (newBook: string | null) => {
-                          field.onChange(newBook ? `${newBook}:${currentPage}` : currentPage);
+                          field.onChange(
+                            newBook ? `${newBook}:${currentPage}` : currentPage,
+                          );
                         };
 
-                        const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                        const handlePageChange = (
+                          e: React.ChangeEvent<HTMLInputElement>,
+                        ) => {
                           const newPage = e.target.value;
-                          field.onChange(currentBook ? `${currentBook}:${newPage}` : newPage);
+                          field.onChange(
+                            currentBook ? `${currentBook}:${newPage}` : newPage,
+                          );
                         };
 
                         return (
                           <div className="flex gap-3">
                             <div className="w-[280px] shrink-0">
-                              <Combobox value={currentBook} onValueChange={handleBookChange}>
+                              <Combobox
+                                value={currentBook}
+                                onValueChange={handleBookChange}
+                              >
                                 <ComboboxInput placeholder="选择教材或出处" />
                                 <ComboboxContent>
                                   <ComboboxList>
-                                    <ComboboxItem value="陆涛第九版《有机化学》">陆涛第九版《有机化学》</ComboboxItem>
-                                    <ComboboxItem value="邢其毅第四版《基础有机化学》">邢其毅第四版《基础有机化学》</ComboboxItem>
-                                    <ComboboxItem value="其他">其他</ComboboxItem>
+                                    <ComboboxItem value="陆涛第九版《有机化学》">
+                                      陆涛第九版《有机化学》
+                                    </ComboboxItem>
+                                    <ComboboxItem value="邢其毅第四版《基础有机化学》">
+                                      邢其毅第四版《基础有机化学》
+                                    </ComboboxItem>
+                                    <ComboboxItem value="其他">
+                                      其他
+                                    </ComboboxItem>
                                   </ComboboxList>
                                 </ComboboxContent>
                               </Combobox>

@@ -16,6 +16,7 @@ import { useFormContext, useFieldArray } from "react-hook-form";
 import SmartValidatorDialog from "@/components/commonUI/SmartValidatorDialog";
 import ReactionPredictDialog from "./ReactionPredictDialog";
 import { useState } from "react";
+import { useDataUpActions } from "@/hooks/use-dataup-action";
 
 interface SMARTSModuleDataProps {
   index: number;
@@ -28,6 +29,7 @@ export default function SMARTSModuleData({
 }: SMARTSModuleDataProps) {
   const { control, getValues, setValue, watch } =
     useFormContext<DataupSchema>();
+  const { actions } = useDataUpActions();
 
   // 反应物数组
   const {
@@ -194,6 +196,18 @@ export default function SMARTSModuleData({
                         placeholder="SMARTS 表达式"
                         {...control.register(
                           `smartsPatterns.${index}.patternReactants.${idx}.smarts`,
+                          {
+                            onChange: () => {
+                              setValue(
+                                `smartsPatterns.${index}.patternReactants.${idx}.validated`,
+                                false,
+                              );
+                              setValue(
+                                `smartsPatterns.${index}.reactionPredictValidated`,
+                                false,
+                              );
+                            },
+                          },
                         )}
                       />
 
@@ -243,6 +257,7 @@ export default function SMARTSModuleData({
                             `smartsPatterns.${index}.patternReactants.${idx}.validated`,
                             true,
                           );
+                          if (actions.isAvailable) actions.saveDraft(true);
                         }
                       }}
                     />
@@ -295,6 +310,18 @@ export default function SMARTSModuleData({
                         placeholder={`[OH-]::氢氧根负离子`}
                         {...control.register(
                           `smartsPatterns.${index}.patternRegents.${idx}.smarts`,
+                          {
+                            onChange: () => {
+                              setValue(
+                                `smartsPatterns.${index}.patternRegents.${idx}.validated`,
+                                false,
+                              );
+                              setValue(
+                                `smartsPatterns.${index}.reactionPredictValidated`,
+                                false,
+                              );
+                            },
+                          },
                         )}
                       />
 
@@ -344,6 +371,7 @@ export default function SMARTSModuleData({
                             `smartsPatterns.${index}.patternRegents.${idx}.validated`,
                             true,
                           );
+                          if (actions.isAvailable) actions.saveDraft(true);
                         }
                       }}
                     />
@@ -396,6 +424,18 @@ export default function SMARTSModuleData({
                         placeholder="SMARTS 表达式"
                         {...control.register(
                           `smartsPatterns.${index}.patternProducts.${idx}.smarts`,
+                          {
+                            onChange: () => {
+                              setValue(
+                                `smartsPatterns.${index}.patternProducts.${idx}.validated`,
+                                false,
+                              );
+                              setValue(
+                                `smartsPatterns.${index}.reactionPredictValidated`,
+                                false,
+                              );
+                            },
+                          },
                         )}
                       />
 
@@ -445,6 +485,7 @@ export default function SMARTSModuleData({
                             `smartsPatterns.${index}.patternProducts.${idx}.validated`,
                             true,
                           );
+                          if (actions.isAvailable) actions.saveDraft(true);
                         }
                       }}
                     />
@@ -479,6 +520,7 @@ export default function SMARTSModuleData({
         onValidate={(success) => {
           if (success) {
             setValue(`smartsPatterns.${index}.reactionPredictValidated`, true);
+            if (actions.isAvailable) actions.saveDraft(true);
           }
         }}
       />

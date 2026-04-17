@@ -18,16 +18,16 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
+  onFocus?: () => void;
   placeholder?: string;
 }
-
 export function RichTextEditor({
   value,
   onChange,
+  onFocus,
   placeholder,
 }: RichTextEditorProps) {
   const [, setUpdateKey] = useState(0);
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -44,6 +44,11 @@ export function RichTextEditor({
         class:
           "min-h-[120px] w-full bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
       },
+    },
+    onFocus: () => {
+      if (onFocus) {
+        onFocus();
+      }
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());

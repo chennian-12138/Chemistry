@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getReactionById, recordHistory } from "@/lib/api";
+import { useHistoryStore } from "@/store/history-store";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Beaker, Loader2 } from "lucide-react";
 
@@ -25,8 +26,23 @@ export default function ReactionDetailPage() {
         const res = await getReactionById(id);
         if (res.success) {
           setReaction(res.data);
-          // Fire-and-forget: 记录浏览历史
-          recordHistory("REACTDIC", id, res.data.name).catch(() => {});
+          // 记录浏览历史并同步更新侧边栏状态
+          recordHistory("REACTDIC", id, res.data.name)
+            .then((newRecord) => {
+              if (newRecord?.success && newRecord.data) {
+                useHistoryStore.getState().addRecord(newRecord.data);
+              } else {
+                // Fallback if API response doesn't return the full object
+                useHistoryStore.getState().addRecord({
+                  id: Date.now().toString(),
+                  type: "REACTDIC",
+                  targetId: id,
+                  title: res.data.name,
+                  createdAt: new Date().toISOString(),
+                });
+              }
+            })
+            .catch(() => {});
         }
       } catch (err) {
         console.error("Failed to fetch reaction details", err);

@@ -10,6 +10,7 @@ import reactdicRouter from "./routes/reactdic";
 import historyRouter from "./routes/history";
 import avatarRouter from "./routes/avatar";
 import analyticsRouter from "./routes/analytics";
+import draftsRouter from "./routes/drafts";
 
 const app = express();
 const port = 8000;
@@ -34,6 +35,7 @@ app.use("/api/reactdic", reactdicRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/avatar", avatarRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/drafts", draftsRouter);
 
 // 提供静态文件访问 (头像等)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

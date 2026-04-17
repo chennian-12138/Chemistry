@@ -36,11 +36,18 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
           const { Kekule } = await import("kekule");
           let obj;
 
-          if (value.startsWith("{")) {
-            obj = Kekule.IO.loadFormatData(value, "Kekule-JSON");
-          } else if (value.includes("M  END")) {
+          // Support both parsed object instances and plain strings
+          const valStr =
+            typeof value === "object" ? JSON.stringify(value) : value;
+
+          if (valStr.startsWith("{")) {
+            obj = Kekule.IO.loadFormatData(
+              typeof value === "object" ? value : valStr,
+              "Kekule-JSON",
+            );
+          } else if (typeof value === "string" && value.includes("M  END")) {
             obj = Kekule.IO.loadFormatData(value, "mol");
-          } else {
+          } else if (typeof value === "string") {
             obj = Kekule.IO.loadFormatData(value, "smi");
           }
 

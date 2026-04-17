@@ -1,0 +1,159 @@
+"filename", "language", "TypeScript JSX", "TypeScript", "Docker", "PostCSS", "JSON", "YAML", "JSON with Comments", "JavaScript", "XML", "Markdown", "Python", "pip requirements", "Prisma", "MS SQL", "comment", "blank", "total"
+"/home/chennian/myProjects/Chemistry/backend/Dockerfile", "Docker", 0, 0, -29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -13, -44
+"/home/chennian/myProjects/Chemistry/backend/data.sql", "MS SQL", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1097, -182, -198, -1477
+"/home/chennian/myProjects/Chemistry/backend/lib/auth.ts", "TypeScript", 0, -33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -21, -3, -57
+"/home/chennian/myProjects/Chemistry/backend/lib/prisma.ts", "TypeScript", 0, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, -10
+"/home/chennian/myProjects/Chemistry/backend/package-lock.json", "JSON", 0, 0, 0, 0, -4428, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -4429
+"/home/chennian/myProjects/Chemistry/backend/package.json", "JSON", 0, 0, 0, 0, -44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -45
+"/home/chennian/myProjects/Chemistry/backend/prisma.config.ts", "TypeScript", 0, -12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -2, -16
+"/home/chennian/myProjects/Chemistry/backend/prisma/migrations/20260209122431_init_reaction_models/migration.sql", "MS SQL", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -135, -30, -42, -207
+"/home/chennian/myProjects/Chemistry/backend/prisma/migrations/20260211094547_move_conditions_to_section/migration.sql", "MS SQL", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, -23, -2, -41
+"/home/chennian/myProjects/Chemistry/backend/prisma/migrations/20260211095315_add_condition_defaults/migration.sql", "MS SQL", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -8, -1, -1, -10
+"/home/chennian/myProjects/Chemistry/backend/prisma/schema.prisma", "Prisma", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -7, 0, 0, -2, -9
+"/home/chennian/myProjects/Chemistry/backend/prisma/schema/history.prisma", "Prisma", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -12, 0, 0, -2, -14
+"/home/chennian/myProjects/Chemistry/backend/prisma/schema/reactions.prisma", "Prisma", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -87, 0, 0, -17, -104
+"/home/chennian/myProjects/Chemistry/backend/prisma/schema/user.prisma", "Prisma", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -71, 0, 0, -10, -81
+"/home/chennian/myProjects/Chemistry/backend/python_service/app.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -43, 0, 0, 0, -3, -9, -55
+"/home/chennian/myProjects/Chemistry/backend/python_service/match_smarts.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -15, 0, 0, 0, 0, -2, -17
+"/home/chennian/myProjects/Chemistry/backend/python_service/predict_products.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -19, 0, 0, 0, 0, -4, -23
+"/home/chennian/myProjects/Chemistry/backend/python_service/rdkit_utils.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -79, 0, 0, 0, -15, -18, -112
+"/home/chennian/myProjects/Chemistry/backend/python_service/requirements.txt", "pip requirements", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 0, 0, 0, -1, -4
+"/home/chennian/myProjects/Chemistry/backend/scripts/dev-python.ts", "TypeScript", 0, -18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5, -8, -31
+"/home/chennian/myProjects/Chemistry/backend/scripts/migrate_tags.ts", "TypeScript", 0, -39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5, -9, -53
+"/home/chennian/myProjects/Chemistry/backend/src/app.ts", "TypeScript", 0, -37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4, -8, -49
+"/home/chennian/myProjects/Chemistry/backend/src/routes/analytics.ts", "TypeScript", 0, -60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -8, -70
+"/home/chennian/myProjects/Chemistry/backend/src/routes/avatar.ts", "TypeScript", 0, -57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -6, -13, -76
+"/home/chennian/myProjects/Chemistry/backend/src/routes/history.ts", "TypeScript", 0, -88, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5, -20, -113
+"/home/chennian/myProjects/Chemistry/backend/src/routes/list.ts", "TypeScript", 0, -94, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4, -9, -107
+"/home/chennian/myProjects/Chemistry/backend/src/routes/rdkit.ts", "TypeScript", 0, -36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -9, -45
+"/home/chennian/myProjects/Chemistry/backend/src/routes/reactdic.ts", "TypeScript", 0, -177, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -15, -23, -215
+"/home/chennian/myProjects/Chemistry/backend/src/routes/reactions.ts", "TypeScript", 0, -193, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -15, -23, -231
+"/home/chennian/myProjects/Chemistry/backend/src/routes/review.ts", "TypeScript", 0, -261, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -14, -22, -297
+"/home/chennian/myProjects/Chemistry/backend/src/services/rdkit.ts", "TypeScript", 0, -68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -11, -81
+"/home/chennian/myProjects/Chemistry/backend/tsconfig.json", "JSON with Comments", 0, 0, 0, 0, 0, 0, -21, 0, 0, 0, 0, 0, 0, 0, -24, -6, -51
+"/home/chennian/myProjects/Chemistry/frontend/Dockerfile", "Docker", 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 17
+"/home/chennian/myProjects/Chemistry/frontend/README.md", "Markdown", 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 14, 37
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/aboutourselves/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/askai/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/dataup/page.tsx", "TypeScript JSX", 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 12
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/feedback/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/layout.tsx", "TypeScript JSX", 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 26
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/loading.tsx", "TypeScript JSX", 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/page.tsx", "TypeScript JSX", 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/reactdic/[id]/page.tsx", "TypeScript JSX", 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 9, 79
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/reactdic/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 10
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/retrosynthesisanalysis/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/review/[id]/page.tsx", "TypeScript JSX", 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 12
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/review/page.tsx", "TypeScript JSX", 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 38
+"/home/chennian/myProjects/Chemistry/frontend/app/dashboard/settings/page.tsx", "TypeScript JSX", 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 11
+"/home/chennian/myProjects/Chemistry/frontend/app/globals.css", "PostCSS", 0, 0, 0, 142, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 11, 160
+"/home/chennian/myProjects/Chemistry/frontend/app/layout.tsx", "TypeScript JSX", 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 44
+"/home/chennian/myProjects/Chemistry/frontend/app/page.tsx", "TypeScript JSX", 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 18, 297
+"/home/chennian/myProjects/Chemistry/frontend/app/signin/page.tsx", "TypeScript JSX", 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6
+"/home/chennian/myProjects/Chemistry/frontend/app/signup/page.tsx", "TypeScript JSX", 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6
+"/home/chennian/myProjects/Chemistry/frontend/components.json", "JSON", 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 23
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/AnimatedSection.tsx", "TypeScript JSX", 70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 80
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/ClicksChart.tsx", "TypeScript JSX", 106, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 114
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/DataCard.tsx", "TypeScript JSX", 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 49
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/ReactionsChart.tsx", "TypeScript JSX", 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 68
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/SmartValidatorDialog.tsx", "TypeScript JSX", 154, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15, 170
+"/home/chennian/myProjects/Chemistry/frontend/components/commonUI/UsersChart.tsx", "TypeScript JSX", 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 74
+"/home/chennian/myProjects/Chemistry/frontend/components/kekule-react/composer.tsx", "TypeScript JSX", 98, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 16, 118
+"/home/chennian/myProjects/Chemistry/frontend/components/kekule-react/kekule-react.tsx", "TypeScript JSX", 276, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 45, 333
+"/home/chennian/myProjects/Chemistry/frontend/components/kekule-react/viewer.tsx", "TypeScript JSX", 74, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 14, 90
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/alert-dialog.tsx", "TypeScript JSX", 181, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 197
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/avatar.tsx", "TypeScript JSX", 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 54
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/badge.tsx", "TypeScript JSX", 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 49
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/breadcrumb.tsx", "TypeScript JSX", 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 110
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/button.tsx", "TypeScript JSX", 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 65
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/calendar.tsx", "TypeScript JSX", 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 221
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/card.tsx", "TypeScript JSX", 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 93
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/chart.tsx", "TypeScript JSX", 319, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 37, 358
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/checkbox.tsx", "TypeScript JSX", 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 33
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/collapsible.tsx", "TypeScript JSX", 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 34
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/combobox.tsx", "TypeScript JSX", 290, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 311
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/command.tsx", "TypeScript JSX", 172, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 185
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/dialog.tsx", "TypeScript JSX", 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 144
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/drawer.tsx", "TypeScript JSX", 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 136
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/dropdown-menu.tsx", "TypeScript JSX", 239, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 258
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/field.tsx", "TypeScript JSX", 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 249
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/hover-card.tsx", "TypeScript JSX", 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 45
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/input-group.tsx", "TypeScript JSX", 152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 16, 171
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/input.tsx", "TypeScript JSX", 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 22
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/label.tsx", "TypeScript JSX", 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 25
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/popover.tsx", "TypeScript JSX", 79, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 90
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/rich-text-editor.tsx", "TypeScript JSX", 106, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 121
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/select.tsx", "TypeScript JSX", 177, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 191
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/separator.tsx", "TypeScript JSX", 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 29
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/sheet.tsx", "TypeScript JSX", 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 144
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/sidebar.tsx", "TypeScript JSX", 660, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 55, 727
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/skeleton.tsx", "TypeScript JSX", 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 14
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/sonner.tsx", "TypeScript JSX", 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 41
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/table.tsx", "TypeScript JSX", 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 117
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/tabs.tsx", "TypeScript JSX", 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 92
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/textarea.tsx", "TypeScript JSX", 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 19
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/toggle-group.tsx", "TypeScript JSX", 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 84
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/toggle.tsx", "TypeScript JSX", 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 48
+"/home/chennian/myProjects/Chemistry/frontend/components/ui/tooltip.tsx", "TypeScript JSX", 54, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 62
+"/home/chennian/myProjects/Chemistry/frontend/eslint.config.mjs", "JavaScript", 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 2, 3, 19
+"/home/chennian/myProjects/Chemistry/frontend/hooks/use-dataup-action.tsx", "TypeScript JSX", 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 9, 93
+"/home/chennian/myProjects/Chemistry/frontend/hooks/use-mobile.ts", "TypeScript", 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 20
+"/home/chennian/myProjects/Chemistry/frontend/lib/api.ts", "TypeScript", 0, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 18, 134
+"/home/chennian/myProjects/Chemistry/frontend/lib/auth-client.ts", "TypeScript", 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 10
+"/home/chennian/myProjects/Chemistry/frontend/lib/rdkit.ts", "TypeScript", 0, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 69
+"/home/chennian/myProjects/Chemistry/frontend/lib/time.ts", "TypeScript", 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9
+"/home/chennian/myProjects/Chemistry/frontend/lib/utils.ts", "TypeScript", 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/chennian/myProjects/Chemistry/frontend/next.config.ts", "TypeScript", 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 23
+"/home/chennian/myProjects/Chemistry/frontend/package.json", "JSON", 0, 0, 0, 0, 74, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 75
+"/home/chennian/myProjects/Chemistry/frontend/pnpm-lock.yaml", "YAML", 0, 0, 0, 0, 0, 7725, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1686, 9411
+"/home/chennian/myProjects/Chemistry/frontend/pnpm-workspace.yaml", "YAML", 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/chennian/myProjects/Chemistry/frontend/postcss.config.mjs", "JavaScript", 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 2, 8
+"/home/chennian/myProjects/Chemistry/frontend/public/file.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/home/chennian/myProjects/Chemistry/frontend/public/globe.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/home/chennian/myProjects/Chemistry/frontend/public/next.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/home/chennian/myProjects/Chemistry/frontend/public/vercel.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/home/chennian/myProjects/Chemistry/frontend/public/window.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/DataUp.tsx", "TypeScript JSX", 369, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 27, 404
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/ReactionDiscriptions.tsx", "TypeScript JSX", 272, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 23, 314
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/ReactionMetaData.tsx", "TypeScript JSX", 94, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 9, 106
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/ReactionPredictDialog.tsx", "TypeScript JSX", 303, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 28, 339
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/ReviewSheet.tsx", "TypeScript JSX", 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7, 95
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/DataUp/SMARTSModuleData.tsx", "TypeScript JSX", 446, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 29, 488
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/Detail/Header.tsx", "TypeScript JSX", 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 11, 143
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/Detail/MainContent.tsx", "TypeScript JSX", 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 93
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/Detail/ReactionPredict.tsx", "TypeScript JSX", 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 34, 322
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/MolSearch.tsx", "TypeScript JSX", 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 106
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/ReactCard.tsx", "TypeScript JSX", 98, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 11, 119
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/ReactDic.tsx", "TypeScript JSX", 158, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 11, 177
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/ReactDic/keywordSearch.tsx", "TypeScript JSX", 90, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 100
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/Settings/settings.tsx", "TypeScript JSX", 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 21, 146
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/navbar/navbar-Dataup.tsx", "TypeScript JSX", 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 9, 72
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/navbar/navbar-ThemeSwitchButton.tsx", "TypeScript JSX", 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 34
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/navbar/navbar.tsx", "TypeScript JSX", 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 48
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/navbar/theme-provider.tsx", "TypeScript JSX", 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 15
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/routes.tsx", "TypeScript JSX", 56, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 59
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebar.tsx", "TypeScript JSX", 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 32
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebarApplication.tsx", "TypeScript JSX", 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 58
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebarHeader.tsx", "TypeScript JSX", 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebarHistory.tsx", "TypeScript JSX", 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 11, 116
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebarSecondary.tsx", "TypeScript JSX", 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 46
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/layout/sidebar/sidebarUser.tsx", "TypeScript JSX", 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8, 129
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/review/reviewDetail.tsx", "TypeScript JSX", 502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 28, 550
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/review/reviewTable/reviewColumns.tsx", "TypeScript JSX", 370, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 18, 414
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/review/reviewTable/reviewConfig.tsx", "TypeScript JSX", 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 56
+"/home/chennian/myProjects/Chemistry/frontend/src/dashboard/review/reviewTable/reviewTable.tsx", "TypeScript JSX", 364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 16, 406
+"/home/chennian/myProjects/Chemistry/frontend/src/loading/loading_DNA.tsx", "TypeScript JSX", 233, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 237
+"/home/chennian/myProjects/Chemistry/frontend/src/loading/loading_hamster.tsx", "TypeScript JSX", 300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 304
+"/home/chennian/myProjects/Chemistry/frontend/src/loading/loading_hourglass.tsx", "TypeScript JSX", 443, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 447
+"/home/chennian/myProjects/Chemistry/frontend/src/login_and_signup/signin-form.tsx", "TypeScript JSX", 138, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 145
+"/home/chennian/myProjects/Chemistry/frontend/src/login_and_signup/signin/page.tsx", "TypeScript JSX", 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 33
+"/home/chennian/myProjects/Chemistry/frontend/src/login_and_signup/signup-form.tsx", "TypeScript JSX", 172, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 179
+"/home/chennian/myProjects/Chemistry/frontend/src/login_and_signup/signup/page.tsx", "TypeScript JSX", 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 33
+"/home/chennian/myProjects/Chemistry/frontend/store/auth-store.ts", "TypeScript", 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 37
+"/home/chennian/myProjects/Chemistry/frontend/store/reactdic-store.ts", "TypeScript", 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 37
+"/home/chennian/myProjects/Chemistry/frontend/store/review-store.ts", "TypeScript", 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 49
+"/home/chennian/myProjects/Chemistry/frontend/tsconfig.json", "JSON with Comments", 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 0, 0, 1, 36
+"/home/chennian/myProjects/Chemistry/frontend/types/dataup-shema.ts", "TypeScript", 0, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 13, 180
+"/home/chennian/myProjects/Chemistry/frontend/types/kekule-react.d.ts", "TypeScript", 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 17
+"/home/chennian/myProjects/Chemistry/frontend/types/kekuls.d.ts", "TypeScript", 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 14
+"Total", "-", 11436, -687, -20, 142, -4376, 7730, 14, 20, 5, 23, -156, -3, -177, -1256, -57, 2302, 14940
