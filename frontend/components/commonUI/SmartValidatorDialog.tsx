@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import Composer from "@/components/kekule-react/composer";
 import { KekuleChemWidgetRef } from "@/components/kekule-react/kekule-react";
-import { matchSmart } from "@/lib/rdkit";
+import { matchSmartsLocal } from "@/lib/rdkit-wasm";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 interface SmartValidatorDialogProps {
@@ -21,15 +21,6 @@ interface SmartValidatorDialogProps {
   onOpenChange: (isOpen: boolean) => void;
   smarts: string;
   onValidate?: (success: boolean) => void;
-}
-
-interface MatchResult {
-  smarts: string;
-  match_count: number;
-  matches: number[][];
-  atom_indices: number[];
-  matched: boolean;
-  error?: string;
 }
 
 export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
@@ -58,30 +49,29 @@ export default function SmartValidatorDialog(props: SmartValidatorDialogProps) {
     setResult(null);
 
     try {
-      const response = await matchSmart(props.smarts, molBlock);
+      const matchResult = await matchSmartsLocal(props.smarts, molBlock);
 
-      if (response.success && response) {
-        const matchResult = response.data as MatchResult;
-
-        if (matchResult.matched) {
-          setResult({
-            success: true,
-            message: `SMARTS模式匹配成功，共匹配${matchResult.match_count}次`,
-          });
-          if (matchResult.atom_indices?.length) {
-            composerRef.current?.highlightAtoms(matchResult.atom_indices);
-          }
-          props.onValidate?.(true);
-        } else {
-          setResult({ success: false, message: "SMARTS模式未匹配到任何原子" });
-          props.onValidate?.(false);
+      if (matchResult.matched) {
+        setResult({
+          success: true,
+          message: `SMARTS模式匹配成功，共匹配${matchResult.matchCount}次`,
+        });
+        if (matchResult.atomIndices?.length) {
+          composerRef.current?.highlightAtoms(matchResult.atomIndices);
         }
+        props.onValidate?.(true);
+      } else {
+        setResult({ success: false, message: "SMARTS模式未匹配到任何原子" });
+        props.onValidate?.(false);
       }
     } catch (error) {
       console.error("SMARTS匹配错误:", error);
       setResult({
         success: false,
-        message: "匹配过程中发生错误，请检查SMARTS模式是否正确",
+        message:
+          error instanceof Error
+            ? error.message
+            : "匹配过程中发生错误，请检查SMARTS模式是否正确",
       });
       props.onValidate?.(false);
     } finally {
