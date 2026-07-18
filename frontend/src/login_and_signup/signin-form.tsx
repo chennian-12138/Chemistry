@@ -12,7 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { Loader2, Key } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
+import { signIn, authClient } from "@/lib/auth-client";
+import { authErrorMessage, isValidEmail } from "@/lib/auth-errors";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +24,98 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const router = useRouter();
+
+  // 未验证时发送验证码（登录失败后后端通常已自动发一次，这里用于重发）
+  const sendOtp = async () => {
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
+      email,
+      type: "email-verification",
+    });
+    if (error) {
+      toast.error(authErrorMessage(error, "发送失败，请稍后重试"));
+      return;
+    }
+    toast.success("验证码已发送，请查收邮件");
+  };
+
+  // 输入验证码完成验证并登录
+  const verifyAndLogin = async () => {
+    if (otp.length !== 6) {
+      toast.error("请输入 6 位验证码");
+      return;
+    }
+    setVerifying(true);
+    const { error } = await authClient.emailOtp.verifyEmail({ email, otp });
+    if (error) {
+      setVerifying(false);
+      toast.error(authErrorMessage(error, "验证码错误或已过期"));
+      return;
+    }
+    // 验证通过后用原密码登录
+    await signIn.email({
+      email,
+      password,
+      rememberMe,
+      fetchOptions: {
+        onResponse: () => setVerifying(false),
+        onSuccess: () => {
+          window.location.href = "/dashboard/reactdic";
+        },
+        onError: (ctx) => toast.error(authErrorMessage(ctx.error, "登录失败")),
+      },
+    });
+  };
+
+  if (needsVerification) {
+    return (
+      <FieldGroup className="max-w-md">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h1 className="text-lg md:text-xl">验证邮箱</h1>
+          <p className="text-xs md:text-sm">
+            账号 <span className="font-medium text-foreground">{email}</span>{" "}
+            尚未验证，我们已发送验证码，请输入以完成验证并登录
+          </p>
+        </div>
+        <Field>
+          <FieldLabel htmlFor="otp">验证码</FieldLabel>
+          <Input
+            id="otp"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="6 位数字"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            className="text-center text-lg tracking-widest"
+          />
+        </Field>
+        <Button className="w-full" disabled={verifying} onClick={verifyAndLogin}>
+          {verifying ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            "验证并登录"
+          )}
+        </Button>
+        <button
+          type="button"
+          onClick={sendOtp}
+          className="text-sm text-indigo-600 hover:underline text-center"
+        >
+          没收到？重新发送验证码
+        </button>
+        <button
+          type="button"
+          onClick={() => setNeedsVerification(false)}
+          className="text-sm text-muted-foreground hover:underline text-center"
+        >
+          返回登录
+        </button>
+      </FieldGroup>
+    );
+  }
 
   return (
     <FieldGroup className="max-w-md">
@@ -47,10 +142,10 @@ export default function SignIn() {
         <div className="flex items-center">
           <FieldLabel htmlFor="password">Password</FieldLabel>
           <Link
-            href="#"
+            href="/forgot-password"
             className="ml-auto text-sm underline-offset-4 hover:underline"
           >
-            Forgot your password?
+            忘记密码？
           </Link>
         </div>
         <Input
@@ -77,17 +172,41 @@ export default function SignIn() {
         className="w-full"
         disabled={loading}
         onClick={async () => {
+          // 提交前的前置校验
+          if (!email.trim() || !password) {
+            toast.error("请填写邮箱和密码");
+            return;
+          }
+          if (!isValidEmail(email)) {
+            toast.error("邮箱格式不正确");
+            return;
+          }
+          setNeedsVerification(false);
           await signIn.email({
             email,
             password,
             rememberMe,
-            callbackURL: "/dashboard/dataup",
+            callbackURL: "/dashboard/reactdic",
             fetchOptions: {
               onRequest: () => {
                 setLoading(true);
               },
               onResponse: () => {
                 setLoading(false);
+              },
+              onSuccess: () => {
+                // 硬跳转，确保 useSession 重新读取新 session cookie
+                window.location.href = "/dashboard/reactdic";
+              },
+              onError: async (ctx) => {
+                // 403 = 邮箱未验证：切到验证码步骤并发送验证码
+                if (ctx.error.status === 403) {
+                  setNeedsVerification(true);
+                  toast.error("邮箱尚未验证，请输入验证码完成验证");
+                  await sendOtp();
+                } else {
+                  toast.error(authErrorMessage(ctx.error, "登录失败"));
+                }
               },
             },
           });
@@ -99,6 +218,15 @@ export default function SignIn() {
           <p>Login</p>
         )}
       </Button>
+      {needsVerification && (
+        <button
+          type="button"
+          onClick={resendVerification}
+          className="text-sm text-indigo-600 hover:underline text-center"
+        >
+          没收到验证邮件？点此重新发送
+        </button>
+      )}
       <FieldSeparator>其他登录方式</FieldSeparator>
       <div
         className={cn(

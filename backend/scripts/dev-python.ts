@@ -1,10 +1,7 @@
 import { spawn } from "child_process";
-import { config } from "dotenv";
+import "../lib/env";
 import { join } from "path";
 import * as fs from "fs";
-
-// 加载 .env 文件
-config();
 
 // 获取环境变量 RDKIT_PYTHON_PATH 或 PYTHON_PATH，如果不存在则回退到系统原生的 python
 // 这个只在本地 npm run dev 的时候起作用，所以服务器不受任何影响

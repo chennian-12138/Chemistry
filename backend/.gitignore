@@ -1,5 +1,7 @@
 node_modules
-# Keep environment variables out of version control
+# Keep environment variables out of version control（.env.example 除外，作为模板提交）
 .env
+.env.*
+!.env.example
 
 /generated/prisma

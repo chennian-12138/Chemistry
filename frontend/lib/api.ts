@@ -173,3 +173,45 @@ export async function deleteDraftItem(id: string) {
   }
   return res.json();
 }
+
+// ========== Account (个人设置) ==========
+
+export interface AccountStats {
+  reactionStatus: { name: string; value: number }[];
+  totals: { reactions: number; approved: number; drafts: number; history: number };
+  historyByType: { name: string; value: number }[];
+  activity: { name: string; clicks: number }[];
+}
+
+export async function getAccountStats(): Promise<{
+  success: boolean;
+  data?: AccountStats;
+  error?: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/account/stats`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 改邮箱：发送验证码到新邮箱
+export async function sendChangeEmailOtp(newEmail: string) {
+  const res = await fetch(`${API_BASE}/api/account/change-email/send-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ newEmail }),
+  });
+  return res.json();
+}
+
+// 改邮箱：校验验证码并落地
+export async function verifyChangeEmailOtp(otp: string) {
+  const res = await fetch(`${API_BASE}/api/account/change-email/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ otp }),
+  });
+  return res.json();
+}
