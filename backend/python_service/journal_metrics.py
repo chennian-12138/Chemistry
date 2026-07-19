@@ -17,7 +17,11 @@ _CSV_NAME = "journals_with_if.csv"
 
 def _csv_path() -> str:
     base = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base, "..", "..", _CSV_NAME)
+    # 优先 backend/data/（构建上下文内，Docker 可用），回退仓库根（本地遗留）
+    p = os.path.join(base, "..", "data", _CSV_NAME)
+    if not os.path.exists(p):
+        p = os.path.join(base, "..", "..", _CSV_NAME)
+    return p
 
 
 def _norm(name: str | None) -> str:

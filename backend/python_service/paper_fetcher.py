@@ -27,7 +27,10 @@ pyalex.config.retry_backoff_factor = 0.5
 def load_subfields() -> list[dict]:
     """读取 subfields_filter.csv，返回 subfield 列表。"""
     base = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(base, "..", "..", "subfields_filter.csv")
+    # 优先 backend/data/（构建上下文内，Docker 可用），回退仓库根（本地遗留）
+    csv_path = os.path.join(base, "..", "data", "subfields_filter.csv")
+    if not os.path.exists(csv_path):
+        csv_path = os.path.join(base, "..", "..", "subfields_filter.csv")
     subfields = []
     with open(csv_path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
