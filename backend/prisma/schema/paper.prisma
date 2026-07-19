@@ -1,0 +1,61 @@
+model Paper {
+  id             String          @id @default(cuid())
+  openalexId     String          @unique @map("openalex_id")
+  doi            String?
+  title          String
+  abstract       String?
+  journalName    String?         @map("journal_name")
+  jcrQuartile    String?         @map("jcr_quartile")   // "Q1" | "Q2" | "Q3" | "Q4" | null
+  impactFactor   Float?          @map("impact_factor")
+  publishedDate  DateTime?       @map("published_date")
+  landingPageUrl String?         @map("landing_page_url")
+  /// JSON: { firstAuthor: string, lastAuthor: string, institution: string }
+  authors        Json?
+  articleType    String?         @map("article_type") // "Article" | "Review" | ...
+  likeCount      Int             @default(0) @map("like_count")
+  fetchedAt      DateTime        @default(now()) @map("fetched_at")
+  subfields      PaperSubfield[]
+  likes          PaperLike[]
+  bookmarks      PaperBookmark[]
+
+  @@index([publishedDate(sort: Desc)])
+  @@index([likeCount(sort: Desc)])
+  @@index([impactFactor(sort: Desc)])
+  @@map("paper")
+}
+
+model PaperSubfield {
+  /// OpenAlex subfield id, e.g. "subfields/1605"
+  id            String  @id
+  displayName   String  @map("display_name")
+  displayNameZh String  @map("display_name_zh")
+  papers        Paper[]
+
+  @@map("paper_subfield")
+}
+
+model PaperLike {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  paperId   String   @map("paper_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paper     Paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, paperId])
+  @@index([userId])
+  @@map("paper_like")
+}
+
+model PaperBookmark {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  paperId   String   @map("paper_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paper     Paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, paperId])
+  @@index([userId])
+  @@map("paper_bookmark")
+}

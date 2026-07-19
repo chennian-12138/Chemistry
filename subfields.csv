@@ -1,0 +1,253 @@
+id,display_name,description,field,domain,works_count,cited_by_count
+subfields/2202,Aerospace Engineering,branch of engineering,Engineering,Physical Sciences,27327230,17526129
+subfields/3312,Sociology and Political Science,academic disciplines concerned with society and the relationships between individuals in society,Social Sciences,Social Sciences,15359602,66517437
+subfields/3106,Nuclear and High Energy Physics,physics of elementary particles at high energies,Physics and Astronomy,Physical Sciences,12370259,22962386
+subfields/1312,Molecular Biology,branch of biology that deals with the molecular basis of biological activity,"Biochemistry, Genetics and Molecular Biology",Life Sciences,10942349,186848650
+subfields/2002,Economics and Econometrics,"social science that studies the production, distribution, and consumption of goods and services","Economics, Econometrics and Finance",Social Sciences,10938641,36781281
+subfields/2208,Electrical and Electronic Engineering,"electrical engineering discipline which utilizes nonlinear and active electrical components to design electronic circuits, devices, and their systems",Engineering,Physical Sciences,10773492,80096263
+subfields/1110,Plant Science,science of plant life,Agricultural and Biological Sciences,Life Sciences,10728761,57797555
+subfields/3320,Political Science and International Relations,academic discipline,Social Sciences,Social Sciences,10192651,27447437
+subfields/1702,Artificial Intelligence,field of computer science and engineering practices for intelligence demonstrated by machines and intelligent agents,Computer Science,Physical Sciences,9645593,53162829
+subfields/3304,Education,transmission of knowledge and skills,Social Sciences,Social Sciences,9584637,30925471
+subfields/2746,Surgery,medical specialty,Medicine,Health Sciences,5996973,57649601
+subfields/2505,Materials Chemistry,"study of the synthesis, structure, and properties of solid phase materials",Materials Science,Physical Sciences,5555083,73589091
+subfields/1202,History,past events and their tracks or records,Arts and Humanities,Social Sciences,5161698,5958622
+subfields/3103,Astronomy and Astrophysics,scientific study of celestial objects and phenomena,Physics and Astronomy,Physical Sciences,4733095,33713536
+subfields/1208,Literature and Literary Theory,"polysemous term referring to a written art form, and the set of all literary works",Arts and Humanities,Social Sciences,4653328,7450592
+subfields/1710,Information Systems,"academic study of systems with a specific reference to information and the complementary networks of hardware and software that people and organizations use to collect, filter, process, create and also distribute data",Computer Science,Physical Sciences,4523145,17220580
+subfields/2204,Biomedical Engineering,application of engineering principles and design concepts to medicine and biology,Engineering,Physical Sciences,4482158,56053064
+subfields/3600,General Health Professions,type of profession,Health Professions,Health Sciences,4470155,22771045
+subfields/3107,"Atomic and Molecular Physics, and Optics",branch of physics,Physics and Astronomy,Physical Sciences,4381640,44119092
+subfields/2210,Mechanical Engineering,engineering discipline,Engineering,Physical Sciences,4377082,34661407
+subfields/2739,"Public Health, Environmental and Occupational Health","science and art of preventing disease, prolonging life and promoting health through organized efforts and informed choices of society, organizations, public and private, communities and individuals",Medicine,Health Sciences,4295428,34719199
+subfields/1211,Philosophy,"study of the truths and principles of being, knowledge, or conduct",Arts and Humanities,Social Sciences,3940807,9244096
+subfields/1105,"Ecology, Evolution, Behavior and Systematics",scientific study of the relationships between living organisms,Agricultural and Biological Sciences,Life Sciences,3890989,18311703
+subfields/1311,Genetics,"science of genes, heredity, and variation in living organisms","Biochemistry, Genetics and Molecular Biology",Life Sciences,3845900,41291180
+subfields/2713,Epidemiology,"study of the patterns, causes, and effects of health and disease conditions",Medicine,Health Sciences,3790339,46863495
+subfields/2740,Pulmonary and Respiratory Medicine,"branch of medicine concerned with the diagnosis, treatment, and prevention of diseases affecting the lungs and respiratory system, including asthma, COPD, and pulmonary infections",Medicine,Health Sciences,3786835,40533720
+subfields/2735,"Pediatrics, Perinatology and Child Health",field of medicine dealing with the care of children,Medicine,Health Sciences,3758592,14562093
+subfields/2303,Ecology,scientific study of the relationships between living organisms,Environmental Science,Physical Sciences,3604608,33162642
+subfields/1605,Organic Chemistry,"subdiscipline within chemistry involving the scientific study of carbon-based compounds, hydrocarbons, and their derivatives",Chemistry,Physical Sciences,3559359,39401887
+subfields/3203,Clinical Psychology,integration of science and clinical knowledge for the purpose of relieving psychologically based dysfunction,Psychology,Social Sciences,3151405,31664725
+subfields/1204,Archeology,study of the past via material culture,Arts and Humanities,Social Sciences,3132722,5205737
+subfields/2205,Civil and Structural Engineering,"engineering discipline specializing in design, construction and maintenance of the built environment",Engineering,Physical Sciences,2909186,19322228
+subfields/1408,Strategy and Management,high-level plan to achieve objectives in uncertain conditions,"Business, Management and Accounting",Social Sciences,2803242,17369898
+subfields/3308,Law,"system of rules and guidelines, generally backed by governmental authority",Social Sciences,Social Sciences,2797758,3900578
+subfields/1705,Computer Networks and Communications,network that allows computers to share resources and communicate with each other,Computer Science,Physical Sciences,2794489,22506500
+subfields/2207,Control and Systems Engineering,"engineering discipline that applies control theory to design systems with desired behaviors, focusing on the development and implementation of control systems in machinery, processes, and automation",Engineering,Physical Sciences,2762757,19640864
+subfields/3207,Social Psychology,"scientific study of social effects on people's thoughts, feelings, and behaviors",Psychology,Social Sciences,2760114,28702728
+subfields/1203,Language and Linguistics,structured system of communication,Arts and Humanities,Social Sciences,2721125,9673092
+subfields/3314,Anthropology,"scientific study of humans, human behavior, and societies",Social Sciences,Social Sciences,2707001,7588412
+subfields/2308,"Management, Monitoring, Policy and Law","system of rules and guidelines, generally backed by governmental authority",Environmental Science,Physical Sciences,2542304,8094118
+subfields/3316,Cultural Studies,academic field of critical theory and literary criticism,Social Sciences,Social Sciences,2521214,3936502
+subfields/2730,Oncology,branch of medicine dealing with cancer,Medicine,Health Sciences,2492540,40516067
+subfields/1707,Computer Vision and Pattern Recognition,computerized information extraction from images,Computer Science,Physical Sciences,2475546,28798929
+subfields/2737,Physiology,science regarding function of organisms or living systems,Medicine,Health Sciences,2463239,40449367
+subfields/2306,Global and Planetary Change,planetary-scale changes in the Earth system,Environmental Science,Physical Sciences,2445276,28604251
+subfields/2705,Cardiology and Cardiovascular Medicine,branch of medicine dealing with disorders of the heart as well as parts of the circulatory system,Medicine,Health Sciences,2399010,31845570
+subfields/2741,"Radiology, Nuclear Medicine and Imaging",specialty that uses medical imaging to diagnose and treat diseases seen within the body,Medicine,Health Sciences,2256126,24872602
+subfields/2206,Computational Mechanics,discipline concerned with the use of computational methods to study mechanics,Engineering,Physical Sciences,2098765,19389188
+subfields/1106,Food Science,applied science devoted to the study of food,Agricultural and Biological Sciences,Life Sciences,2067140,16808321
+subfields/2211,Mechanics of Materials,behavior of solid objects subject to stresses and strains,Engineering,Physical Sciences,2065525,19523151
+subfields/2805,Cognitive Neuroscience,scientific field concerned with cognition,Neuroscience,Life Sciences,1969194,39501230
+subfields/2736,Pharmacology,branch of biology concerning drugs,Medicine,Health Sciences,1927987,16780307
+subfields/1402,Accounting,"measurement, processing and communication of financial information about economic entities","Business, Management and Accounting",Social Sciences,1917191,10899460
+subfields/1908,Geophysics,study of physical processes and phenomena occurring in the earth and in its vicinity,Earth and Planetary Sciences,Physical Sciences,1747236,18693240
+subfields/1902,Atmospheric Science,umbrella term for the study of the atmosphere,Earth and Planetary Sciences,Physical Sciences,1744909,22426527
+subfields/2212,Ocean Engineering,engineering of devices within the ocean environment,Engineering,Physical Sciences,1655379,8648465
+subfields/2725,Infectious Diseases,disease caused by infection of pathogenic biological agents in a host organism,Medicine,Health Sciences,1643891,22807566
+subfields/3317,Demography,science that deals with populations and their structures statistically and theoretically,Social Sciences,Social Sciences,1638358,5902524
+subfields/2403,Immunology,branch of medicine studying the immune system,Immunology and Microbiology,Life Sciences,1635421,34577787
+subfields/1207,History and Philosophy of Science,academic discipline,Arts and Humanities,Social Sciences,1611657,3802293
+subfields/2312,Water Science and Technology,emphasis of groundwater and surface water in the understanding of water resource systems,Environmental Science,Physical Sciences,1584236,14940619
+subfields/2105,"Renewable Energy, Sustainability and the Environment",energy collected from renewable resources,Energy,Physical Sciences,1572451,25191449
+subfields/1212,Religious studies,objective study of religion,Arts and Humanities,Social Sciences,1549800,2109703
+subfields/1703,Computational Theory and Mathematics,area of mathematics,Computer Science,Physical Sciences,1540424,16367546
+subfields/1803,Management Science and Operations Research,study of problem-solving in human organizations,Decision Sciences,Social Sciences,1490369,16719845
+subfields/1304,Biophysics,study of biological systems using methods from the physical sciences,"Biochemistry, Genetics and Molecular Biology",Life Sciences,1481529,4442562
+subfields/2712,"Endocrinology, Diabetes and Metabolism","medical specialty focusing on the endocrine system, its diseases, and their treatment, including diabetes management and metabolic disorders affecting hormone balance and body function",Medicine,Health Sciences,1474061,21311728
+subfields/1407,Organizational Behavior and Human Resource Management,study of human behavior in organizational settings,"Business, Management and Accounting",Social Sciences,1465807,13029096
+subfields/3205,Experimental and Cognitive Psychology,subdiscipline of psychology,Psychology,Social Sciences,1458720,18480777
+subfields/1911,Paleontology,scientific study of the past of life on Earth through fossils,Earth and Planetary Sciences,Physical Sciences,1458253,6077514
+subfields/2302,Ecological Modeling,computational or theoretical approach to ecology,Environmental Science,Physical Sciences,1455946,2756825
+subfields/1213,Visual Arts and Performing Arts,an expansive category encompassing creative disciplines that engage the senses and express human creativity and imagination,Arts and Humanities,Social Sciences,1449049,2226240
+subfields/2734,Pathology and Forensic Medicine,study and diagnosis of disease,Medicine,Health Sciences,1431297,19494782
+subfields/1802,Information Systems and Management,book,Decision Sciences,Social Sciences,1429286,5472355
+subfields/1910,Oceanography,branch of Earth science that studies the ocean,Earth and Planetary Sciences,Physical Sciences,1417071,12724708
+subfields/2305,Environmental Engineering,professional engineering discipline related to environmental science,Environmental Science,Physical Sciences,1415979,12578791
+subfields/2003,Finance,"academic discipline studying businesses, financing, investments and protection of economic value","Economics, Econometrics and Finance",Social Sciences,1397422,11939438
+subfields/3104,Condensed Matter Physics,branch of physics dealing with a property of matter,Physics and Astronomy,Physical Sciences,1395800,11756093
+subfields/2215,Building and Construction,former West German trade union (1949–1995),Engineering,Physical Sciences,1379567,9961160
+subfields/2743,Reproductive Medicine,"medicine dealing with prevention, diagnosis and management of reproductive problems",Medicine,Health Sciences,1370170,8494699
+subfields/2728,Neurology,medical specialty dealing with disorders of the nervous system,Medicine,Health Sciences,1361756,17559842
+subfields/3204,Developmental and Educational Psychology,scientific study of changes that occur in human beings over the course of their lives,Psychology,Social Sciences,1341482,15057482
+subfields/3322,Urban Studies,interdisciplinary field that examines the development and dynamics of cities and urban spaces,Social Sciences,Social Sciences,1336768,3155664
+subfields/2738,Psychiatry and Mental health,"branch of medicine devoted to the study, diagnosis, treatment, and prevention of mental disorders",Medicine,Health Sciences,1324779,20545047
+subfields/2309,Nature and Landscape Conservation,conservation of nature,Environmental Science,Physical Sciences,1311783,11826006
+subfields/1109,Insect Science,scientific study of insects,Agricultural and Biological Sciences,Life Sciences,1299290,8286307
+subfields/2502,Biomaterials,any substance that has been engineered to interact with biological systems for a medical purpose,Materials Science,Physical Sciences,1291773,17109040
+subfields/1209,Museology,study of museums,Arts and Humanities,Social Sciences,1264960,1059276
+subfields/2307,"Health, Toxicology and Mutagenesis","branch of biology, chemistry, and medicine",Environmental Science,Physical Sciences,1242652,16750361
+subfields/2209,Industrial and Manufacturing Engineering,"discipline of engineering dealing with various manufacturing sciences and practices including the research, design and development of systems, processes, machines, tools, and equipment",Engineering,Physical Sciences,1234248,7387139
+subfields/3318,Gender Studies,interdisciplinary academic field devoted to analysing gender identity and gendered representation,Social Sciences,Social Sciences,1194980,8198840
+subfields/2745,Rheumatology,"medical specialty dealing with autoimmune diseases, especially those of joints and connective tissues, including arthritis",Medicine,Health Sciences,1188698,15142798
+subfields/1307,Cell Biology,scientific discipline that studies cells,"Biochemistry, Genetics and Molecular Biology",Life Sciences,1164156,22613431
+subfields/1100,General Agricultural and Biological Sciences,cultivation of plants and animals to provide useful products,Agricultural and Biological Sciences,Life Sciences,1138719,3629285
+subfields/3109,Statistical and Nonlinear Physics,branch of physics,Physics and Astronomy,Physical Sciences,1124041,13447749
+subfields/1607,Spectroscopy,measurement and interpretation of interactions between matter and electromagnetic radiation of varying frequencies,Chemistry,Physical Sciences,1116326,16024890
+subfields/1406,Marketing,"study and process of promoting, distributing, and selling products or services to customers","Business, Management and Accounting",Social Sciences,1113494,7543020
+subfields/2916,Nutrition and Dietetics,field of research,Nursing,Health Sciences,1113220,16181038
+subfields/1210,Music,art/activity of creating art using sound,Arts and Humanities,Social Sciences,1111738,1691546
+subfields/1404,Management Information Systems,information system used for decision-making,"Business, Management and Accounting",Social Sciences,1072854,8146386
+subfields/2304,Environmental Chemistry,scientific study of the chemical and biochemical phenomena that occur in natural places,Environmental Science,Physical Sciences,1072408,9943887
+subfields/1306,Cancer Research,"research into cancer to identify causes and develop strategies for prevention, diagnosis, treatment, and cure","Biochemistry, Genetics and Molecular Biology",Life Sciences,1058460,19411146
+subfields/2804,Cellular and Molecular Neuroscience,branch of neuroscience,Neuroscience,Life Sciences,1055275,28263702
+subfields/2504,"Electronic, Optical and Magnetic Materials","substance that can occur in different amounts, all with some similar [mixture of some] characteristics, and with which objects can be made",Materials Science,Physical Sciences,1033978,19010741
+subfields/3305,"Geography, Planning and Development","science that studies the terrestrial surface, the societies that inhabit it and the territories, landscapes, places or regions that form it when interacting with each other",Social Sciences,Social Sciences,1024123,2561416
+subfields/2000,"General Economics, Econometrics and Finance","social science that studies the production, distribution, and consumption of goods and services","Economics, Econometrics and Finance",Social Sciences,1020373,7717478
+subfields/2613,Statistics and Probability,"study of the collection, analysis, interpretation, and presentation of data",Mathematics,Physical Sciences,1005736,14377115
+subfields/1205,Classics,study of classical antiquity such as ancient Greece and ancient Rome,Arts and Humanities,Social Sciences,993984,1482423
+subfields/3311,Safety Research,research discipline,Social Sciences,Social Sciences,960474,5957964
+subfields/2707,Complementary and alternative medicine,form of non-scientific healing,Medicine,Health Sciences,951498,4919704
+subfields/3315,Communication,act of conveying intended meaning,Social Sciences,Social Sciences,947590,5855866
+subfields/3313,Transportation,human-directed movement of things or people between locations,Social Sciences,Social Sciences,902820,3518433
+subfields/2604,Applied Mathematics,discipline of mathematics,Mathematics,Physical Sciences,900119,7197116
+subfields/1606,Physical and Theoretical Chemistry,academic field,Chemistry,Physical Sciences,896127,8812042
+subfields/1604,Inorganic Chemistry,study of the synthesis and behavior of inorganic and organometallic compounds,Chemistry,Physical Sciences,882273,13202229
+subfields/2507,Polymers and Plastics,substance composed of macromolecules with repeating structural units,Materials Science,Physical Sciences,871042,12033744
+subfields/1405,Management of Technology and Innovation,set of management disciplines that allows organizations to manage their technological fundamentals to create competitive advantage,"Business, Management and Accounting",Social Sciences,855473,5219892
+subfields/1706,Computer Science Applications,study of computation,Computer Science,Physical Sciences,843801,2849347
+subfields/2608,Geometry and Topology,branch of mathematics at the intersection between geometry and topology,Mathematics,Physical Sciences,843342,6145921
+subfields/2720,Hematology,"study of blood, the blood-forming organs, and blood diseases",Medicine,Health Sciences,833742,12803970
+subfields/2729,Obstetrics and Gynecology,medical specialty,Medicine,Health Sciences,827405,6822639
+subfields/1102,Agronomy and Crop Science,"science and technology of producing and using plants for food, fuel, fiber, and reclamation",Agricultural and Biological Sciences,Life Sciences,822299,6662398
+subfields/2310,Pollution,introduction of contaminants into the natural environment that cause adverse change,Environmental Science,Physical Sciences,801482,14161220
+subfields/2203,Automotive Engineering,discipline of engineering,Engineering,Physical Sciences,800785,6781747
+subfields/1111,Soil Science,study of soil as a natural resource on the surface of the earth,Agricultural and Biological Sciences,Life Sciences,771504,8337724
+subfields/2708,Dermatology,"field of medicine dealing with the hair, nails, skin, and its diseases",Medicine,Health Sciences,752415,6124974
+subfields/3108,Radiation,"waves or particles propagating through space or through a medium, carrying energy",Physics and Astronomy,Physical Sciences,748123,4577037
+subfields/2731,Ophthalmology,field of medicine treating eye disorders,Medicine,Health Sciences,744241,7509422
+subfields/3306,Health,desirable level of functional or metabolic efficiency of a living being,Social Sciences,Social Sciences,737164,7489913
+subfields/2213,"Safety, Risk, Reliability and Quality","state of being secure from harm, injury, danger, or other non-desirable outcomes",Engineering,Physical Sciences,712699,3654337
+subfields/2808,Neurology,medical specialty dealing with disorders of the nervous system,Neuroscience,Life Sciences,700043,9074492
+subfields/1804,"Statistics, Probability and Uncertainty","study of the collection, analysis, interpretation, and presentation of data",Decision Sciences,Social Sciences,697198,7619423
+subfields/2610,Mathematical Physics,use of mathematics to solve physics problems,Mathematics,Physical Sciences,687717,6236773
+subfields/3300,General Social Sciences,academic disciplines concerned with society and the relationships between individuals in society,Social Sciences,Social Sciences,686342,766445
+subfields/2214,Media Technology,"field of study and practice that explores the development, application, and impact of digital and media technologies in communication, entertainment, and information dissemination",Engineering,Physical Sciences,684449,4512545
+subfields/1103,Animal Science and Zoology,scientific study of animals,Agricultural and Biological Sciences,Life Sciences,674903,7537262
+subfields/3004,Pharmacology,branch of biology concerning drugs,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,666110,5551173
+subfields/2716,Genetics,"science of genes, heredity, and variation in living organisms",Medicine,Health Sciences,661945,9640868
+subfields/2711,Emergency Medicine,medical specialty concerned with care for patients who require immediate medical attention,Medicine,Health Sciences,657877,4986811
+subfields/2311,Industrial and Manufacturing Engineering,"discipline of engineering dealing with various manufacturing sciences and practices including the research, design and development of systems, processes, machines, tools, and equipment",Environmental Science,Physical Sciences,656968,4806114
+subfields/1711,Signal Processing,models and analyzes data representations of physical events,Computer Science,Physical Sciences,629387,6592768
+subfields/3616,Speech and Hearing,"interdisciplinary field focused on the study of speech, language, and hearing processes and disorders, encompassing assessment, diagnosis, and treatment of communication and auditory impairments",Health Professions,Health Sciences,601182,2692973
+subfields/1206,Conservation,"practice of protecting the natural environment by individuals, organizations and governments",Arts and Humanities,Social Sciences,596060,724834
+subfields/2732,Orthopedics and Sports Medicine,branch of medicine dealing with the correction of deformities of bones or muscles,Medicine,Health Sciences,574980,7744439
+subfields/1104,Aquatic Science,multidisciplinary study of freshwater and marine ecosystems,Agricultural and Biological Sciences,Life Sciences,563081,4042928
+subfields/3605,Health Information Management,academic discipline,Health Professions,Health Sciences,557719,2074785
+subfields/3604,Emergency Medical Services,type of emergency service dedicated to providing out-of-hospital acute medical care and transport to definitive care,Health Professions,Health Sciences,555803,3528879
+subfields/2727,Nephrology,medical specialty that concerns itself with the kidneys,Medicine,Health Sciences,552204,8209806
+subfields/3310,Linguistics and Language,book by Julia S. Falk,Social Sciences,Social Sciences,544709,2503583
+subfields/3612,"Physical Therapy, Sports Therapy and Rehabilitation",health profession that aims to address the illnesses or injuries that limit a person's abilities to function in everyday lives,Health Professions,Health Sciences,533594,2741032
+subfields/1305,Biotechnology,use of living systems and organisms to develop or make useful products,"Biochemistry, Genetics and Molecular Biology",Life Sciences,532586,5835641
+subfields/2721,Hepatology,medical specialty,Medicine,Health Sciences,527333,8592104
+subfields/1602,Analytical Chemistry,"study of the separation, identification, and quantification of the chemical components of materials",Chemistry,Physical Sciences,519996,6155236
+subfields/1907,Geology,"study of the composition, structure, physical properties, and history of Earth's components, and the processes by which they are shaped",Earth and Planetary Sciences,Physical Sciences,506175,1963708
+subfields/1906,Geochemistry and Petrology,"scientific study of the chemical composition of the Earth and other planets, focusing on the processes and conditions that influence the formation, structure, and composition of rocks and minerals",Earth and Planetary Sciences,Physical Sciences,488538,3329379
+subfields/2405,Parasitology,"branch of biology that studies parasites, their hosts, and the relationship between them",Immunology and Microbiology,Life Sciences,485794,5561386
+subfields/1904,Earth-Surface Processes,term for the surface of the Earth,Earth and Planetary Sciences,Physical Sciences,470190,4049489
+subfields/3404,Small Animals,kingdom of multicellular eukaryotic organisms,Veterinary,Health Sciences,467335,4125668
+subfields/1708,Hardware and Architecture,physical components of a computer,Computer Science,Physical Sciences,463533,4193990
+subfields/2742,Rehabilitation,process to return a person to their formerly existing mental and health condition,Medicine,Health Sciences,454880,4882453
+subfields/1107,Forestry,"science and craft of creating, managing, using, conserving and repairing forests, woodlands, and associated resources for human and environmental benefits",Agricultural and Biological Sciences,Life Sciences,451259,1024522
+subfields/3303,Development,detailed developed land,Social Sciences,Social Sciences,450888,1846719
+subfields/2404,Microbiology,study of microscopic organisms,Immunology and Microbiology,Life Sciences,448520,5215529
+subfields/3609,Occupational Therapy,therapy to increase skills related to work or independent living,Health Professions,Health Sciences,436050,1537547
+subfields/1303,Biochemistry,study of chemical processes in living organisms,"Biochemistry, Genetics and Molecular Biology",Life Sciences,435440,5062648
+subfields/2508,"Surfaces, Coatings and Films",any adherent layer that covers a surface,Materials Science,Physical Sciences,425644,5561442
+subfields/3504,Oral Surgery,medical specialty,Dentistry,Health Sciences,412950,4282320
+subfields/1709,Human-Computer Interaction,academic discipline,Computer Science,Physical Sciences,403344,3670319
+subfields/1310,Endocrinology,medical specialty,"Biochemistry, Genetics and Molecular Biology",Life Sciences,401248,3569512
+subfields/3105,Instrumentation,measuring instruments which monitor and control a process,Physics and Astronomy,Physical Sciences,401078,993228
+subfields/3321,Public Administration,"generic term for the administrations that perform tasks of the state, including bodies governed by public law",Social Sciences,Social Sciences,382949,2927025
+subfields/3003,Pharmaceutical Science,"area of study concerned with drugs at every stage, from design to disposition","Pharmacology, Toxicology and Pharmaceutics",Life Sciences,377823,5556037
+subfields/2748,Urology,a medical and surgical specialty that focuses on diagnosing and treating disorders of the urinary tract and male reproductive organs,Medicine,Health Sciences,358471,3529711
+subfields/2500,General Materials Science,"research, discovery and design of physical materials (especially solids)",Materials Science,Physical Sciences,346744,903544
+subfields/2216,Architecture,"both the process and product of planning, designing and construction",Engineering,Physical Sciences,339727,492550
+subfields/3611,Pharmacy,"science that studies the chemical, pharmacological and pharmaceutical properties of drugs",Health Professions,Health Sciences,332930,1622875
+subfields/2715,Gastroenterology,branch of medicine focused on the digestive system and its disorders,Medicine,Health Sciences,330272,4413441
+subfields/1308,Clinical Biochemistry,study of chemical processes in living organisms,"Biochemistry, Genetics and Molecular Biology",Life Sciences,323533,4324600
+subfields/3309,Library and Information Sciences,professional training program merging of the two fields library science and information science,Social Sciences,Social Sciences,320189,457254
+subfields/3506,Periodontics,field of dentistry,Dentistry,Health Sciences,318823,3921157
+subfields/3202,Applied Psychology,application of psychological theories or findings,Psychology,Social Sciences,311171,4528048
+subfields/2703,Anesthesiology and Pain Medicine,medical specialty concerned with anesthesia and perioperative care,Medicine,Health Sciences,307721,3075633
+subfields/2611,Modeling and Simulation,"use of models – physical, mathematical, or otherwise logical representation of a system, entity, phenomenon, or process – as a basis for simulations – methods for implementing a model (either statically or) over time",Mathematics,Physical Sciences,299797,3279278
+subfields/2614,Theoretical Computer Science,subfield of computer science and mathematics,Mathematics,Physical Sciences,290250,913337
+subfields/1507,Fluid Flow and Transfer Processes,movement of fluid matter,Chemical Engineering,Physical Sciences,286124,3821434
+subfields/2723,Immunology and Allergy,branch of medicine studying the immune system,Medicine,Health Sciences,285703,5903063
+subfields/2733,Otorhinolaryngology,"surgical subspeciality concerned with ear, nose, and throat conditions",Medicine,Health Sciences,277089,3046339
+subfields/3614,Radiological and Ultrasound Technology,specialty that uses medical imaging to diagnose and treat diseases seen within the body,Health Professions,Health Sciences,275378,2003462
+subfields/2602,Algebra and Number Theory,part of mathematics in which letters and other symbols are used to represent numbers and quantities in formulae and equation,Mathematics,Physical Sciences,274121,2028177
+subfields/1704,Computer Graphics and Computer-Aided Design,sub-field of computer science,Computer Science,Physical Sciences,271735,1855376
+subfields/1503,Catalysis,process of increasing the rate of a chemical reaction,Chemical Engineering,Physical Sciences,265500,5246034
+subfields/2503,Ceramics and Composites,"inorganic, nonmetallic solid prepared by the action of heat",Materials Science,Physical Sciences,264655,3354606
+subfields/2706,Critical Care and Intensive Care Medicine,"medical care subspecialty, treating critically ill",Medicine,Health Sciences,264161,3279387
+subfields/2807,Endocrine and Autonomic Systems,medical specialty,Neuroscience,Life Sciences,257268,6459310
+subfields/1712,Software,non-tangible executable component of a computer,Computer Science,Physical Sciences,252532,1620525
+subfields/3505,Orthodontics,"specialty of dentistry that deals with the diagnosis, prevention, and correction of malpositioned teeth and jaws, and misaligned bite patterns",Dentistry,Health Sciences,251940,3333249
+subfields/2702,Anatomy,study of the structure and parts of organisms,Medicine,Health Sciences,249186,417123
+subfields/1314,Physiology,science regarding function of organisms or living systems,"Biochemistry, Genetics and Molecular Biology",Life Sciences,245150,2761316
+subfields/2612,Numerical Analysis,study of algorithms that use numerical approximation for the problems of mathematical analysis,Mathematics,Physical Sciences,245053,3457252
+subfields/1200,General Arts and Humanities,"study of the products of human culture such as art, historical artifacts etc",Arts and Humanities,Social Sciences,242574,111135
+subfields/2406,Virology,study of viruses,Immunology and Microbiology,Life Sciences,241246,4780834
+subfields/1313,Molecular Medicine,medical specialty and academic discipline,"Biochemistry, Genetics and Molecular Biology",Life Sciences,236803,5280534
+subfields/2717,Geriatrics and Gerontology,specialty that focuses on health care of elderly people,Medicine,Health Sciences,231287,2997098
+subfields/2809,Sensory Systems,ability to interpret the surrounding environment using light in the visible spectrum,Neuroscience,Life Sciences,226200,4398859
+subfields/2704,Biochemistry,study of chemical processes in living organisms,Medicine,Health Sciences,222666,5827955
+subfields/1315,Structural Biology,study of molecular structures in biology,"Biochemistry, Genetics and Molecular Biology",Life Sciences,208182,626337
+subfields/3200,General Psychology,"branch of psychology that studies the mental functions, behaviors, and processes of individuals, exploring concepts such as perception, cognition, emotion, and motivation",Psychology,Social Sciences,197656,1058912
+subfields/3307,Human Factors and Ergonomics,study of designing equipment and devices that fit the human body and its cognitive abilities,Social Sciences,Social Sciences,188454,689399
+subfields/3302,Archeology,study of the past via material culture,Social Sciences,Social Sciences,177776,268521
+subfields/1502,Bioengineering,application of biology and engineering to create useful products,Chemical Engineering,Physical Sciences,176871,1840279
+subfields/2607,Discrete Mathematics and Combinatorics,study of discrete mathematical structures,Mathematics,Physical Sciences,173101,1095758
+subfields/2102,Energy Engineering and Power Technology,broad field of engineering dealing with energy,Energy,Physical Sciences,171674,1166984
+subfields/2910,"Issues, ethics and legal aspects","branch of philosophy that systematizes, defends, and recommends concepts of right and wrong conduct",Nursing,Health Sciences,166451,447849
+subfields/2724,Internal Medicine,"medical specialty dealing with the prevention, diagnosis, and treatment of  diseases of internal organs",Medicine,Health Sciences,164387,1912339
+subfields/1603,Electrochemistry,branch of chemistry,Chemistry,Physical Sciences,160869,3229130
+subfields/2806,Developmental Neuroscience,scientific study of the nervous system,Neuroscience,Life Sciences,157330,2942360
+subfields/2718,Health Informatics,"discipline at the intersection of information science, computer science, and health care",Medicine,Health Sciences,142468,937725
+subfields/3005,Toxicology,"scientific study of the harmful effects that chemicals, substances, or situations can have on living organisms and the environment","Pharmacology, Toxicology and Pharmaceutics",Life Sciences,138589,1661779
+subfields/1403,Business and International Management,administration of a profit-oriented enterprise,"Business, Management and Accounting",Social Sciences,138258,620334
+subfields/3206,Neuropsychology and Physiological Psychology,study of the brain related to specific psychological processes and behaviors,Psychology,Social Sciences,135417,799976
+subfields/3603,Complementary and Manual Therapy,therapeutic practice not currently considered an integral part of conventional allopathic medical practice,Health Professions,Health Sciences,134849,906592
+subfields/1410,Industrial relations,"study of the relationship between employers, employees and others","Business, Management and Accounting",Social Sciences,130455,49436
+subfields/2100,General Energy,Czech company,Energy,Physical Sciences,123367,299340
+subfields/2747,Transplantation,moving of an organ or tissue from one body or body region to another,Medicine,Health Sciences,112942,1438658
+subfields/2802,Behavioral Neuroscience,field of scientific study,Neuroscience,Life Sciences,110819,3289017
+subfields/3607,Medical Laboratory Technology,equipment and software used in medical laboratories,Health Professions,Health Sciences,109958,244593
+subfields/1912,Space and Planetary Science,science of astronomical objects apparently in orbit around one or more stellar objects within a few light years,Earth and Planetary Sciences,Physical Sciences,108575,214382
+subfields/1409,"Tourism, Leisure and Hospitality Management",study of the hospitality industry.,"Business, Management and Accounting",Social Sciences,104349,450539
+subfields/1302,Aging,biological processes in a human body coupled to increasing age,"Biochemistry, Genetics and Molecular Biology",Life Sciences,102273,2104074
+subfields/1309,Developmental Biology,explores the processes by which individual organisms grow and develop (ontogeny),"Biochemistry, Genetics and Molecular Biology",Life Sciences,100489,1171756
+subfields/2402,Applied Microbiology and Biotechnology,study of microscopic organisms,Immunology and Microbiology,Life Sciences,93483,902567
+subfields/3319,Life-span and Life-course Studies,duration of life for an organism,Social Sciences,Social Sciences,86978,88715
+subfields/1508,Process Chemistry and Technology,arm of pharmaceutical chemistry concerned with the development and optimization of a synthetic scheme and pilot plant procedure to manufacture compounds for the drug development phase,Chemical Engineering,Physical Sciences,82843,1368934
+subfields/2714,Family Practice,medical specialty,Medicine,Health Sciences,82827,947187
+subfields/1800,General Decision Sciences,branch of applied probability theory,Decision Sciences,Social Sciences,74658,2054544
+subfields/2200,General Engineering,applied science,Engineering,Physical Sciences,72538,43938
+subfields/2506,Metals and Alloys,an alloy designation system widely accepted in North America,Materials Science,Physical Sciences,67407,806574
+subfields/2803,Biological Psychiatry,approach to psychiatry that aims to understand mental disorder in terms of the biological function of the nervous system,Neuroscience,Life Sciences,66459,1468010
+subfields/3608,Medical Terminology,"language used in the field of medicine to precisely describe the human body including its components, processes, conditions affecting it, and procedures performed upon it",Health Professions,Health Sciences,65612,48265
+subfields/3402,Equine,domesticated four-footed mammal from the equine family,Veterinary,Health Sciences,65496,652022
+subfields/2911,Leadership and Management,academic degree,Nursing,Health Sciences,59906,124544
+subfields/1506,Filtration and Separation,separating components suspended in a fluid based on granularity properties relying on a filter device,Chemical Engineering,Physical Sciences,59408,714842
+subfields/2726,Microbiology,study of microscopic organisms,Medicine,Health Sciences,59019,226874
+subfields/3500,General Dentistry,branch of medicine dealing with oral health and teeth,Dentistry,Health Sciences,58688,254238
+subfields/2922,Research and Theory,systematic study undertaken to increase knowledge,Nursing,Health Sciences,56523,590877
+subfields/1504,Chemical Health and Safety,prevention of occupational hazards,Chemical Engineering,Physical Sciences,56102,143110
+subfields/2103,Fuel Technology,"technology used in the extraction, processing and consumption of fuel resources",Energy,Physical Sciences,49791,111839
+subfields/1108,Horticulture,agriculture of plants,Agricultural and Biological Sciences,Life Sciences,45861,159899
+subfields/3102,Acoustics and Ultrasonics,"science that deals with the study of all mechanical waves in gases, liquids, and solids including vibration, sound, ultrasound and infrasound",Physics and Astronomy,Physical Sciences,26623,366103
+subfields/2605,Computational Mathematics,area of mathematics,Mathematics,Physical Sciences,24101,287170
+subfields/3002,Drug Discovery,the process by which new candidate medications are discovered,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,14896,15094
+subfields/2104,Nuclear Energy and Engineering,power generated from nuclear reactions,Energy,Physical Sciences,12010,28065

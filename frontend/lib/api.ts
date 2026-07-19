@@ -174,7 +174,123 @@ export async function deleteDraftItem(id: string) {
   return res.json();
 }
 
-// ========== Account (个人设置) ==========
+// ========== Papers (文献速递) ==========
+
+export interface PaperSubfieldItem {
+  id: string;
+  displayNameZh: string;
+}
+
+export interface PaperAuthors {
+  firstAuthor: string;
+  lastAuthor: string;
+  institution: string;
+}
+
+export interface Paper {
+  id: string;
+  openalexId: string;
+  doi: string | null;
+  title: string;
+  abstract: string | null;
+  journalName: string | null;
+  jcrQuartile: string | null;
+  impactFactor: number | null;
+  publishedDate: string | null;
+  landingPageUrl: string | null;
+  authors: PaperAuthors | null;
+  articleType: string | null;
+  likeCount: number;
+  subfields: PaperSubfieldItem[];
+  liked: boolean;
+  bookmarked: boolean;
+}
+
+export interface PapersListParams {
+  page?: number;
+  limit?: number;
+  keyword?: string;
+  sort?: "date" | "likes" | "impact";
+  articleType?: string; // "all" | "article" | "review"
+  dateFrom?: string;    // ISO date string, e.g. "2025-01-01"
+  dateTo?: string;
+}
+
+export async function getPapers(params: PapersListParams = {}) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.keyword) query.set("keyword", params.keyword);
+  if (params.sort) query.set("sort", params.sort);
+  if (params.articleType && params.articleType !== "all") query.set("articleType", params.articleType);
+  if (params.dateFrom) query.set("dateFrom", params.dateFrom);
+  if (params.dateTo) query.set("dateTo", params.dateTo);
+
+  const res = await fetch(`${API_BASE}/api/papers?${query.toString()}`, {
+    credentials: "include",
+  });
+  return res.json() as Promise<{
+    success: boolean;
+    data: Paper[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
+}
+
+export async function getPaperSubfields() {
+  const res = await fetch(`${API_BASE}/api/papers/subfields`, {
+    credentials: "include",
+  });
+  return res.json() as Promise<{
+    success: boolean;
+    data: { id: string; displayName: string; displayNameZh: string }[];
+  }>;
+}
+
+export async function getBookmarkedPapers(page = 1, limit = 20) {
+  const res = await fetch(
+    `${API_BASE}/api/papers/bookmarks?page=${page}&limit=${limit}`,
+    { credentials: "include" },
+  );
+  return res.json() as Promise<{
+    success: boolean;
+    data: Paper[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
+}
+
+export async function togglePaperLike(paperId: string) {
+  const res = await fetch(`${API_BASE}/api/papers/${paperId}/like`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return res.json() as Promise<{ success: boolean; liked: boolean }>;
+}
+
+export async function togglePaperBookmark(paperId: string) {
+  const res = await fetch(`${API_BASE}/api/papers/${paperId}/bookmark`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return res.json() as Promise<{ success: boolean; bookmarked: boolean }>;
+}
+
+// 仅 SUPERADMIN：手动触发一次增量爬取（调试用）
+export async function triggerDailyFetch() {
+  const res = await fetch(`${API_BASE}/api/papers/trigger-daily`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return res.json() as Promise<{
+    success?: boolean;
+    status?: string;
+    message?: string;
+    error?: string;
+  }>;
+}
 
 export interface AccountStats {
   reactionStatus: { name: string; value: number }[];

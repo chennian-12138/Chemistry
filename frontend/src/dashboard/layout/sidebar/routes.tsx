@@ -6,7 +6,8 @@ import {
     MailQuestionMark,
     Settings,
     Users,
-    ShieldCheck
+    ShieldCheck,
+    Newspaper,
 } from "lucide-react";
 
 export const routes = {
@@ -15,6 +16,11 @@ export const routes = {
         name:'ReactDic',
         Path:'/dashboard/reactdic',
         icon: BookSearch,
+    },
+    {
+        name:'Literature',
+        Path:'/dashboard/literature',
+        icon: Newspaper,
     },
     {
         name:'RetroSynthesisAnalysis',

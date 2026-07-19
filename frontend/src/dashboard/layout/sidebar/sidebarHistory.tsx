@@ -6,6 +6,7 @@ import {
   FlaskConical,
   Bot,
   History as HistoryIcon,
+  Newspaper,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,7 +25,7 @@ import { useHistoryStore } from "@/store/history-store";
 // 根据 history type 返回对应的图标和路径前缀
 const typeConfig: Record<
   string,
-  { icon: typeof BookSearch; pathPrefix: string }
+  { icon: typeof BookSearch; pathPrefix: string; external?: boolean }
 > = {
   REACTDIC: { icon: BookSearch, pathPrefix: "/dashboard/reactdic" },
   RETRO_SYNTHESIS: {
@@ -32,6 +33,8 @@ const typeConfig: Record<
     pathPrefix: "/dashboard/retrosynthesisanalysis",
   },
   AI_CHAT: { icon: Bot, pathPrefix: "/dashboard/askai" },
+  // PAPER 的 targetId 存的是 landingPageUrl，直接外链打开
+  PAPER: { icon: Newspaper, pathPrefix: "", external: true },
 };
 
 export default function AppSidebarHistory() {
@@ -83,7 +86,11 @@ export default function AppSidebarHistory() {
             {records.slice(0, 9).map((item) => {
               const config = typeConfig[item.type] || typeConfig.REACTDIC;
               const Icon = config.icon;
-              const href = `${config.pathPrefix}/${item.targetId}`;
+              // external 类型的 targetId 应是完整 URL；若非 http 开头则降级到列表页
+              const isValidUrl = item.targetId.startsWith("http");
+              const href = config.external && isValidUrl
+                ? item.targetId
+                : `${config.pathPrefix}/${item.targetId}`;
 
               return (
                 <SidebarMenuSubItem
@@ -91,10 +98,17 @@ export default function AppSidebarHistory() {
                   className="history-item-enter"
                 >
                   <SidebarMenuSubButton asChild>
-                    <Link href={href}>
-                      <Icon />
-                      <span>{item.title}</span>
-                    </Link>
+                    {config.external ? (
+                      <a href={href} target="_blank" rel="noopener noreferrer">
+                        <Icon />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <Link href={href}>
+                        <Icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               );

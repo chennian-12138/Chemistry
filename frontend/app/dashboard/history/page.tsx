@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Search,
   Calendar,
+  Newspaper,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -38,7 +39,7 @@ import { toast } from "sonner";
 
 const typeConfig: Record<
   string,
-  { icon: any; label: string; pathPrefix: string; color: string }
+  { icon: any; label: string; pathPrefix: string; color: string; useIdInPath?: boolean; external?: boolean }
 > = {
   REACTDIC: {
     icon: BookSearch,
@@ -59,6 +60,15 @@ const typeConfig: Record<
     pathPrefix: "/dashboard/askai",
     color:
       "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  },
+  PAPER: {
+    icon: Newspaper,
+    label: "文献速递",
+    pathPrefix: "",
+    color:
+      "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    useIdInPath: false,
+    external: true,   // targetId 即 landingPageUrl，直接外链
   },
 };
 
@@ -158,14 +168,14 @@ export default function HistoryPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex h-[400px] items-center justify-center">
+        <div className="flex h-100 items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             <p className="text-sm text-muted-foreground">加载中...</p>
           </div>
         </div>
       ) : filteredRecords.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
+        <div className="flex h-100 items-center justify-center rounded-lg border border-dashed">
           <div className="flex flex-col items-center space-y-2 text-center">
             <Clock className="h-10 w-10 text-muted-foreground/50" />
             <h3 className="text-lg font-semibold">暂无记录</h3>
@@ -191,44 +201,62 @@ export default function HistoryPage() {
                 {items.map((item) => {
                   const config = typeConfig[item.type] || typeConfig.REACTDIC;
                   const Icon = config.icon;
-                  return (
-                    <Link
+                  const href = config.external
+                    ? item.targetId                              // 直接是外链 URL
+                    : `${config.pathPrefix}/${item.targetId}`;
+
+                  const cardInner = (
+                    <Card className="h-full transition-all hover:shadow-md hover:border-primary/50">
+                      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                        <div className="space-y-1">
+                          <Badge variant="secondary" className={config.color}>
+                            <Icon className="mr-1 h-3 w-3" />
+                            {config.label}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => handleDelete(e, item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </CardHeader>
+                      <CardContent>
+                        <CardTitle className="text-base line-clamp-1 group-hover:text-primary transition-colors">
+                          {item.title}
+                        </CardTitle>
+                        <CardDescription className="flex items-center mt-2">
+                          <Clock className="mr-1 h-3 w-3" />
+                          {format(parseISO(item.createdAt), "HH:mm", {
+                            locale: zhCN,
+                          })}
+                        </CardDescription>
+                      </CardContent>
+                      <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all text-primary">
+                        <ChevronRight className="h-5 w-5" />
+                      </div>
+                    </Card>
+                  );
+
+                  return config.external ? (
+                    <a
                       key={item.id}
-                      href={`${config.pathPrefix}/${item.targetId}`}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="group relative"
                     >
-                      <Card className="h-full transition-all hover:shadow-md hover:border-primary/50">
-                        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                          <div className="space-y-1">
-                            <Badge variant="secondary" className={config.color}>
-                              <Icon className="mr-1 h-3 w-3" />
-                              {config.label}
-                            </Badge>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={(e) => handleDelete(e, item.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </CardHeader>
-                        <CardContent>
-                          <CardTitle className="text-base line-clamp-1 group-hover:text-primary transition-colors">
-                            {item.title}
-                          </CardTitle>
-                          <CardDescription className="flex items-center mt-2">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {format(parseISO(item.createdAt), "HH:mm", {
-                              locale: zhCN,
-                            })}
-                          </CardDescription>
-                        </CardContent>
-                        <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all text-primary">
-                          <ChevronRight className="h-5 w-5" />
-                        </div>
-                      </Card>
+                      {cardInner}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.id}
+                      href={href}
+                      className="group relative"
+                    >
+                      {cardInner}
                     </Link>
                   );
                 })}
