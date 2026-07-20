@@ -14,6 +14,7 @@ import analyticsRouter from "./routes/analytics";
 import draftsRouter from "./routes/drafts";
 import accountRouter from "./routes/account";
 import papersRouter from "./routes/papers";
+import chatRouter from "./routes/chat";
 
 const app = express();
 const port = 8000;
@@ -41,6 +42,7 @@ app.use("/api/analytics", analyticsRouter);
 app.use("/api/drafts", draftsRouter);
 app.use("/api/account", accountRouter);
 app.use("/api/papers", papersRouter);
+app.use("/api/chat", chatRouter);
 
 // 提供静态文件访问 (头像等)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

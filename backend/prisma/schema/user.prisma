@@ -19,6 +19,7 @@ model User {
   drafts          Draft[]
   paperLikes      PaperLike[]
   paperBookmarks  PaperBookmark[]
+  conversations   Conversation[]
 
   @@map("user")
 }

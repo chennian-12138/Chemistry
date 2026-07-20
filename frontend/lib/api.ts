@@ -122,6 +122,57 @@ export async function deleteHistory(id: string) {
   return res.json();
 }
 
+// ========== AI Chat 会话 ==========
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  reasoning?: string;
+  createdAt?: string;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  userId: string;
+  messages: ConversationMessage[];
+}
+
+export async function getConversations(): Promise<{
+  success: boolean;
+  data: ConversationSummary[];
+}> {
+  const res = await fetch(`${API_BASE}/api/chat/conversations`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function getConversation(id: string): Promise<{
+  success: boolean;
+  data?: ConversationDetail;
+  error?: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/chat/conversations/${id}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function deleteConversation(id: string) {
+  const res = await fetch(`${API_BASE}/api/chat/conversations/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}
+
 // ========== Analytics ==========
 
 export async function getDashboardAnalytics() {
