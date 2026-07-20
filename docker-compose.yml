@@ -8,6 +8,8 @@ services:
       - ./backend/.env.production
     environment:
       - NODE_ENV=production
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: sh -c "npx prisma db push && npm run dev"
     volumes:
       - uploads:/app/uploads
