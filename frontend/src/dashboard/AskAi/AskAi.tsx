@@ -1,14 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bot, Plus } from "lucide-react";
 
 import { AskAiChat } from "./AskAiChat";
 import { type Message } from "@/components/ui/chat-message";
-import { Button } from "@/components/ui/button";
 import { useChat } from "@/hooks/use-chat";
+import { useAskAiActions } from "@/hooks/use-askai-action";
 import { useSession } from "@/lib/auth-client";
 import { useHistoryStore } from "@/store/history-store";
 
@@ -108,35 +106,24 @@ export default function AskAi({
   // 没走 Next 路由，当前挂载的仍是基础路由段，push 回基础路由会落到同一个已挂载段上、
   // 不重挂载，旧消息与 convoId 会残留。真实 /askai/[id] 页同理（该段不会因 push 到别的
   // 路径而重置自身 state）。故统一走本地清空 + replaceState 复位 URL，确定可靠。
+  const reset = chat.reset;
   const handleNewChat = useCallback(() => {
-    chat.reset();
+    reset();
     setActiveId(undefined);
     setDisplayTitle("");
     window.history.replaceState(null, "", "/dashboard/askai");
-  }, [chat]);
+  }, [reset]);
+
+  // 把标题与「新对话」动作提升到 navbar（结构同 DataUp）。
+  // displayTitle 变化时重新注册，让顶栏标题跟着当前会话更新；离开页面时注销。
+  const { register, unregister } = useAskAiActions();
+  useEffect(() => {
+    register({ title: displayTitle, newChat: handleNewChat });
+    return () => unregister();
+  }, [register, unregister, displayTitle, handleNewChat]);
 
   return (
     <div className="mx-auto flex h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)] w-full max-w-7xl flex-col px-4 md:px-6 pb-4 bg-transparent">
-      {/* 顶部标题栏 */}
-      <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-center gap-2 bg-transparent"
-      >
-        <Bot className="size-5 text-primary shrink-0" />
-        <h1 className="text-xl font-semibold truncate">{displayTitle || "问问 AI"}</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto shrink-0"
-          onClick={handleNewChat}
-        >
-          <Plus className="size-4" />
-          新对话
-        </Button>
-      </motion.div>
-
       <AskAiChat
         className="h-full w-full min-h-0 flex-1"
         messages={chat.messages}
