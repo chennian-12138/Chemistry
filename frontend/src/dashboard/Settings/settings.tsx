@@ -293,7 +293,8 @@ export default function UserSettings() {
     .toUpperCase();
 
   return (
-    <div className="px-6 py-6 w-full h-full flex flex-col">
+    <div className="px-6 py-4 w-full h-[calc(100svh-4rem)] overflow-hidden flex flex-col">
+      {/* 锁定为「视口 - 导航栏(h-16)」的确定高度，内部 flex-1 图表自适应收缩，整页不出滚动条 */}
       {/* ── 顶部：头像 + 用户信息 + 账号编辑（同一行） */}
       <div className="flex items-start gap-6 mb-2">
         {/* 头像 */}

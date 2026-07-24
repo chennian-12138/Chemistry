@@ -1,0 +1,8 @@
+#please add some patterns to ignore
+# .claudeignore
+templates/      # 忽略整个 templates 目录
+journals.csv
+subfields_zh.csv
+subfields.csv
+*.log
+.env

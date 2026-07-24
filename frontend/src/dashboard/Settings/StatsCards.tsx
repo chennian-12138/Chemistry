@@ -8,134 +8,115 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  Pie,
-  PieChart,
-  Cell,
-} from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import type { AccountStats } from "@/lib/api";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Bot, FlaskConical, BookSearch, Newspaper } from "lucide-react";
+import type { AccountStats, FeatureType } from "@/lib/api";
 
-// 全灰度配色：深灰 / 中灰 / 浅灰
-const PIE_COLORS = ["#111827", "#6b7280", "#d1d5db"];
+// 4 大主功能：类型、文案、单位、图标、明/暗配色（取自校验通过的分类调色板前 4 槽位）
+const FEATURES: {
+  type: FeatureType;
+  label: string;
+  unit: string;
+  icon: any;
+  light: string;
+  dark: string;
+}[] = [
+  { type: "AI_CHAT", label: "AI 对话", unit: "个会话", icon: Bot, light: "#27374D", dark: "#C0E1D2" },
+  { type: "RETRO_SYNTHESIS", label: "逆合成分析", unit: "条路线", icon: FlaskConical, light: "#526D82", dark: "#E5EEE4" },
+  { type: "REACTDIC", label: "反应查询", unit: "个反应", icon: BookSearch, light: "#9DB2BF", dark: "#F6F4E8" },
+  { type: "PAPER", label: "文献速递", unit: "篇文献", icon: Newspaper, light: "#DDE6ED", dark: "#DC9B9B" },
+];
 
-const reactionConfig = {
-  已通过: { label: "已通过", color: "#111827" },
-  待审核: { label: "待审核", color: "#6b7280" },
-  已退回: { label: "已退回", color: "#d1d5db" },
-} satisfies ChartConfig;
-
-const activityConfig = {
-  clicks: { label: "浏览次数", color: "#6b7280" },
-} satisfies ChartConfig;
+// shadcn ChartConfig：每个功能一条 series，theme 提供明/暗两套色
+const chartConfig = FEATURES.reduce((acc, f) => {
+  acc[f.type] = { label: f.label, theme: { light: f.light, dark: f.dark } };
+  return acc;
+}, {} as ChartConfig);
 
 interface StatsCardsProps {
   stats: AccountStats;
 }
 
 export function StatsCards({ stats }: StatsCardsProps) {
-  const total = stats.totals.reactions;
+  // 后端已保证 features 按 FEATURES 顺序返回，这里做一次容错查表
+  const featureData = (type: FeatureType) =>
+    stats.features.find((f) => f.type === type) ?? { type, total: 0, recent: 0 };
+
+  const grandTotal = stats.features.reduce((s, f) => s + f.total, 0);
 
   return (
     <div className="flex flex-col h-full gap-6">
-      {/* 4 个指标数字 — 每个用 Card 包裹 */}
+      {/* 4 张功能指标卡：累计总量 + 近 30 天增量 */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 shrink-0">
-        {[
-          { label: "提交反应", value: total },
-          { label: "审核通过", value: stats.totals.approved },
-          { label: "云端草稿", value: stats.totals.drafts },
-          { label: "浏览记录", value: stats.totals.history },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardContent className="pt-6">
-              <p className="text-4xl font-bold tabular-nums">{item.value}</p>
-              <p className="text-sm text-muted-foreground mt-2">{item.label}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {FEATURES.map((f) => {
+          const d = featureData(f.type);
+          const Icon = f.icon;
+          return (
+            <Card key={f.type}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  {/* 图标以功能色着色作视觉锚点；文字标签独立承载身份，不依赖颜色 */}
+                  <Icon className="size-4 shrink-0" style={{ color: f.light }} />
+                  <span className="text-sm font-medium truncate">{f.label}</span>
+                </div>
+                <p className="text-4xl font-bold tabular-nums mt-3">{d.total}</p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {f.unit}
+                  <span className="mx-1.5 text-border">·</span>
+                  近 30 天{" "}
+                  <span className={d.recent > 0 ? "text-foreground font-medium" : ""}>
+                    +{d.recent}
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 flex-1 min-h-0">
-        {/* 反应提交状态饼图 */}
-        <Card className="flex flex-col flex-1 min-h-0">
-          <CardHeader className="shrink-0">
-            <CardTitle className="text-base">反应提交状态</CardTitle>
-            <CardDescription className="text-sm">历史提交分布</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 min-h-0 pb-4">
-            {total === 0 ? (
-              <p className="text-sm text-muted-foreground py-10 text-center">
-                暂无提交记录
-              </p>
-            ) : (
-              <ChartContainer config={reactionConfig} className="h-full w-full min-h-40">
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <Pie
-                    data={stats.reactionStatus}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={48}
-                    outerRadius={74}
-                    paddingAngle={3}
-                  >
-                    {stats.reactionStatus.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="name" />}
-                    className="-translate-y-2"
-                  />
-                </PieChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 近 6 个月活跃度 */}
-        <Card className="flex flex-col flex-1 min-h-0">
-          <CardHeader className="shrink-0">
-            <CardTitle className="text-base">近 6 个月浏览活跃度</CardTitle>
-            <CardDescription className="text-sm">按月浏览次数</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 min-h-0 pb-4">
-            <ChartContainer config={activityConfig} className="h-full w-full min-h-40">
-              <AreaChart data={stats.activity} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e5e7eb" />
+      {/* 近 6 个月使用趋势：按功能分层堆叠 */}
+      <Card className="flex flex-col flex-1 min-h-0">
+        <CardHeader className="shrink-0">
+          <CardTitle className="text-base">近 6 个月使用趋势</CardTitle>
+          <CardDescription className="text-sm">各功能访问量按月分层</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 min-h-0 pb-4">
+          {grandTotal === 0 ? (
+            <p className="text-sm text-muted-foreground py-10 text-center">
+              暂无使用记录，去体验一下各项功能吧
+            </p>
+          ) : (
+            <ChartContainer config={chartConfig} className="h-full w-full min-h-0">
+              <AreaChart data={stats.trend} margin={{ left: 8, right: 8, top: 8 }}>
+                <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis
                   dataKey="name"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={6}
-                  tick={{ fontSize: 13, fill: "#6b7280" }}
+                  tick={{ fontSize: 13, fill: "var(--muted-foreground)" }}
                 />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                <Area
-                  dataKey="clicks"
-                  type="natural"
-                  fill="#6b7280"
-                  fillOpacity={0.15}
-                  stroke="#111827"
-                  strokeWidth={1.5}
-                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                {FEATURES.map((f) => (
+                  <Area
+                    key={f.type}
+                    dataKey={f.type}
+                    name={f.label}
+                    type="monotone"
+                    stackId="usage"
+                    stroke={`var(--color-${f.type})`}
+                    fill={`var(--color-${f.type})`}
+                    fillOpacity={0.75}
+                    strokeWidth={1.5}
+                  />
+                ))}
+                <ChartLegend content={<ChartLegendContent />} className="-translate-y-1" />
               </AreaChart>
             </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

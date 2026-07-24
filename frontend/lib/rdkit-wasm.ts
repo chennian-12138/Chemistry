@@ -120,3 +120,46 @@ export async function matchSmartsLocal(
     qmol?.delete();
   }
 }
+
+/**
+ * 将 SMILES 渲染为 SVG 字符串，用于在逆合成图的节点里展示分子结构。
+ * 纯客户端，无需网络往返。非法 SMILES 返回空字符串。
+ */
+export async function smilesToSvg(
+  smiles: string,
+  width = 220,
+  height = 160,
+): Promise<string> {
+  const rdkit = await getRDKit();
+  let mol: ReturnType<RDKitModule["get_mol"]> = null;
+  try {
+    mol = rdkit.get_mol(smiles);
+    if (!mol) return "";
+    return mol.get_svg(width, height);
+  } catch {
+    return "";
+  } finally {
+    mol?.delete();
+  }
+}
+
+/**
+ * 将 Kekule 导出的 MolBlock 转为 canonical SMILES。
+ * 用于把画板结构交给后端逆合成接口，避免依赖 Kekule 的 OpenBabel 异步模块。
+ */
+export async function molBlockToSmiles(
+  molBlock: string,
+): Promise<string | null> {
+  const rdkit = await getRDKit();
+  let mol: ReturnType<RDKitModule["get_mol"]> = null;
+  try {
+    mol = rdkit.get_mol(molBlock);
+    if (!mol) return null;
+    const smiles = mol.get_smiles();
+    return smiles || null;
+  } catch {
+    return null;
+  } finally {
+    mol?.delete();
+  }
+}

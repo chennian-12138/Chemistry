@@ -343,11 +343,14 @@ export async function triggerDailyFetch() {
   }>;
 }
 
+// 4 大主功能对应的 BrowsingHistory.type
+export type FeatureType = "AI_CHAT" | "RETRO_SYNTHESIS" | "REACTDIC" | "PAPER";
+
 export interface AccountStats {
-  reactionStatus: { name: string; value: number }[];
-  totals: { reactions: number; approved: number; drafts: number; history: number };
-  historyByType: { name: string; value: number }[];
-  activity: { name: string; clicks: number }[];
+  // 每个功能一张指标卡：累计总量 + 近 30 天增量
+  features: { type: FeatureType; total: number; recent: number }[];
+  // 近 6 个月使用趋势，每月一行、各功能一列（键为 FeatureType）
+  trend: ({ name: string } & Record<FeatureType, number>)[];
 }
 
 export async function getAccountStats(): Promise<{
@@ -379,6 +382,157 @@ export async function verifyChangeEmailOtp(otp: string) {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ otp }),
+  });
+  return res.json();
+}
+
+// ==================== 逆合成分析 ====================
+
+export interface RetroPrecursorSet {
+  templateId: string;
+  templateName: string;
+  templateSmarts: string;
+  precursors: string[];
+  reactionId?: string | null;
+}
+
+export interface RetroExpandResult {
+  success: boolean;
+  target: string;
+  precursorSets: RetroPrecursorSet[];
+  count: number;
+  error?: string;
+}
+
+// 渐进式展开：对单个分子做一步逆合成
+export async function retroExpand(
+  smiles: string,
+  maxResults = 25,
+): Promise<RetroExpandResult> {
+  const res = await fetch(`${API_BASE}/api/retro/expand`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ smiles, maxResults }),
+  });
+  return res.json();
+}
+
+export interface SaveRouteStep {
+  productSmiles: string;
+  precursors: string[];
+  templateId?: string;
+  templateName?: string;
+  templateSmarts?: string;
+  depth: number;
+  parentIndex: number | null;
+}
+
+// 保存一条完整路线
+export async function saveRetroRoute(data: {
+  targetSmiles: string;
+  title?: string;
+  description?: string;
+  isPublic?: boolean;
+  steps: SaveRouteStep[];
+}) {
+  const res = await fetch(`${API_BASE}/api/retro/routes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+// 博客式浏览：路线列表
+export async function listRetroRoutes(params?: {
+  page?: number;
+  pageSize?: number;
+  sort?: "recent" | "top";
+  withinDays?: number;
+  mine?: boolean;
+}) {
+  const query = params
+    ? `?${new URLSearchParams(
+        Object.entries(params).reduce(
+          (acc, [k, v]) => {
+            if (v != null) acc[k] = String(v);
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+      ).toString()}`
+    : "";
+  const res = await fetch(`${API_BASE}/api/retro/routes${query}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 结构搜索社区路线（按目标分子子结构/精确匹配）
+export async function searchRetroRoutes(
+  query: string,
+  mode: "substructure" | "exact",
+  mine = false,
+) {
+  const res = await fetch(`${API_BASE}/api/retro/routes/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ query, mode, mine }),
+  });
+  return res.json();
+}
+
+// 路线详情
+export async function getRetroRoute(id: string) {
+  const res = await fetch(`${API_BASE}/api/retro/routes/${id}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 删除路线
+export async function deleteRetroRoute(id: string) {
+  const res = await fetch(`${API_BASE}/api/retro/routes/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 单步打分：value 为 1(👍) / -1(👎) / 0(撤销)
+export async function rateRetroStep(stepId: string, value: 1 | -1 | 0) {
+  const res = await fetch(`${API_BASE}/api/retro/steps/${stepId}/rate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ value }),
+  });
+  return res.json();
+}
+
+// 添加路线评论
+export async function addRetroComment(
+  routeId: string,
+  content: string,
+  parentId?: string,
+) {
+  const res = await fetch(`${API_BASE}/api/retro/routes/${routeId}/comments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ content, parentId }),
+  });
+  return res.json();
+}
+
+// 删除评论
+export async function deleteRetroComment(id: string) {
+  const res = await fetch(`${API_BASE}/api/retro/comments/${id}`, {
+    method: "DELETE",
+    credentials: "include",
   });
   return res.json();
 }

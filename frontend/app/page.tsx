@@ -31,7 +31,8 @@ export default function Home() {
               <h1 className="text-lg font-bold">化学辞典</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-2">
-              <ThemeSwitchButton />
+              {/* <ThemeSwitchButton /> */}
+              {/* 暂时隐藏，待后续有需要再展开 */}
               <Link href="/signin" passHref legacyBehavior>
                 <Button variant="ghost" className="font-medium">
                   登录

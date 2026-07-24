@@ -9,6 +9,7 @@ from rdkit_utils import (
     predict_products_of_reaction_smiles
 )
 from paper_routes import router as paper_router
+from retro_routes import router as retro_router
 
 
 # ---------- 启动/关闭生命周期 ----------
@@ -77,6 +78,7 @@ def _startup():
 app = FastAPI(title="RDKit Chemistry Service", lifespan=lifespan)
 
 app.include_router(paper_router)
+app.include_router(retro_router)
 
 
 # ---------- 原有路由 ----------

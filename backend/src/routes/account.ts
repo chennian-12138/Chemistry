@@ -13,7 +13,24 @@ async function getUserId(req: any): Promise<string | null> {
   return session?.user?.id ?? null;
 }
 
-// ========== 使用情况统计（个人维度） ==========
+// ========== 使用情况统计（个人维度，按 4 大主功能） ==========
+// 4 大主功能对应 BrowsingHistory.type 的枚举值，顺序固定用于前端配色/排列
+const FEATURE_TYPES = [
+  "AI_CHAT",
+  "RETRO_SYNTHESIS",
+  "REACTDIC",
+  "PAPER",
+] as const;
+
+// 把 prisma.groupBy(by:["type"]) 的结果压成 { type: count } 映射
+function countByType(
+  groups: { type: string; _count: { type: number } }[],
+): Record<string, number> {
+  const map: Record<string, number> = {};
+  for (const g of groups) map[g.type] = g._count.type;
+  return map;
+}
+
 router.get("/stats", async (req, res) => {
   try {
     const userId = await getUserId(req);
@@ -42,58 +59,55 @@ router.get("/stats", async (req, res) => {
       cursor.setMonth(cursor.getMonth() + 1);
     }
 
-    const [
-      approved,
-      pending,
-      rejected,
-      draftCount,
-      historyCount,
-      historyGroups,
-      monthlyActivity,
-    ] = await Promise.all([
-      prisma.reaction.count({ where: { authorId: userId, status: "APPROVED" } }),
-      prisma.reaction.count({ where: { authorId: userId, status: "PENDING" } }),
-      prisma.reaction.count({ where: { authorId: userId, status: "REJECTED" } }),
-      prisma.draft.count({ where: { authorId: userId } }),
-      prisma.browsingHistory.count({ where: { userId } }),
-      // 浏览类型分布
+    // 近 30 天区间（用于指标卡的增量）
+    const since30 = new Date();
+    since30.setDate(since30.getDate() - 30);
+
+    const [totalGroups, recentGroups, monthlyGroups] = await Promise.all([
+      // 各功能累计（注意：因 upsert 去重，实为「访问过的不同资源数」）
       prisma.browsingHistory.groupBy({
         by: ["type"],
         where: { userId },
         _count: { type: true },
       }),
-      // 近 6 个月浏览活跃度
+      // 各功能近 30 天
+      prisma.browsingHistory.groupBy({
+        by: ["type"],
+        where: { userId, createdAt: { gte: since30 } },
+        _count: { type: true },
+      }),
+      // 近 6 个月，每月按功能分组
       Promise.all(
         months.map((m) =>
-          prisma.browsingHistory.count({
+          prisma.browsingHistory.groupBy({
+            by: ["type"],
             where: { userId, createdAt: { gte: m.start, lte: m.end } },
+            _count: { type: true },
           }),
         ),
       ),
     ]);
 
+    const totalMap = countByType(totalGroups);
+    const recentMap = countByType(recentGroups);
+    const monthlyMaps = monthlyGroups.map(countByType);
+
     res.json({
       success: true,
       data: {
-        reactionStatus: [
-          { name: "已通过", value: approved },
-          { name: "待审核", value: pending },
-          { name: "已退回", value: rejected },
-        ],
-        totals: {
-          reactions: approved + pending + rejected,
-          approved,
-          drafts: draftCount,
-          history: historyCount,
-        },
-        historyByType: historyGroups.map((g) => ({
-          name: g.type,
-          value: g._count.type,
+        // 4 张指标卡：累计总量 + 近 30 天增量
+        features: FEATURE_TYPES.map((type) => ({
+          type,
+          total: totalMap[type] ?? 0,
+          recent: recentMap[type] ?? 0,
         })),
-        activity: months.map((m, i) => ({
-          name: m.name,
-          clicks: monthlyActivity[i],
-        })),
+        // 分层堆叠面积图：每月一行，各功能一列
+        trend: months.map((m, i) => {
+          const map = monthlyMaps[i] ?? {};
+          const row: Record<string, string | number> = { name: m.name };
+          for (const type of FEATURE_TYPES) row[type] = map[type] ?? 0;
+          return row;
+        }),
       },
     });
   } catch (error: any) {

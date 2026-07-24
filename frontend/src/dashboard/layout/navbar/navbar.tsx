@@ -61,7 +61,8 @@ export default function Navbar() {
       <div className="ml-auto flex items-center px-4">
         <NavbarAskAiActions />
         <DataupNavbar />
-        <ThemeSwitchButton />
+        {/* <ThemeSwitchButton /> */}
+        {/* 同理，暂时隐藏，待后续再行使用 */}
       </div>
     </header>
   );

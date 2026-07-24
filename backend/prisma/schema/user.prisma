@@ -20,6 +20,9 @@ model User {
   paperLikes      PaperLike[]
   paperBookmarks  PaperBookmark[]
   conversations   Conversation[]
+  retroRoutes     RetroRoute[]
+  stepRatings     StepRating[]
+  routeComments   RouteComment[]
 
   @@map("user")
 }

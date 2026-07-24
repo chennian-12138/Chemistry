@@ -1,0 +1,77 @@
+/// 一条逆合成路线（用户探索并保存的结果）。
+/// 面向学习者，路线不区分“化学是否可实操”，重在收集人类偏好数据。
+model RetroRoute {
+  id           String         @id @default(cuid())
+  targetSmiles String         @map("target_smiles") // 目标分子 canonical SMILES
+  title        String?
+  description  String?
+  isPublic     Boolean        @default(true) @map("is_public")
+  authorId     String         @map("author_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  author       User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  steps        RouteStep[]
+  comments     RouteComment[]
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("retro_route")
+}
+
+/// 路线中的一步逆合成断键：product（被拆分子）-> precursors（前驱体）。
+/// 保存时对模板做快照（name + smarts），保证模板库更新后老路线仍可复现。
+model RouteStep {
+  id             String       @id @default(cuid())
+  routeId        String       @map("route_id")
+  parentStepId   String?      @map("parent_step_id") // 上游步骤；根步骤的产物即路线目标
+  productSmiles  String       @map("product_smiles") // 被断键的分子 canonical SMILES
+  /// JSON: string[] —— 生成的前驱体 canonical SMILES 列表
+  precursors     Json
+  templateId     String?      @map("template_id") // 命中的模板标识（USPTO template_name，非外键）
+  templateName   String?      @map("template_name") // 快照：保存时的模板名
+  templateSmarts String?      @map("template_smarts") // 快照：保存时的模板 SMARTS
+  depth          Int          @default(0)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  route          RetroRoute   @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  parentStep     RouteStep?   @relation("StepTree", fields: [parentStepId], references: [id], onDelete: SetNull)
+  childSteps     RouteStep[]  @relation("StepTree")
+  ratings        StepRating[]
+
+  @@index([routeId])
+  @@index([parentStepId])
+  @@map("route_step")
+}
+
+/// 单步断键的 👍/👎 打分——面向学习者最干净的训练信号（每人每步一票）。
+model StepRating {
+  id        String    @id @default(cuid())
+  stepId    String    @map("step_id")
+  userId    String    @map("user_id")
+  value     Int // 1 = 赞同, -1 = 反对
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  step      RouteStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stepId])
+  @@index([stepId])
+  @@map("step_rating")
+}
+
+/// 路线评论（支持一级回复线程），用于社区讨论与数据收集。
+model RouteComment {
+  id        String         @id @default(cuid())
+  routeId   String         @map("route_id")
+  userId    String         @map("user_id")
+  content   String
+  parentId  String?        @map("parent_id")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  route     RetroRoute     @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    RouteComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   RouteComment[] @relation("CommentThread")
+
+  @@index([routeId])
+  @@map("route_comment")
+}
