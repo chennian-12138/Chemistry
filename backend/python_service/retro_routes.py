@@ -4,7 +4,12 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 
-from retrosynthesis import expand_one, template_count, match_molecules
+from retrosynthesis import (
+    expand_one,
+    template_count,
+    match_molecules,
+    reload_templates,
+)
 
 router = APIRouter(prefix="/api/retro", tags=["retrosynthesis"])
 
@@ -32,6 +37,12 @@ class ExpandResponse(BaseModel):
 async def health():
     """健康检查 + 已加载模板数量（首次调用会触发模板加载）。"""
     return {"status": "ok", "templateCount": template_count()}
+
+
+@router.post("/reload-templates")
+async def reload_templates_route():
+    """清空模板缓存并从数据库重新加载（新反应审核通过后热刷，无需重启服务）。"""
+    return {"status": "ok", "templateCount": reload_templates()}
 
 
 @router.post("/expand-one", response_model=ExpandResponse)

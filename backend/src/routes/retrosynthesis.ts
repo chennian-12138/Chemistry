@@ -9,14 +9,15 @@ async function getSession(req: any) {
   return auth.api.getSession({ headers: new Headers(req.headers as any) });
 }
 
-// 模板名(USPTO template_name) -> 已导入的 Reaction.id，用于跳转反应介绍页
+// 模板名(反应名) -> 已通过审核的 Reaction.id，用于跳转反应介绍页。
+// 模板既来自导入的 USPTO 反应，也来自站内审核通过的用户反应，故按 status 过滤而非 form。
 async function templateReactionIdMap(
   names: (string | null | undefined)[],
 ): Promise<Record<string, string>> {
   const uniq = [...new Set(names.filter((n): n is string => !!n))];
   if (uniq.length === 0) return {};
   const rows = await prisma.reaction.findMany({
-    where: { name: { in: uniq }, form: "template" },
+    where: { name: { in: uniq }, status: "APPROVED" },
     select: { id: true, name: true },
   });
   const map: Record<string, string> = {};
