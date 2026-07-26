@@ -15,7 +15,7 @@ export default function AppSidebarHeader() {
       <SidebarMenuItem>
         <SidebarMenuButton size="lg" asChild>
         <Link href="/dashboard">
-          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+          <div className=" text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
             <Image alt="ChemDic Logo" src={logo} width={24} height={24} />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">

@@ -85,8 +85,8 @@ export default function ReactionDetailPage() {
   }
 
   return (
-    <div className="flex-1 w-full space-y-6 pt-6 pb-24 px-6 md:px-12 max-w-[1100px] mx-auto animate-in fade-in zoom-in-95 duration-700 ease-out">
-      <Header reaction={reaction} onBack={() => router.back()} />
+    <div className="flex-1 w-full space-y-6 pt-6 pb-24 px-6 md:px-10 lg:px-14 animate-in fade-in zoom-in-95 duration-700 ease-out">
+      <Header reaction={reaction} />
       <MainContent reaction={reaction} />
       <ReactionPredict reaction={reaction} />
     </div>

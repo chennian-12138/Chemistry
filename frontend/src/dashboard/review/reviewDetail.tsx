@@ -22,6 +22,8 @@ import DOMPurify from "dompurify";
 import { approveReaction, rejectReaction } from "@/lib/api";
 import { toast } from "sonner";
 import { useReviewStore } from "@/store/review-store";
+import { REVIEW_STATUS_CONFIG } from "./reviewTable/reviewConfig";
+import { format } from "date-fns";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -32,31 +34,104 @@ import {
   Settings2,
   Thermometer,
   Droplets,
+  Droplet,
   Clock,
   Activity,
   Loader2,
   FlaskConical,
+  Zap,
+  CalendarDays,
 } from "lucide-react";
 import ReactionPredictDialog from "@/src/dashboard/DataUp/ReactionPredictDialog";
 
 interface ReviewDetail {
   id: string;
   name: string;
+  status: string;
+  createdAt?: string;
   uploadedBy: string;
   fullData: DataupSchema;
 }
 
-const statusConfig: Record<
-  string,
-  {
-    label: string;
-    variant: "default" | "secondary" | "destructive" | "outline";
-  }
-> = {
-  PENDING: { label: "待审核", variant: "secondary" },
-  APPROVED: { label: "已通过", variant: "default" },
-  REJECTED: { label: "已拒绝", variant: "destructive" },
-};
+// 与 DataUp 表单 conditionFieldsConfig 保持一致的条件字段
+const CONDITION_FIELDS = [
+  { field: "temperature", label: "温度", icon: Thermometer },
+  { field: "solvent", label: "溶剂类型", icon: Droplets },
+  { field: "duration", label: "时间", icon: Clock },
+  { field: "pressure", label: "压力", icon: Activity },
+  { field: "concentration", label: "浓度", icon: Atom },
+  { field: "microwave", label: "微波", icon: Zap },
+  { field: "acidityBasicity", label: "酸碱性", icon: FlaskConical },
+  { field: "hydro", label: "水含量", icon: Droplet },
+] as const;
+
+function isValidValue(value: string | undefined | null): value is string {
+  return (
+    !!value &&
+    value.trim() !== "" &&
+    value.trim() !== "-" &&
+    value.trim() !== "N/A"
+  );
+}
+
+/** 单个 section 的反应条件 chips（只展示有效值），与 ReactDic 详情页风格统一 */
+function ConditionChips({ section }: { section: Record<string, any> }) {
+  const chips = CONDITION_FIELDS.filter((c) => isValidValue(section[c.field]));
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+        <Settings2 className="w-4 h-4" />
+        反应条件
+      </h4>
+      <div className="flex flex-wrap items-center gap-2">
+        {chips.map(({ field, label, icon: Icon }) => (
+          <span
+            key={field}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2.5 py-1 text-xs"
+          >
+            <Icon className="w-3.5 h-3.5 text-primary/70" />
+            <span className="text-muted-foreground">{label}</span>
+            <span className="font-medium text-foreground">
+              {section[field].trim()}
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 分子角色列（反应物 / 试剂 / 产物） */
+function MoleculeColumn({
+  title,
+  molecules,
+}: {
+  title: string;
+  molecules: { name?: string; smarts?: string }[];
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      {molecules.length === 0 && (
+        <p className="text-xs text-muted-foreground/50 italic">无</p>
+      )}
+      {molecules.map((mol, mIdx) => (
+        <div
+          key={mIdx}
+          className="flex flex-col gap-1 p-3 rounded-lg border border-muted/50 bg-background shadow-sm"
+        >
+          <span className="font-medium text-foreground">{mol.name || "—"}</span>
+          <code className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-1 rounded break-all">
+            {mol.smarts || "—"}
+          </code>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function ReviewDetailPage() {
   const params = useParams();
@@ -80,17 +155,10 @@ export default function ReviewDetailPage() {
     })
       .then((res) => res.json())
       .then((result) => {
-        setData(result);
-        // 尝试从列表 API 获取当前状态
-        fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/list`, {
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .then((list) => {
-            const item = list.find?.((i: any) => i.id === id);
-            if (item) setStatus(item.status);
-          })
-          .catch(() => {});
+        if (result && result.id) {
+          setData(result);
+          if (result.status) setStatus(result.status);
+        }
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -175,31 +243,14 @@ export default function ReviewDetailPage() {
   }
 
   const { meta, smartsPatterns, reactionSections } = data.fullData;
-  const statusInfo = statusConfig[status] || statusConfig.PENDING;
-
-  // 条件渲染辅助
-  const renderCondition = (
-    icon: React.ReactNode,
-    label: string,
-    value: string | undefined,
-  ) => {
-    if (!value || value.trim() === "-" || value.trim() === "") return null;
-    return (
-      <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-muted/30 border border-muted/50 transition-colors hover:bg-muted/50">
-        <span className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-          {icon} {label}
-        </span>
-        <span className="font-semibold text-foreground pl-6 text-base">
-          {value}
-        </span>
-      </div>
-    );
-  };
+  const statusInfo =
+    REVIEW_STATUS_CONFIG[status] ?? REVIEW_STATUS_CONFIG.PENDING;
+  const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="flex-1 w-full space-y-8 pt-8 pb-32 px-6 md:px-12 max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-700 ease-out">
+    <div className="flex-1 w-full space-y-6 pt-6 pb-32 px-6 md:px-10 lg:px-14 animate-in fade-in zoom-in-95 duration-700 ease-out">
       {/* Header */}
-      <div className="space-y-6">
+      <div className="space-y-5 mb-2">
         <Button
           variant="ghost"
           onClick={() => router.push("/dashboard/review")}
@@ -209,48 +260,67 @@ export default function ReviewDetailPage() {
           <span className="text-base">返回审核列表</span>
         </Button>
 
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
                 {meta.name}
               </h1>
-              <Badge variant={statusInfo.variant} className="text-sm px-3 py-1">
+              <Badge
+                variant="outline"
+                className={`gap-1.5 px-2.5 py-1 text-xs font-medium ${statusInfo.className}`}
+              >
+                <StatusIcon className="w-3.5 h-3.5" />
                 {statusInfo.label}
               </Badge>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge
                 variant="secondary"
-                className="bg-primary/10 text-primary uppercase tracking-widest text-xs px-3 py-1 font-semibold"
+                className="bg-primary/10 text-primary uppercase tracking-widest text-xs px-2.5 py-0.5 font-semibold"
               >
                 {meta.mechanismType || "未知机理"}
               </Badge>
-              <Badge variant="outline" className="text-xs px-3 py-1">
+              <Badge variant="outline" className="text-xs px-2.5 py-0.5">
                 {meta.form || "未知形式"}
               </Badge>
-              {meta.tags && (
-                <Badge
-                  variant="outline"
-                  className="text-muted-foreground text-xs px-3 py-1 bg-background"
-                >
-                  {meta.tags}
-                </Badge>
-              )}
+              {meta.tags &&
+                meta.tags
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter(Boolean)
+                  .map((tag, i) => (
+                    <Badge
+                      key={i}
+                      variant="outline"
+                      className="text-muted-foreground text-xs px-2.5 py-0.5 bg-background"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/40 px-5 py-2.5 rounded-full border shadow-sm shrink-0">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/40 px-4 py-2 rounded-full border shadow-sm shrink-0">
             <span className="font-medium text-foreground">上传者:</span>
             <span className="font-medium">{data.uploadedBy}</span>
+            {data.createdAt && (
+              <>
+                <span className="text-muted-foreground/50">·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays className="w-3.5 h-3.5" />
+                  {format(new Date(data.createdAt), "yyyy-MM-dd")}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
 
       {/* SMARTS Patterns */}
       <Card className="shadow-md border-muted/60">
-        <CardHeader className="bg-muted/10 border-b px-6 py-5">
-          <CardTitle className="text-xl flex items-center gap-2">
+        <CardHeader className="bg-muted/20 border-b px-6 py-5">
+          <CardTitle className="text-lg flex items-center gap-2 font-bold">
             <Atom className="w-5 h-5 text-primary" />
             SMARTS 反应模式 ({smartsPatterns.length}个)
           </CardTitle>
@@ -258,83 +328,38 @@ export default function ReviewDetailPage() {
         <CardContent className="p-6 space-y-6">
           {smartsPatterns.map((pattern, idx) => (
             <div key={idx} className="space-y-4">
-              <h4 className="text-base font-semibold border-l-4 border-primary pl-3 bg-muted/20 py-1.5 pr-2 rounded-r-md flex items-center">
-                {pattern.name || `Pattern ${idx + 1}`}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="ml-auto gap-1.5"
-                onClick={() =>
-                  setPredictDialogState({ open: true, patternIdx: idx })
-                }
-              >
-                <FlaskConical className="w-4 h-4" />
-                反应预测校验
-              </Button>
-            </h4>
+              <div className="flex items-center justify-between gap-3 border-l-4 border-primary pl-3 bg-muted/20 py-1.5 pr-2 rounded-r-md">
+                <h4 className="text-base font-semibold">
+                  {pattern.name || `Pattern ${idx + 1}`}
+                </h4>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 shrink-0"
+                  onClick={() =>
+                    setPredictDialogState({ open: true, patternIdx: idx })
+                  }
+                >
+                  <FlaskConical className="w-4 h-4" />
+                  反应预测校验
+                </Button>
+              </div>
 
               {/* 分子角色列表 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-1">
-                {/* 反应物 */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    反应物
-                  </p>
-                  {pattern.patternReactants.map((mol, mIdx) => (
-                    <div
-                      key={mIdx}
-                      className="flex flex-col gap-1 p-3 rounded-lg border border-muted/50 bg-background shadow-sm"
-                    >
-                      <span className="font-medium text-foreground">
-                        {mol.name || "—"}
-                      </span>
-                      <code className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-1 rounded break-all">
-                        {mol.smarts || "—"}
-                      </code>
-                    </div>
-                  ))}
-                </div>
-
-                {/* 试剂 */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    反应试剂
-                  </p>
-                  {pattern.patternRegents.map((mol, mIdx) => (
-                    <div
-                      key={mIdx}
-                      className="flex flex-col gap-1 p-3 rounded-lg border border-muted/50 bg-background shadow-sm"
-                    >
-                      <span className="font-medium text-foreground">
-                        {mol.name || "—"}
-                      </span>
-                      <code className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-1 rounded break-all">
-                        {mol.smarts || "—"}
-                      </code>
-                    </div>
-                  ))}
-                </div>
-
-                {/* 产物 */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    产物
-                  </p>
-                  {pattern.patternProducts.map((mol, mIdx) => (
-                    <div
-                      key={mIdx}
-                      className="flex flex-col gap-1 p-3 rounded-lg border border-muted/50 bg-background shadow-sm"
-                    >
-                      <span className="font-medium text-foreground">
-                        {mol.name || "—"}
-                      </span>
-                      <code className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-1 rounded break-all">
-                        {mol.smarts || "—"}
-                      </code>
-                    </div>
-                  ))}
-                </div>
+                <MoleculeColumn
+                  title="反应物"
+                  molecules={pattern.patternReactants}
+                />
+                <MoleculeColumn
+                  title="反应试剂"
+                  molecules={pattern.patternRegents}
+                />
+                <MoleculeColumn
+                  title="产物"
+                  molecules={pattern.patternProducts}
+                />
               </div>
             </div>
           ))}
@@ -358,62 +383,15 @@ export default function ReviewDetailPage() {
       {/* Reaction Sections */}
       {reactionSections.map((section, idx) => (
         <Card key={idx} className="shadow-md border-muted/60 overflow-hidden">
-          <CardHeader className="bg-muted/10 border-b px-6 py-5">
-            <CardTitle className="text-xl flex items-center gap-2">
+          <CardHeader className="bg-muted/20 border-b px-6 py-5">
+            <CardTitle className="text-lg flex items-center gap-2 font-bold">
               <BookOpen className="w-5 h-5 text-primary/80" />
               {section.sectionType || `Section ${idx + 1}`}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {/* Conditions */}
-            {(() => {
-              const conditions = [
-                renderCondition(
-                  <Thermometer className="w-4 h-4 text-orange-500" />,
-                  "温度",
-                  section.temperature,
-                ),
-                renderCondition(
-                  <Activity className="w-4 h-4 text-purple-500" />,
-                  "压力",
-                  section.pressure,
-                ),
-                renderCondition(
-                  <Clock className="w-4 h-4 text-green-500" />,
-                  "时间",
-                  section.duration,
-                ),
-                renderCondition(
-                  <Atom className="w-4 h-4 text-indigo-500" />,
-                  "浓度",
-                  section.concentration,
-                ),
-                renderCondition(
-                  <Droplets className="w-4 h-4 text-blue-500" />,
-                  "溶剂",
-                  section.solvent,
-                ),
-                renderCondition(
-                  <Beaker className="w-4 h-4 text-pink-500" />,
-                  "酸碱性",
-                  section.acidityBasicity,
-                ),
-              ].filter(Boolean);
-
-              if (conditions.length === 0) return null;
-
-              return (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Settings2 className="w-4 h-4" />
-                    反应条件
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                    {conditions}
-                  </div>
-                </div>
-              );
-            })()}
+            <ConditionChips section={section} />
 
             {/* Reaction Viewer */}
             {section.reactions.map((reaction, rIdx) => (
@@ -441,7 +419,7 @@ export default function ReviewDetailPage() {
                 className="text-muted-foreground leading-loose text-base bg-muted/20 p-5 rounded-xl border border-transparent transition-colors hover:border-border/60 hover:bg-muted/30"
               >
                 <div
-                  className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-loose text-base"
+                  className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-loose text-base break-words"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(desc.description),
                   }}
@@ -494,7 +472,11 @@ export default function ReviewDetailPage() {
         </AlertDialog>
 
         {/* Reject */}
-        <AlertDialog>
+        <AlertDialog
+          onOpenChange={(open) => {
+            if (!open) setRejectReason("");
+          }}
+        >
           <AlertDialogTrigger asChild>
             <Button
               variant="destructive"
@@ -512,20 +494,15 @@ export default function ReviewDetailPage() {
               <AlertDialogDescription>
                 请输入拒绝原因，该原因将反馈给上传者。
               </AlertDialogDescription>
-              <Input
-                placeholder="请输入拒绝原因..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                className="mt-3"
-              />
             </AlertDialogHeader>
+            <Input
+              placeholder="请输入拒绝原因..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="mt-3"
+            />
             <AlertDialogFooter>
-              <AlertDialogCancel
-                variant="outline"
-                onClick={() => setRejectReason("")}
-              >
-                取消
-              </AlertDialogCancel>
+              <AlertDialogCancel variant="outline">取消</AlertDialogCancel>
               <AlertDialogAction variant="destructive" onClick={handleReject}>
                 确认拒绝
               </AlertDialogAction>

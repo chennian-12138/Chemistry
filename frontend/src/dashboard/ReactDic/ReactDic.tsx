@@ -5,7 +5,7 @@ import KeywordSearch from "./keywordSearch";
 import MolSearch from "./MolSearch";
 import ReactionCard from "./ReactCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Beaker, Search, Dna } from "lucide-react";
+import { BookSearch, Search, Dna } from "lucide-react";
 import { searchReactDicKeyword, searchReactDicStructure } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useReactDicStore } from "@/store/reactdic-store";
@@ -24,8 +24,7 @@ export default function ReactDic() {
     setHasSearched,
     searchKeyword,
     setSearchKeyword,
-    searchMode,
-    setSearchSmarts,
+    setSearchMolBlocks,
   } = useReactDicStore();
 
   // These mock functions will be connected to the backend API later
@@ -49,15 +48,12 @@ export default function ReactDic() {
     }
   };
 
-  const handleStructureSearch = async (
-    smarts: string,
-    mode: "exact" | "substructure",
-  ) => {
+  const handleStructureSearch = async (molBlocks: string[]) => {
     setIsSearching(true);
     setHasSearched(true);
-    setSearchSmarts(smarts, mode);
+    setSearchMolBlocks(molBlocks);
     try {
-      const response = await searchReactDicStructure(smarts, mode);
+      const response = await searchReactDicStructure(molBlocks);
       if (response.success) {
         setSearchResults(response.data);
       } else {
@@ -76,25 +72,25 @@ export default function ReactDic() {
       {/* Header section */}
       <div className="flex flex-col space-y-2 mb-8 animate-in fade-in duration-700">
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Beaker className="w-8 h-8 text-primary" />
-          Reaction Dictionary
+          <BookSearch className="w-8 h-8 text-primary" />
+          反应查询
         </h1>
         <p className="text-muted-foreground text-lg">
-          Search, explore, and analyze chemical reactions from our database.
+          从数据库中查寻，探索与分析化学反应
         </p>
       </div>
 
       {/* Main Search Tabs */}
-      <div className="w-full bg-background rounded-xl border shadow-sm p-4 md:p-6 mb-8">
+      <div className="w-full bg-background md: mb-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-[400px] grid-cols-2 mx-auto mb-8">
             <TabsTrigger value="keyword" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
-              Text Search
+              文本搜索
             </TabsTrigger>
             <TabsTrigger value="structure" className="flex items-center gap-2">
               <Dna className="w-4 h-4" />
-              Structure Search
+              结构搜索
             </TabsTrigger>
           </TabsList>
 
@@ -111,7 +107,6 @@ export default function ReactDic() {
               <MolSearch
                 onSearch={handleStructureSearch}
                 isLoading={isSearching}
-                initialMode={searchMode}
               />
             </TabsContent>
           </div>
@@ -120,7 +115,7 @@ export default function ReactDic() {
 
       {isSearching ? (
         // Loading skeletons
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
@@ -134,10 +129,10 @@ export default function ReactDic() {
           ))}
         </div>
       ) : hasSearched ? (
-        <div className="space-y-4 mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center justify-between mb-6">
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold tracking-tight">
-              Search Results
+              搜索结果
             </h2>
           </div>
           {searchResults.length === 0 ? (
@@ -147,7 +142,7 @@ export default function ReactDic() {
                 <Search className="w-8 h-8 text-muted-foreground/60" />
               </div>
               <h3 className="text-lg font-medium text-foreground">
-                No results found
+                暂无结果
               </h3>
               <p className="text-muted-foreground text-sm max-w-sm mt-2">
                 我们暂时没有找到符合条件的反应，请尝试更换搜索条件。

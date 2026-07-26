@@ -125,7 +125,7 @@ export default function SignIn() {
       </div>
 
       <Field>
-        <FieldLabel htmlFor="email">Email</FieldLabel>
+        <FieldLabel htmlFor="email">邮箱</FieldLabel>
         <Input
           id="email"
           type="email"
@@ -140,7 +140,7 @@ export default function SignIn() {
 
       <Field>
         <div className="flex items-center">
-          <FieldLabel htmlFor="password">Password</FieldLabel>
+          <FieldLabel htmlFor="password">密码</FieldLabel>
           <Link
             href="/forgot-password"
             className="ml-auto text-sm underline-offset-4 hover:underline"
@@ -165,7 +165,7 @@ export default function SignIn() {
             setRememberMe(!rememberMe);
           }}
         />
-        <Label htmlFor="remember">Remember me</Label>
+        <Label htmlFor="remember">记住这台设备</Label>
       </div>
       <Button
         type="submit"
@@ -227,7 +227,7 @@ export default function SignIn() {
           没收到验证邮件？点此重新发送
         </button>
       )}
-      <FieldSeparator>其他登录方式</FieldSeparator>
+      {/* <FieldSeparator>其他登录方式</FieldSeparator>
       <div
         className={cn(
           "w-full gap-2 flex items-center",
@@ -266,7 +266,7 @@ export default function SignIn() {
           </svg>
           Sign in with Github
         </Button>
-      </div>
+      </div> */}
     </FieldGroup>
   );
 }

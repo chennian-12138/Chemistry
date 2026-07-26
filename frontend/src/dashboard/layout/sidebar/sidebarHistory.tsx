@@ -79,7 +79,7 @@ export default function AppSidebarHistory() {
           animation: slideIn 0.3s ease-out forwards;
         }
       `}</style>
-      <SidebarGroupLabel>History</SidebarGroupLabel>
+      <SidebarGroupLabel>历史记录</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuSub>
@@ -118,7 +118,7 @@ export default function AppSidebarHistory() {
                 <SidebarMenuSubButton asChild>
                   <Link
                     href="/dashboard/history"
-                    className="text-muted-foreground hover:text-foreground italic"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     <HistoryIcon />
                     <span>查看更多...</span>

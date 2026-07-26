@@ -46,6 +46,44 @@ export interface PredictResult {
   error?: string;
 }
 
+/**
+ * 批量子结构匹配：返回布尔矩阵 matched[i][j]，
+ * 表示第 i 个 smarts 是否为第 j 个 molBlock 分子的子结构。
+ * 一次 HTTP 完成 smartsList × molBlocks 的全部配对，替代逐对调用。
+ */
+export async function matchSmartsBatch(
+  smartsList: string[],
+  molBlocks: string[],
+): Promise<boolean[][]> {
+  const baseUrl = process.env.PYTHON_URL || "http://127.0.0.1:5000";
+  const url = `${baseUrl}/api/match-smarts-batch`;
+  const body = { smartsList, molBlocks };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let errorDetail = response.statusText;
+    try {
+      const errorData = await response.json();
+      if (errorData.detail) {
+        errorDetail = errorData.detail;
+      }
+    } catch (e) {
+      // Ignore JSON parse error if invalid json response
+    }
+    throw new Error(`Python 服务调用失败: ${errorDetail}`);
+  }
+
+  const result = await response.json();
+  return (result.matched ?? []) as boolean[][];
+}
+
 export async function predictProducts(
   reactionSmarts: string,
   smilesList: string[],

@@ -31,6 +31,7 @@ import type {
   MoleculeNodeData,
   ReactionNodeData,
 } from "./types";
+import Link from "next/link";
 
 // Kekule 依赖 window/document，禁用 SSR
 const Composer = dynamic(() => import("@/components/kekule-react/composer"), {
@@ -83,42 +84,39 @@ export default function RetroSynthesisAnalysis() {
   } | null>(null);
 
   // ---------- 展开某个分子：只取候选，交给用户选择，先不提交 ----------
-  const handleExpand = useCallback(
-    async (molId: string) => {
-      let smiles = "";
-      setMolecules((prev) => {
-        const m = prev[molId];
-        if (!m || m.expanded || m.loading) return prev;
-        smiles = m.smiles;
-        return { ...prev, [molId]: { ...m, loading: true } };
-      });
-      if (!smiles) return;
+  const handleExpand = useCallback(async (molId: string) => {
+    let smiles = "";
+    setMolecules((prev) => {
+      const m = prev[molId];
+      if (!m || m.expanded || m.loading) return prev;
+      smiles = m.smiles;
+      return { ...prev, [molId]: { ...m, loading: true } };
+    });
+    if (!smiles) return;
 
-      try {
-        const res = await retroExpand(smiles, 12);
-        if (!res.success) throw new Error(res.error || "展开失败");
+    try {
+      const res = await retroExpand(smiles, 12);
+      if (!res.success) throw new Error(res.error || "展开失败");
 
-        if (res.precursorSets.length === 0) {
-          // 没有可用拆法 —— 视为足够简单的原料
-          setMolecules((prev) => ({
-            ...prev,
-            [molId]: { ...prev[molId], loading: false, noPrecursors: true },
-          }));
-          return;
-        }
-
-        // 打开候选选择器；分子保持 loading 直到用户选择或取消，避免重复点击
-        setChooser({ molId, smiles, sets: res.precursorSets });
-      } catch (e: any) {
-        setStatus(`展开失败：${e.message}`);
+      if (res.precursorSets.length === 0) {
+        // 没有可用拆法 —— 视为足够简单的原料
         setMolecules((prev) => ({
           ...prev,
-          [molId]: { ...prev[molId], loading: false },
+          [molId]: { ...prev[molId], loading: false, noPrecursors: true },
         }));
+        return;
       }
-    },
-    [],
-  );
+
+      // 打开候选选择器；分子保持 loading 直到用户选择或取消，避免重复点击
+      setChooser({ molId, smiles, sets: res.precursorSets });
+    } catch (e: any) {
+      setStatus(`展开失败：${e.message}`);
+      setMolecules((prev) => ({
+        ...prev,
+        [molId]: { ...prev[molId], loading: false },
+      }));
+    }
+  }, []);
 
   // ---------- 用户选定一条方案：仅提交该方案到路线 ----------
   const chooseSet = async (setIndex: number) => {
@@ -240,7 +238,12 @@ export default function RetroSynthesisAnalysis() {
         noPrecursors: m.noPrecursors,
         onExpand: handleExpand,
       };
-      nodes.push({ id: m.id, type: "molecule", position: { x: 0, y: 0 }, data });
+      nodes.push({
+        id: m.id,
+        type: "molecule",
+        position: { x: 0, y: 0 },
+        data,
+      });
     }
 
     for (const r of Object.values(reactions)) {
@@ -249,7 +252,12 @@ export default function RetroSynthesisAnalysis() {
         templateName: r.templateName,
         templateSmarts: r.templateSmarts,
       };
-      nodes.push({ id: r.id, type: "reaction", position: { x: 0, y: 0 }, data });
+      nodes.push({
+        id: r.id,
+        type: "reaction",
+        position: { x: 0, y: 0 },
+        data,
+      });
       edges.push({
         id: `e-${r.productMolId}-${r.id}`,
         source: r.productMolId,
@@ -346,11 +354,11 @@ export default function RetroSynthesisAnalysis() {
           >
             {starting ? "分析中…" : "开始分析"}
           </Button>
-          <a href="/dashboard/retrosynthesisanalysis/routes">
+          <Link href="/dashboard/retrosynthesisanalysis/routes">
             <Button size="lg" variant="outline">
               浏览社区路线
             </Button>
-          </a>
+          </Link>
         </div>
 
         {/* 近一周社区路线（按分降序） */}
@@ -358,22 +366,16 @@ export default function RetroSynthesisAnalysis() {
           <div className="pt-4 mt-2 border-t">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-semibold">本周热门路线</h2>
-              <a
-                href="/dashboard/retrosynthesisanalysis/routes"
-                className="text-xs text-indigo-600 hover:underline"
-              >
-                查看全部 →
-              </a>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {recentRoutes.map((r) => (
-                <a
+                <Link
                   key={r.id}
                   href={`/dashboard/retrosynthesisanalysis/routes/${r.id}`}
                   className="block rounded-lg border bg-white hover:shadow-md transition-shadow overflow-hidden"
                 >
-                  <div className="h-[110px] flex items-center justify-center bg-gray-50 border-b p-1">
-                    <MolImg smiles={r.targetSmiles} width={180} height={100} />
+                  <div className="h-[240px] flex items-center justify-center bg-white border-b p-1">
+                    <MolImg smiles={r.targetSmiles} width={240} height={150} />
                   </div>
                   <div className="p-2 space-y-1">
                     <h3 className="text-xs font-medium truncate">
@@ -385,7 +387,7 @@ export default function RetroSynthesisAnalysis() {
                       <span className="ml-auto">{fmtDate(r.createdAt)}</span>
                     </div>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -449,7 +451,8 @@ export default function RetroSynthesisAnalysis() {
               <div>
                 <h2 className="text-lg font-semibold">选择一条断键方案</h2>
                 <p className="text-xs text-muted-foreground">
-                  共 {chooser.sets.length} 种可行拆法，选一条并入你的路线，之后可继续往前推。
+                  共 {chooser.sets.length}{" "}
+                  种可行拆法，选一条并入你的路线，之后可继续往前推。
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={cancelChooser}>

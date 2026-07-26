@@ -11,6 +11,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeSwitchButton from "./navbar-ThemeSwitchButton";
 import DataupNavbar from "./navbar-Dataup";
 import NavbarAskAiActions from "./navbar-AskAi";
+import NavbarReactDicActions from "./navbar-ReactDic";
 import { useAskAiActions } from "@/hooks/use-askai-action";
 import { usePathname } from "next/navigation";
 import { Bot } from "lucide-react";
@@ -40,6 +41,7 @@ export default function Navbar() {
           orientation="vertical"
           className="mr-2 data-[orientation=vertical]:h-4"
         />
+        <NavbarReactDicActions />
         {showAskAiTitle ? (
           <div className="flex items-center gap-2 min-w-0">
             <Bot className="size-5 text-primary shrink-0" />

@@ -83,6 +83,44 @@ def find_smart_pattern_in_kekule_json(smarts:str, kekule_json:str) -> dict:
     except Exception as e:
         return {"error": str(e), "matches": [], "matched":False}
 
+def match_smarts_batch(smarts_list: list, mol_blocks: list) -> list:
+    """批量子结构匹配。
+
+    返回布尔矩阵 matched[i][j]：第 i 个 smarts 是否为第 j 个 molBlock 分子的子结构
+    （方向与 find_smart_pattern_in_kekule_json 一致：DB 模式 ⊆ 用户分子）。
+
+    每个 molBlock 与每个 smarts 各只解析一次；任何解析失败的行/列对应位置记 False，
+    不抛异常，避免单个坏输入拖垮整批查询。
+    """
+    # 预解析用户分子（molBlock）——与单条逻辑保持一致，加氢
+    mols = []
+    for mb in mol_blocks:
+        try:
+            mol = Chem.MolFromMolBlock(mb)
+            mols.append(Chem.AddHs(mol) if mol is not None else None)
+        except Exception:
+            mols.append(None)
+
+    # 预解析 DB 模式（smarts）
+    patterns = []
+    for smarts in smarts_list:
+        try:
+            patterns.append(Chem.MolFromSmarts(smarts))
+        except Exception:
+            patterns.append(None)
+
+    matched = []
+    for pattern in patterns:
+        row = []
+        for mol in mols:
+            if pattern is None or mol is None:
+                row.append(False)
+            else:
+                row.append(len(mol.GetSubstructMatches(pattern)) > 0)
+        matched.append(row)
+    return matched
+
+
 def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) -> list:
     """
     使用 Reaction SMARTS 和反应物 SMILES 列表推断产物。

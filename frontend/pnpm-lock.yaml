@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  kekule: file:./vendor/kekule
+
 importers:
 
   .:
@@ -114,8 +117,8 @@ importers:
         specifier: ^11.18.2
         version: 11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       kekule:
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: file:vendor/kekule
+        version: file:vendor/kekule
       kekule-react:
         specifier: ^0.1.1
         version: 0.1.1
@@ -3865,8 +3868,8 @@ packages:
   kekule-react@0.1.1:
     resolution: {integrity: sha512-3tDibGoYinopUvVGBhdFHaiePAQ7TZMgkShQYVJ67BhBZXXFlOmT03cJo1UmircnDRyrypcH2WMgmAwNBex/ug==}
 
-  kekule@1.0.3:
-    resolution: {integrity: sha512-lMV/j8PX9ydJWDY3/n1m6YQLHWwHIIAjJxd98GukHJrB5q8vW10w6+5nYE5SAbGb3xAa4WHre52+ED2PE1bU4g==}
+  kekule@file:vendor/kekule:
+    resolution: {directory: vendor/kekule, type: directory}
     engines: {node: '>=0.10'}
 
   keyv@4.5.4:
@@ -9175,10 +9178,10 @@ snapshots:
 
   kekule-react@0.1.1:
     dependencies:
-      kekule: 1.0.3
+      kekule: file:vendor/kekule
       react: 18.3.1
 
-  kekule@1.0.3: {}
+  kekule@file:vendor/kekule: {}
 
   keyv@4.5.4:
     dependencies:

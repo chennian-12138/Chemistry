@@ -186,6 +186,8 @@ router.get("/:id", async (req, res) => {
     const formatted = {
       id: entry.id,
       name: entry.name,
+      status: entry.status,
+      createdAt: entry.createdAt,
       uploadedBy: entry.author?.name || entry.author?.email || "未知",
       fullData: {
         meta: {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
-import { matchSmartsPattern } from "../services/rdkit";
+import { matchSmartsBatch } from "../services/rdkit";
 
 const router = Router();
 
@@ -82,63 +82,65 @@ router.get("/search/keyword", async (req, res) => {
 });
 
 // 2. 结构搜索
+// 二部完美匹配（Kuhn 增广路）：判断 roleSmartsList 中每个角色能否被
+// 一个「不同的」用户分子命中（覆盖全部角色）。用于「组合匹配」判定。
+// isMatch(smarts, molIdx) = 该 smarts 是否为第 molIdx 个用户分子的子结构。
+function coversAllRoles(
+  roleSmartsList: string[],
+  molCount: number,
+  isMatch: (smarts: string, molIdx: number) => boolean,
+): boolean {
+  if (roleSmartsList.length === 0) return false; // 无反应物/试剂角色，不构成组合
+  if (roleSmartsList.length > molCount) return false; // 分子数不足以覆盖
+
+  const molToRole: number[] = new Array(molCount).fill(-1); // 分子 -> 已分配的角色下标
+
+  const tryAssign = (roleIdx: number, seen: boolean[]): boolean => {
+    const smarts = roleSmartsList[roleIdx]!;
+    for (let m = 0; m < molCount; m++) {
+      if (seen[m] || !isMatch(smarts, m)) continue;
+      seen[m] = true;
+      const assigned = molToRole[m]!;
+      if (assigned === -1 || tryAssign(assigned, seen)) {
+        molToRole[m] = roleIdx;
+        return true;
+      }
+    }
+    return false;
+  };
+
+  let matched = 0;
+  for (let r = 0; r < roleSmartsList.length; r++) {
+    if (tryAssign(r, new Array(molCount).fill(false))) matched++;
+  }
+  return matched === roleSmartsList.length;
+}
+
+// 2. Structure Search（支持多分子：组合 / AND / OR 三层匹配）
 router.post("/search/structure", async (req, res) => {
   try {
-    const { smarts, mode = "substructure" } = req.body;
+    const { molBlocks } = req.body as { molBlocks?: string[] };
 
-    if (!smarts) {
+    if (!Array.isArray(molBlocks) || molBlocks.length === 0) {
       return res
         .status(400)
         .json({ error: "No structure provided for search." });
     }
 
-    // Step 1: Fetch all molecules from the database to test against
-    const allMolecules = await prisma.moleculeRole.findMany({
-      select: { id: true, smarts: true, patternId: true },
-    });
-
-    const matchedPatternIds = new Set<string>();
-
-    // Step 2: Test each molecule using our RDKit service
-    // In a real production scale app with millions of molecules, you would want
-    // to use RDKit PostgreSQL Cartridge. For now, doing this in memory.
-    for (const mol of allMolecules) {
-      if (!mol.smarts) continue;
-
-      try {
-        // If the smarts payload is a molblock (from Composer), matchSmartsPattern expects
-        // (pattern, targetMolBlock). We'll assume the target is smarts/smiles from DB
-        // and query is the molBlock drawing.
-        const isMatch = await matchSmartsPattern(mol.smarts, smarts);
-        if (isMatch.matched) {
-          matchedPatternIds.add(mol.patternId);
-          console.log(`✅ 匹配 | smarts=${mol.smarts}`);
-        }
-      } catch (err) {
-        // Ignore parsing errors for individual molecules to not break the whole search
-        // console.error(`Error matching molecule ${mol.id}:`, err);
-      }
-    }
-
-    if (matchedPatternIds.size === 0) {
-      return res.json({ success: true, data: [] });
-    }
-
-    // Step 3: Fetch the reactions that contain those matched patterns
+    // Step 1: 取所有 APPROVED 反应及其 patterns→molecules
     const reactions = await prisma.reaction.findMany({
-      where: {
-        status: "APPROVED" as const,
-        patterns: {
-          some: {
-            id: { in: Array.from(matchedPatternIds) },
-          },
-        },
-      },
+      where: { status: "APPROVED" as const },
       select: {
         id: true,
         name: true,
-        tags: true,
         status: true,
+        tags: true,
+        patterns: {
+          select: {
+            id: true,
+            molecules: { select: { smarts: true, role: true } },
+          },
+        },
         sections: {
           select: {
             reactions: { select: { value: true } },
@@ -148,11 +150,72 @@ router.post("/search/structure", async (req, res) => {
       },
     });
 
-    const formattedData = reactions.map((reaction) => ({
+    // Step 2: 收集去重的 smarts，一次批量匹配得布尔矩阵
+    const uniqueSmarts = Array.from(
+      new Set(
+        reactions.flatMap((r) =>
+          r.patterns.flatMap((p) =>
+            p.molecules.map((m) => m.smarts).filter(Boolean),
+          ),
+        ),
+      ),
+    );
+
+    let lookup: (smarts: string, molIdx: number) => boolean = () => false;
+    if (uniqueSmarts.length > 0) {
+      const matrix = await matchSmartsBatch(uniqueSmarts, molBlocks); // [smartsIdx][molIdx]
+      const smartsIndex = new Map(uniqueSmarts.map((s, i) => [s, i]));
+      lookup = (smarts, molIdx) => {
+        const si = smartsIndex.get(smarts);
+        return si === undefined ? false : !!matrix[si]?.[molIdx];
+      };
+    }
+
+    const molCount = molBlocks.length;
+    const REACTANT_ROLES = new Set(["反应物", "反应试剂"]);
+
+    type Tier = "combination" | "and" | "or";
+    const tierRank: Record<Tier, number> = { combination: 3, and: 2, or: 1 };
+
+    // Step 3: 逐反应计算层级
+    const hits: Array<{ reaction: (typeof reactions)[number]; tier: Tier }> = [];
+
+    for (const reaction of reactions) {
+      const allRoleSmarts = reaction.patterns.flatMap((p) =>
+        p.molecules.map((m) => m.smarts).filter(Boolean),
+      );
+      if (allRoleSmarts.length === 0) continue;
+
+      // 每个用户分子是否命中该反应里的任一角色
+      const molMatched = molBlocks.map((_, m) =>
+        allRoleSmarts.some((s) => lookup(s, m)),
+      );
+      const or = molMatched.some(Boolean);
+      if (!or) continue; // 完全不相关
+
+      const and = molMatched.every(Boolean);
+
+      // combination: 存在某 pattern，其「反应物+试剂」角色被用户分子完整覆盖(单射)
+      const combination = reaction.patterns.some((p) => {
+        const roleSmarts = p.molecules
+          .filter((m) => REACTANT_ROLES.has(m.role) && m.smarts)
+          .map((m) => m.smarts);
+        return coversAllRoles(roleSmarts, molCount, lookup);
+      });
+
+      const tier: Tier = combination ? "combination" : and ? "and" : "or";
+      hits.push({ reaction, tier });
+    }
+
+    // Step 4: 按层级排序并映射输出
+    hits.sort((a, b) => tierRank[b.tier] - tierRank[a.tier]);
+
+    const formattedData = hits.map(({ reaction, tier }) => ({
       id: reaction.id,
       name: reaction.name,
       tags: reaction.tags.map((t: any) => t.name),
       status: reaction.status,
+      matchTier: tier,
       structureData: reaction.sections?.[0]?.reactions?.[0]?.value || null,
       description:
         reaction.sections

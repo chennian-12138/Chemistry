@@ -4,15 +4,14 @@ import { ReactionData } from "@/src/dashboard/ReactDic/ReactCard";
 interface ReactDicState {
   activeTab: string;
   searchKeyword: string;
-  searchSmarts: string;
-  searchMode: "exact" | "substructure";
+  searchMolBlocks: string[];
   searchResults: ReactionData[];
   hasSearched: boolean;
 
   // Actions
   setActiveTab: (tab: string) => void;
   setSearchKeyword: (keyword: string) => void;
-  setSearchSmarts: (smarts: string, mode: "exact" | "substructure") => void;
+  setSearchMolBlocks: (blocks: string[]) => void;
   setSearchResults: (results: ReactionData[]) => void;
   setHasSearched: (searched: boolean) => void;
   resetSearch: () => void;
@@ -21,15 +20,13 @@ interface ReactDicState {
 export const useReactDicStore = create<ReactDicState>((set) => ({
   activeTab: "keyword",
   searchKeyword: "",
-  searchSmarts: "",
-  searchMode: "substructure",
+  searchMolBlocks: [],
   searchResults: [],
   hasSearched: false,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setSearchKeyword: (keyword) => set({ searchKeyword: keyword }),
-  setSearchSmarts: (smarts, mode) =>
-    set({ searchSmarts: smarts, searchMode: mode }),
+  setSearchMolBlocks: (blocks) => set({ searchMolBlocks: blocks }),
   setSearchResults: (results) => set({ searchResults: results }),
   setHasSearched: (searched) => set({ hasSearched: searched }),
   resetSearch: () => set({ searchResults: [], hasSearched: false }),

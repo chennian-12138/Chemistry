@@ -94,23 +94,12 @@ export default function AppSidebarUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <CreditCard />
-                Billing
+                积分
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
-                Notifications
+                系统信息
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -118,7 +107,7 @@ export default function AppSidebarUser() {
               onClick={() => signOut()}
             >
               <LogOut />
-              Log out
+              登出
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

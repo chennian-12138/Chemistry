@@ -38,6 +38,7 @@ export interface KekuleChemWidgetRef {
   exportToSmiles: () => string | null;
   importFromSmiles: (smiles: string) => void;
   exportToMolBlock: () => string | null;
+  exportToMolBlocks: () => string[];
   highlightAtoms: (atomIndices: number[]) => void;
 }
 
@@ -229,6 +230,43 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
         return obj
           ? (KekuleModule?.IO?.saveFormatData(obj, "mol") ?? null)
           : null;
+      },
+      // 导出画布上的每一个分子为独立 MolBlock（多分子搜索用）。
+      // MDL MOL 只能表达单个连接表，因此多分子必须逐个拆分导出。
+      exportToMolBlocks: () => {
+        const obj = widgetRef.current?.getChemObj?.();
+        if (!obj || !KekuleModule) return [];
+
+        const exportOne = (mol: any): string | null => {
+          try {
+            const nodes = mol?.getNodes?.();
+            // 跳过空分子（画布清空后容器里可能残留 0 原子的分子）
+            if (Array.isArray(nodes) && nodes.length === 0) return null;
+            return KekuleModule?.IO?.saveFormatData(mol, "mol") ?? null;
+          } catch {
+            return null;
+          }
+        };
+
+        // 单分子：对象自身即分子（有 getNodes）
+        if (typeof obj.getNodes === "function") {
+          const mb = exportOne(obj);
+          return mb ? [mb] : [];
+        }
+
+        // 多分子容器（ChemObjList / ChemSpace）：取出各子分子逐个导出
+        if (typeof obj.filterChildren === "function") {
+          const children = obj.filterChildren(
+            (c: any) => c && typeof c.getNodes === "function",
+          );
+          if (Array.isArray(children)) {
+            return children.map(exportOne).filter(Boolean) as string[];
+          }
+        }
+
+        // 兜底：整体导出
+        const mb = exportOne(obj);
+        return mb ? [mb] : [];
       },
       highlightAtoms: (atomIndices: number[]) => {
         const obj = widgetRef.current?.getChemObj?.();

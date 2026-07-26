@@ -20,7 +20,7 @@ export default function AppSidebarApplication() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarGroupLabel>功能应用</SidebarGroupLabel>
       <SidebarMenu>
         {applicationRoutes.map((route) => {
           const user = session?.user as unknown as { role?: string };

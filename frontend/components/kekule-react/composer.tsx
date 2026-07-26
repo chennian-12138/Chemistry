@@ -7,12 +7,13 @@ import KekuleChemWidget, {
 interface ComposerProps {
   value?: string; // SMILES 或 JSON
   onChange?: (value: string) => void;
+  onMolBlocksChange?: (blocks: string[]) => void; // 画布上各分子的 MolBlock（多分子搜索用）
   className?: string;
   exportFormat?: "json" | "smiles" | "molblock";
 }
 
 const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
-  ({ value, onChange, className, exportFormat = "json" }, ref) => {
+  ({ value, onChange, onMolBlocksChange, className, exportFormat = "json" }, ref) => {
     const widgetRef = useRef<KekuleChemWidgetRef>(null);
     const lastExportedJsonRef = useRef<string>("");
     const lastImportedValueRef = useRef<string | undefined>(undefined);
@@ -64,12 +65,20 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
 
     const handleChange = useCallback(
       (newObj: unknown) => {
-        if (!onChange || !widgetRef.current) return;
+        if (!widgetRef.current) return;
 
         if (debounceTimerRef.current) {
           clearTimeout(debounceTimerRef.current);
         }
         debounceTimerRef.current = setTimeout(() => {
+          // 回传当前各分子 MolBlock（含清空归零），供多分子搜索使用
+          if (onMolBlocksChange) {
+            const blocks = widgetRef.current?.exportToMolBlocks?.() ?? [];
+            onMolBlocksChange(blocks);
+          }
+
+          if (!onChange) return;
+
           let exportValue: string;
           switch (exportFormat) {
             case "smiles":
@@ -88,7 +97,7 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
           }
         }, 300);
       },
-      [onChange, exportFormat],
+      [onChange, onMolBlocksChange, exportFormat],
     );
 
     useEffect(() => {

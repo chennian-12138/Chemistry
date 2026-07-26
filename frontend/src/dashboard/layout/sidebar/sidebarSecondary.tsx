@@ -29,7 +29,7 @@ export default function AppSidebarSecondary() {
 
             return(
               <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild isActive={isActive} size="sm">
+                <SidebarMenuButton asChild isActive={isActive}>
                   <Link href={item.Path}>
                     <item.icon />
                     <span>{item.name}</span>

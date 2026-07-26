@@ -16,12 +16,32 @@ export interface ReactionData {
   description?: string;
   tags?: string[];
   structureData?: string;
+  matchTier?: "combination" | "and" | "or";
 }
 
 interface ReactionCardProps {
   data: ReactionData;
   onClick?: () => void;
 }
+
+// 结构搜索命中层级 → 徽章样式与文案
+const TIER_BADGE: Record<
+  NonNullable<ReactionData["matchTier"]>,
+  { label: string; className: string }
+> = {
+  combination: {
+    label: "完美组合",
+    className: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  },
+  and: {
+    label: "含全部结构",
+    className: "bg-blue-100 text-blue-700 border-blue-200",
+  },
+  or: {
+    label: "含任一结构",
+    className: "bg-muted text-muted-foreground border-transparent",
+  },
+};
 
 const ReactionCard: React.FC<ReactionCardProps> = ({ data, onClick }) => {
   // 控制 Viewer 是否加载的状态
@@ -35,13 +55,21 @@ const ReactionCard: React.FC<ReactionCardProps> = ({ data, onClick }) => {
       onClick={onClick}
     >
       {/* 1. 顶部：标题 */}
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 pt-4 px-5 bg-gradient-to-b from-muted/30 to-transparent">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3 pt-4 px-5 bg-gradient-to-b from-muted/30 to-transparent">
         <CardTitle
           className="truncate text-[1.1rem] font-semibold text-foreground tracking-tight"
           title={data.name}
         >
           {data.name}
         </CardTitle>
+        {data.matchTier && (
+          <Badge
+            variant="outline"
+            className={`shrink-0 text-[10px] px-2 py-0.5 h-auto font-medium ${TIER_BADGE[data.matchTier].className}`}
+          >
+            {TIER_BADGE[data.matchTier].label}
+          </Badge>
+        )}
       </CardHeader>
 
       {/* 2. 中部：动态 Viewer 区域 (核心逻辑) */}

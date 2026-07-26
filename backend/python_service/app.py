@@ -6,6 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from rdkit_utils import (
     find_smart_pattern_in_kekule_json,
+    match_smarts_batch,
     predict_products_of_reaction_smiles
 )
 from paper_routes import router as paper_router
@@ -100,6 +101,13 @@ class MatchResponse(BaseModel):
     matched: bool = False
     error: Optional[str] = None
 
+class MatchBatchRequest(BaseModel):
+    smartsList: List[str]
+    molBlocks: List[str]
+
+class MatchBatchResponse(BaseModel):
+    matched: List[List[bool]] = []
+
 class PredictRequest(BaseModel):
     reactionSmarts: str
     smilesList: List[str]
@@ -116,6 +124,15 @@ async def match_smarts(request: MatchRequest):
         if "error" in result:
              raise HTTPException(status_code=400, detail=result["error"])
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/match-smarts-batch")
+async def match_smarts_batch_route(request: MatchBatchRequest):
+    try:
+        matrix = match_smarts_batch(request.smartsList, request.molBlocks)
+        return {"matched": matrix}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

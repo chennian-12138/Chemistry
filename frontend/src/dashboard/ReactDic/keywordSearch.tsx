@@ -33,10 +33,10 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center gap-6 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-2 mb-4">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Keyword Search
+          关键词搜索
         </h2>
         <p className="text-muted-foreground text-sm">
-          Search by reaction name, tags, or description words.
+          通过反应名称，标签，或者是描述来查找
         </p>
       </div>
 
@@ -62,13 +62,13 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
             className="rounded-full px-6 h-10 font-medium transition-transform active:scale-95"
             disabled={!keyword.trim() || isLoading}
           >
-            {isLoading ? "Searching..." : "Search"}
+            {isLoading ? "查找中..." : "查询"}
           </Button>
         </div>
       </form>
 
       {/* Optional: Popular searches / tags could go here */}
-      <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground mt-2">
+      {/* <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground mt-2">
         <span>Popular:</span>
         <button
           type="button"
@@ -91,7 +91,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
         >
           Reduction
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

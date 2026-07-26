@@ -71,15 +71,12 @@ export async function searchReactDicKeyword(term: string) {
   return res.json();
 }
 
-export async function searchReactDicStructure(
-  smarts: string,
-  mode: "exact" | "substructure",
-) {
+export async function searchReactDicStructure(molBlocks: string[]) {
   const res = await fetch(`${API_BASE}/api/reactdic/search/structure`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ smarts, mode }),
+    body: JSON.stringify({ molBlocks }),
   });
   return res.json();
 }

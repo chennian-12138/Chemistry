@@ -154,7 +154,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
 
       <CardContent className=" space-y-5">
         {/* Pattern 选择 */}
-        <div className="justify-between flex">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           {reactionSmartsList.length > 1 && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
@@ -293,7 +293,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
                       Set {setIdx + 1}
                     </p>
                   )}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                     {productSet.map((molBlock, molIdx) => (
                       <div
                         key={molIdx}
