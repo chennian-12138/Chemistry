@@ -1,6 +1,7 @@
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
+from itertools import permutations
 import json
 
 def smiles_to_kekule_json(smiles: str) -> str:
@@ -126,6 +127,10 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
     使用 Reaction SMARTS 和反应物 SMILES 列表推断产物。
     返回产物 MolBlock 的二维列表：[[molblock, ...], ...]
     每个内层列表代表一组可能的产物。
+
+    位置无关：RunReactants 按模板 LHS 顺序严格匹配反应物，因此这里遍历输入
+    反应物的**所有排列**，任一排列能匹配模板即产出，用户无需按特定顺序摆放分子。
+    产物集合按规范化 SMILES 去重（排列 + RDKit 对称匹配会产生大量重复）。
     """
     rxn = AllChem.ReactionFromSmarts(smart)
     if rxn is None:
@@ -134,17 +139,30 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
     reactants = []
     for smi in reactant_smiles_list:
         mol = Chem.MolFromSmiles(smi)
-        mol = Chem.AddHs(mol)
         if mol is None:
             raise ValueError(f"Invalid reactant SMILES: {smi}")
-        reactants.append(mol)
+        reactants.append(Chem.AddHs(mol))
 
-    product_series = rxn.RunReactants(reactants)
-    if len(product_series) == 0:
-        return []
-
+    seen = set()   # 已产出产物集的规范化指纹，用于去重
     result = []
-    for products in product_series:
-        product_mol_blocks = [Chem.MolToMolBlock(Chem.RemoveHs(product)) for product in products]
-        result.append(product_mol_blocks)
+    for perm in permutations(reactants):
+        try:
+            product_series = rxn.RunReactants(list(perm))
+        except Exception:
+            # 某个排列在 RDKit 内部报错（如原子数不匹配），跳过该排列
+            continue
+
+        for products in product_series:
+            try:
+                # RemoveHs 默认会 sanitize；RunReactants 的产物偶有价键异常，跳过
+                cleaned = [Chem.RemoveHs(p) for p in products]
+                key = tuple(Chem.MolToSmiles(m) for m in cleaned)
+            except Exception:
+                continue
+
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append([Chem.MolToMolBlock(m) for m in cleaned])
+
     return result

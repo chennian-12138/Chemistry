@@ -4,232 +4,196 @@ import styled from "styled-components";
 const Loader = () => {
   return (
     <StyledWrapper>
-      <div className="container">
-        <div className="slice" />
-        <div className="slice" />
-        <div className="slice" />
-        <div className="slice" />
-        <div className="slice" />
-        <div className="slice" />
+      <div aria-label="Circular DNA double helix rotating" role="img" className="dna">
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
+        <div className="rung" />
       </div>
     </StyledWrapper>
   );
 };
 
 const StyledWrapper = styled.div`
-  .container {
-    --uib-size: 150px;
-    --uib-speed: 2.5s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: var(--uib-size);
-    width: var(--uib-size);
-  }
-
-  .slice {
+  .dna {
+    --size: 120px;
+    --speed: 2.4s;
+    --step: calc(var(--speed) / -16);
+    --radius: 48px;
+    --rung-length: 16px;
+    --strand-a: #1f1f1f;
+    --strand-b: #a3a3a3;
     position: relative;
-    height: calc(var(--uib-size) / 6);
-    width: 100%;
+    width: var(--size);
+    height: var(--size);
+    margin: auto;
   }
 
-  .slice::before,
-  .slice::after {
-    --uib-a: calc(var(--uib-speed) / -2);
-    --uib-b: calc(var(--uib-speed) / -6);
+  .dna::before,
+  .dna::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: calc(50% - var(--uib-size) / 12);
-    height: 100%;
-    width: calc(100% / 6);
+    border: 1.5px solid #dcdcdc;
     border-radius: 50%;
-    background-color: var(--uib-color);
-    flex-shrink: 0;
-    animation: orbit var(--uib-speed) linear infinite;
-    transition: background-color 0.3s ease;
   }
 
-  .slice:nth-child(1)::after {
-    animation-delay: var(--uib-a);
+  .dna::before {
+    width: calc((var(--radius) + var(--rung-length) / 2) * 2);
+    height: calc((var(--radius) + var(--rung-length) / 2) * 2);
+    top: calc(50% - (var(--radius) + var(--rung-length) / 2));
+    left: calc(50% - (var(--radius) + var(--rung-length) / 2));
   }
 
-  .slice:nth-child(2)::before {
-    animation-delay: var(--uib-b);
+  .dna::after {
+    width: calc((var(--radius) - var(--rung-length) / 2) * 2);
+    height: calc((var(--radius) - var(--rung-length) / 2) * 2);
+    top: calc(50% - (var(--radius) - (var(--rung-length) / 2)));
+    left: calc(50% - (var(--radius) - (var(--rung-length) / 2)));
   }
 
-  .slice:nth-child(2)::after {
-    animation-delay: calc(var(--uib-a) + var(--uib-b));
+  .rung {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: var(--rung-length);
+    margin: calc(var(--rung-length) / -2) 0 0 -2px;
+    animation: twist var(--speed) ease-in-out infinite;
   }
 
-  .slice:nth-child(3)::before {
-    animation-delay: calc(var(--uib-b) * 2);
+  .rung::before,
+  .rung::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
   }
 
-  .slice:nth-child(3)::after {
-    animation-delay: calc(var(--uib-a) + var(--uib-b) * 2);
+  .rung::before {
+    top: 0;
+    background-color: var(--strand-a);
+    border-radius: 2px 2px 1px 1px;
   }
 
-  .slice:nth-child(4)::before {
-    animation-delay: calc(var(--uib-b) * 3);
+  .rung::after {
+    bottom: 0;
+    background-color: var(--strand-b);
+    border-radius: 1px 1px 2px 2px;
   }
 
-  .slice:nth-child(4)::after {
-    animation-delay: calc(var(--uib-a) + var(--uib-b) * 3);
+  .rung:nth-child(1) {
+    transform: rotate(0deg) translateY(calc(var(--radius) * -1));
   }
 
-  .slice:nth-child(5)::before {
-    animation-delay: calc(var(--uib-b) * 4);
+  .rung:nth-child(2) {
+    transform: rotate(22.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: var(--step);
   }
 
-  .slice:nth-child(5)::after {
-    animation-delay: calc(var(--uib-a) + var(--uib-b) * 4);
+  .rung:nth-child(3) {
+    transform: rotate(45deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 2);
   }
 
-  .slice:nth-child(6)::before {
-    animation-delay: calc(var(--uib-b) * 5);
+  .rung:nth-child(4) {
+    transform: rotate(67.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 3);
   }
 
-  .slice:nth-child(6)::after {
-    animation-delay: calc(var(--uib-a) + var(--uib-b) * 5);
+  .rung:nth-child(5) {
+    transform: rotate(90deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 4);
   }
 
-  @keyframes orbit {
-    0% {
-      transform: translateX(calc(var(--uib-size) * 0.25)) scale(0.73684);
-      opacity: 0.65;
-    }
+  .rung:nth-child(6) {
+    transform: rotate(112.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 5);
+  }
 
-    5% {
-      transform: translateX(calc(var(--uib-size) * 0.235)) scale(0.684208);
-      opacity: 0.58;
-    }
+  .rung:nth-child(7) {
+    transform: rotate(135deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 6);
+  }
 
-    10% {
-      transform: translateX(calc(var(--uib-size) * 0.182)) scale(0.631576);
-      opacity: 0.51;
-    }
+  .rung:nth-child(8) {
+    transform: rotate(157.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 7);
+  }
 
-    15% {
-      transform: translateX(calc(var(--uib-size) * 0.129)) scale(0.578944);
-      opacity: 0.44;
-    }
+  .rung:nth-child(9) {
+    transform: rotate(180deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 8);
+  }
 
-    20% {
-      transform: translateX(calc(var(--uib-size) * 0.076)) scale(0.526312);
-      opacity: 0.37;
-    }
+  .rung:nth-child(10) {
+    transform: rotate(202.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 9);
+  }
 
-    25% {
-      transform: translateX(0%) scale(0.47368);
-      opacity: 0.3;
-    }
+  .rung:nth-child(11) {
+    transform: rotate(225deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 10);
+  }
 
-    30% {
-      transform: translateX(calc(var(--uib-size) * -0.076)) scale(0.526312);
-      opacity: 0.37;
-    }
+  .rung:nth-child(12) {
+    transform: rotate(247.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 11);
+  }
 
-    35% {
-      transform: translateX(calc(var(--uib-size) * -0.129)) scale(0.578944);
-      opacity: 0.44;
-    }
+  .rung:nth-child(13) {
+    transform: rotate(270deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 12);
+  }
 
-    40% {
-      transform: translateX(calc(var(--uib-size) * -0.182)) scale(0.631576);
-      opacity: 0.51;
-    }
+  .rung:nth-child(14) {
+    transform: rotate(292.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 13);
+  }
 
-    45% {
-      transform: translateX(calc(var(--uib-size) * -0.235)) scale(0.684208);
-      opacity: 0.58;
-    }
+  .rung:nth-child(15) {
+    transform: rotate(315deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 14);
+  }
 
-    50% {
-      transform: translateX(calc(var(--uib-size) * -0.25)) scale(0.73684);
-      opacity: 0.65;
-    }
+  .rung:nth-child(16) {
+    transform: rotate(337.5deg) translateY(calc(var(--radius) * -1));
+    animation-delay: calc(var(--step) * 15);
+  }
 
-    55% {
-      transform: translateX(calc(var(--uib-size) * -0.235)) scale(0.789472);
-      opacity: 0.72;
-    }
-
-    60% {
-      transform: translateX(calc(var(--uib-size) * -0.182)) scale(0.842104);
-      opacity: 0.79;
-    }
-
-    65% {
-      transform: translateX(calc(var(--uib-size) * -0.129)) scale(0.894736);
-      opacity: 0.86;
-    }
-
-    70% {
-      transform: translateX(calc(var(--uib-size) * -0.076)) scale(0.947368);
-      opacity: 0.93;
-    }
-
-    75% {
-      transform: translateX(0%) scale(1);
+  @keyframes twist {
+    0%,
+    100% {
+      scale: 1 1;
       opacity: 1;
     }
 
-    80% {
-      transform: translateX(calc(var(--uib-size) * 0.076)) scale(0.947368);
-      opacity: 0.93;
+    25% {
+      scale: 1 0;
+      opacity: 0.75;
     }
 
-    85% {
-      transform: translateX(calc(var(--uib-size) * 0.129)) scale(0.894736);
-      opacity: 0.86;
+    50% {
+      scale: 1 -1;
+      opacity: 0.55;
     }
 
-    90% {
-      transform: translateX(calc(var(--uib-size) * 0.182)) scale(0.842104);
-      opacity: 0.79;
+    75% {
+      scale: 1 0;
+      opacity: 0.75;
     }
-
-    95% {
-      transform: translateX(calc(var(--uib-size) * 0.235)) scale(0.789472);
-      opacity: 0.72;
-    }
-
-    100% {
-      transform: translateX(calc(var(--uib-size) * 0.25)) scale(0.73684);
-      opacity: 0.65;
-    }
-  }
-
-  .slice:nth-child(1)::before,
-  .slice:nth-child(1)::after {
-    background-color: #334dff;
-  }
-
-  .slice:nth-child(2)::before,
-  .slice:nth-child(2)::after {
-    background-color: #333eff;
-  }
-
-  .slice:nth-child(3)::before,
-  .slice:nth-child(3)::after {
-    background-color: #3334ff;
-  }
-
-  .slice:nth-child(4)::before,
-  .slice:nth-child(4)::after {
-    background-color: #4433ff;
-  }
-
-  .slice:nth-child(5)::before,
-  .slice:nth-child(5)::after {
-    background-color: #6633ff;
-  }
-
-  .slice:nth-child(6)::before,
-  .slice:nth-child(6)::after {
-    background-color: #9933ff;
   }
 `;
 

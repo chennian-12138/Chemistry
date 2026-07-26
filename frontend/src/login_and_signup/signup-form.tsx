@@ -120,13 +120,13 @@ export default function SignUp() {
   return (
     <FieldGroup className="z-50 rounded-md rounded-t-none max-w-md">
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-2xl font-bold">Create your account</h1>
+        <h1 className="text-2xl font-bold">注册账户</h1>
         <p className="text-muted-foreground text-sm text-balance">
-          Fill in the form below to create your account
+          请填写如下表单
         </p>
       </div>{" "}
       <Field>
-        <Label htmlFor="first-name">First name</Label>
+        <Label htmlFor="first-name">昵称</Label>
         <Input
           id="first-name"
           placeholder="Max"
@@ -138,7 +138,7 @@ export default function SignUp() {
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="email">Email</FieldLabel>
+        <FieldLabel htmlFor="email">邮箱</FieldLabel>
         <Input
           id="email"
           type="email"
@@ -151,7 +151,7 @@ export default function SignUp() {
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="password">Password</FieldLabel>
+        <FieldLabel htmlFor="password">密码</FieldLabel>
         <Input
           id="password"
           type="password"
@@ -162,7 +162,7 @@ export default function SignUp() {
         />
 		</Field>
         <Field>
-          <FieldLabel htmlFor="password_confirmation">Confirm Password</FieldLabel>
+          <FieldLabel htmlFor="password_confirmation">确认密码</FieldLabel>
           <Input
             id="password_confirmation"
             type="password"
@@ -173,7 +173,7 @@ export default function SignUp() {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="image">Profile Image (optional)</FieldLabel>
+          <FieldLabel htmlFor="image">头像 (可选)</FieldLabel>
           <div className="flex items-end gap-4">
             {imagePreview && (
               <div className="relative w-16 h-16 rounded-sm overflow-hidden">
@@ -205,7 +205,6 @@ export default function SignUp() {
             </div>
           </div>
         </Field>
-		<FieldSeparator>Or continue with</FieldSeparator>
 		<Field>
         <Button
           type="submit"
@@ -259,7 +258,7 @@ export default function SignUp() {
           {loading ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
-            "Create your account"
+            "创建你的账户"
           )}
         </Button>
 		</Field>
