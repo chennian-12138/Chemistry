@@ -148,16 +148,18 @@ export default function RouteBrowse() {
           >
             最高分
           </Button>
-          <Button
-            variant={mine ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setMine((v) => !v);
-              setIsSearchResult(false);
-            }}
-          >
-            只看我的
-          </Button>
+          {session && (
+            <Button
+              variant={mine ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setMine((v) => !v);
+                setIsSearchResult(false);
+              }}
+            >
+              只看我的
+            </Button>
+          )}
           <Button
             variant={searchOpen ? "default" : "outline"}
             size="sm"

@@ -315,7 +315,7 @@ const KekuleChemWidget = forwardRef<KekuleChemWidgetRef, KekuleChemWidgetProps>(
             for (const bond of bonds) {
               if (matchedBonds.includes(bond)) continue;
               const connectedNodes = bond.getConnectedChemNodes();
-              const allConnected = connectedNodes.every((node) =>
+              const allConnected = connectedNodes.every((node: any) =>
                 matchedAtoms.includes(node),
               );
               if (allConnected) matchedBonds.push(bond);

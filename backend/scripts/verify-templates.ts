@@ -29,7 +29,7 @@ async function verify() {
   console.log(`   创建时间: ${sample.createdAt.toISOString()}\n`);
 
   if (sample.patterns.length > 0) {
-    const pattern = sample.patterns[0];
+    const pattern = sample.patterns[0]!;
     const reactants = pattern.molecules.filter((m) => m.role === "反应物");
     const products = pattern.molecules.filter((m) => m.role === "产物");
 
@@ -39,14 +39,14 @@ async function verify() {
 
     if (reactants.length > 0) {
       console.log("   第一个反应物:");
-      console.log(`     名称: ${reactants[0].name}`);
-      console.log(`     SMARTS: ${reactants[0].smarts.substring(0, 60)}...`);
+      console.log(`     名称: ${reactants[0]!.name}`);
+      console.log(`     SMARTS: ${reactants[0]!.smarts.substring(0, 60)}...`);
     }
 
     if (products.length > 0) {
       console.log("\n   第一个产物:");
-      console.log(`     名称: ${products[0].name}`);
-      console.log(`     SMARTS: ${products[0].smarts.substring(0, 60)}...`);
+      console.log(`     名称: ${products[0]!.name}`);
+      console.log(`     SMARTS: ${products[0]!.smarts.substring(0, 60)}...`);
     }
   }
 

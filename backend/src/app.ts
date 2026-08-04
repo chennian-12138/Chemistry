@@ -15,6 +15,7 @@ import draftsRouter from "./routes/drafts";
 import accountRouter from "./routes/account";
 import papersRouter from "./routes/papers";
 import chatRouter from "./routes/chat";
+import chatByokRouter from "./routes/chat-byok";
 import retroRouter from "./routes/retrosynthesis";
 
 const app = express();
@@ -32,7 +33,8 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // Mount express json middleware after Better Auth handler
 // or only apply it to routes that don't interact with Better Auth
-app.use(express.json());
+// limit：数据上传/逆合成路线携带分子结构数据，body-parser 默认 100kb 会 413
+app.use(express.json({ limit: "5mb" }));
 app.use("/api/reactions", reactionsRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/rdkit", rdkitRouter);
@@ -43,6 +45,7 @@ app.use("/api/analytics", analyticsRouter);
 app.use("/api/drafts", draftsRouter);
 app.use("/api/account", accountRouter);
 app.use("/api/papers", papersRouter);
+app.use("/api/chat/byok", chatByokRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/retro", retroRouter);
 

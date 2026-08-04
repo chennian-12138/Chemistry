@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
-import { auth } from "../../lib/auth";
+import { requireUser } from "../../lib/guard";
 import { ReviewStatus } from "../../generated/prisma/client";
 
 const router = Router();
@@ -8,14 +8,8 @@ const router = Router();
 // 创建反应（需要登录）
 router.post("/", async (req, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any),
-    });
-    const userId = session?.user?.id || "test-user-id";
-
-    if (!userId) {
-      return res.status(401).json({ error: "请先登录" });
-    }
+    const userId = await requireUser(req, res);
+    if (!userId) return;
 
     const data = req.body;
 
@@ -104,10 +98,13 @@ router.post("/", async (req, res) => {
 // 查询反应
 router.get("/", async (req, res) => {
   try {
+    const userId = await requireUser(req, res);
+    if (!userId) return;
+
     const { status } = req.query;
 
     const reactions = await prisma.reaction.findMany({
-      where: status ? { status: status as ReviewStatus } : {},
+      where: { authorId: userId, ...(status ? { status: status as ReviewStatus } : {}) },
       include: {
         author: { select: { name: true, email: true } },
         tags: true,
@@ -137,8 +134,23 @@ router.get("/", async (req, res) => {
 // 更新已有反应（用于被拒绝后修改）
 router.put("/:id", async (req, res) => {
   try {
+    const userId = await requireUser(req, res);
+    if (!userId) return;
+
     const { id } = req.params;
     const data = req.body;
+
+    // 仅作者本人可修改（管理员走 approve/reject）
+    const existing = await prisma.reaction.findUnique({
+      where: { id },
+      select: { authorId: true },
+    });
+    if (!existing) {
+      return res.status(404).json({ error: "词条不存在" });
+    }
+    if (existing.authorId !== userId) {
+      return res.status(403).json({ error: "无权限" });
+    }
 
     // 先删除旧的关联数据
     await prisma.$transaction([

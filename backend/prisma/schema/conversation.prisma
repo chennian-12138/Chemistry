@@ -11,3 +11,18 @@ model Conversation {
   @@index([userId, updatedAt(sort: Desc)])
   @@map("conversation")
 }
+
+// BYOK：用户自带的 OpenAI 兼容 API 配置，平台每日额度用尽后回落使用。
+// apiKeyEnc 为 AES-256-GCM 密文（格式见 lib/byok-crypto.ts），绝不明文落库
+model UserLlmConfig {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  apiKeyEnc String
+  baseUrl   String
+  model     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_llm_config")
+}

@@ -5,7 +5,7 @@ const Loader = () => {
   return (
     <StyledWrapper>
       <svg
-        aria-label="Rocking Erlenmeyer flask with bubbles rising out of its mouth"
+        aria-label="Rocking Erlenmeyer flask with bubbles rising and popping at the surface"
         role="img"
         viewBox="0 0 120 140"
         className="loader"
@@ -15,7 +15,7 @@ const Loader = () => {
         </clipPath>
         <g clipPath="url(#flask-liquid-clip)">
           <path
-            d="M0 78 Q10 72 20 78 T40 78 T60 78 T80 78 T100 78 T120 78 T140 78 T160 78 V140 H0 Z"
+            d="M0 76 Q10 70 20 76 T40 76 T60 76 T80 76 T100 76 T120 76 T140 76 T160 76 V140 H0 Z"
             className="loader__liquid"
           />
         </g>
@@ -39,17 +39,19 @@ const Loader = () => {
 
 const StyledWrapper = styled.div`
   .loader {
+    --dur: 2.8s;
+    font-size: 14px;
     display: block;
     margin: auto;
     width: 8em;
     height: auto;
     transform-origin: 50% 96%;
-    animation: rock 3.2s ease-in-out infinite;
+    animation: rock var(--dur) ease-in-out infinite;
   }
 
   .loader__flask {
     fill: none;
-    stroke: #262626;
+    stroke: var(--foreground);
     stroke-width: 3.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -57,54 +59,47 @@ const StyledWrapper = styled.div`
 
   .loader__rim {
     fill: none;
-    stroke: #262626;
+    stroke: var(--foreground);
     stroke-width: 5;
     stroke-linecap: round;
   }
 
   .loader__liquid {
-    fill: #b3b3b3;
-    animation: liquid-wave 2.6s linear infinite;
+    fill: var(--chart-2);
+    opacity: 0.5;
+    animation: liquid-wave var(--dur) linear infinite;
   }
 
   .loader__bubble {
-    fill: #f0f0f0;
-    stroke: #8c8c8c;
-    stroke-width: 0.75;
+    fill: var(--chart-1);
     opacity: 0;
     transform-box: fill-box;
     transform-origin: center;
-    animation: bubble-rise 3.6s linear infinite;
+    animation: bubble-rise calc(var(--dur) * 1.15) linear infinite;
   }
 
   .loader__bubble--1 {
-    animation-duration: 3.4s;
     animation-delay: 0s;
   }
 
   .loader__bubble--2 {
-    animation-duration: 4.2s;
-    animation-delay: -1.2s;
+    animation-delay: calc(var(--dur) * -0.4);
   }
 
   .loader__bubble--3 {
-    animation-duration: 3s;
-    animation-delay: -2.1s;
+    animation-delay: calc(var(--dur) * -0.75);
   }
 
   .loader__bubble--4 {
-    animation-duration: 3.8s;
-    animation-delay: -0.6s;
+    animation-delay: calc(var(--dur) * -0.2);
   }
 
   .loader__bubble--5 {
-    animation-duration: 3.2s;
-    animation-delay: -1.7s;
+    animation-delay: calc(var(--dur) * -0.6);
   }
 
   .loader__bubble--6 {
-    animation-duration: 4.4s;
-    animation-delay: -2.8s;
+    animation-delay: calc(var(--dur) * -0.9);
   }
 
   @keyframes rock {
@@ -128,6 +123,8 @@ const StyledWrapper = styled.div`
     }
   }
 
+  /* 气泡只升到液面附近（约 -42px 处，y≈72）即破裂淡出，
+     不会像之前那样一路飘出瓶口。 */
   @keyframes bubble-rise {
     0% {
       translate: 0 0;
@@ -135,26 +132,34 @@ const StyledWrapper = styled.div`
       opacity: 0;
     }
 
-    8% {
-      opacity: 0.9;
+    6% {
+      opacity: 1;
     }
 
-    35% {
-      translate: 2px -42px;
+    70% {
+      translate: 1.5px -30px;
+      scale: 1;
+      opacity: 1;
     }
 
-    65% {
-      translate: -2px -78px;
-    }
-
-    88% {
-      opacity: 0.9;
+    92% {
+      translate: -1.5px -40px;
+      scale: 1.05;
+      opacity: 0.85;
     }
 
     100% {
-      translate: 0 -118px;
-      scale: 1.05;
+      translate: 0 -42px;
+      scale: 1.1;
       opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loader,
+    .loader__liquid,
+    .loader__bubble {
+      animation: none;
     }
   }
 `;

@@ -23,7 +23,7 @@ function loadScript(src: string): Promise<void> {
       `script[src="${src}"]`,
     );
     if (existing) {
-      if (window.initRDKitModule) {
+      if (typeof window.initRDKitModule === "function") {
         resolve();
       } else {
         existing.addEventListener("load", () => resolve());

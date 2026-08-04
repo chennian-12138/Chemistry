@@ -46,7 +46,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
   const grandTotal = stats.features.reduce((s, f) => s + f.total, 0);
 
   return (
-    <div className="flex flex-col h-full gap-6">
+    <div className="flex flex-col gap-6">
       {/* 4 张功能指标卡：累计总量 + 近 30 天增量 */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 shrink-0">
         {FEATURES.map((f) => {
@@ -76,18 +76,19 @@ export function StatsCards({ stats }: StatsCardsProps) {
       </div>
 
       {/* 近 6 个月使用趋势：按功能分层堆叠 */}
-      <Card className="flex flex-col flex-1 min-h-0">
-        <CardHeader className="shrink-0">
+      <Card className="flex flex-col">
+        <CardHeader>
           <CardTitle className="text-base">近 6 个月使用趋势</CardTitle>
           <CardDescription className="text-sm">各功能访问量按月分层</CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 min-h-0 pb-4">
+        <CardContent className="pb-4">
           {grandTotal === 0 ? (
             <p className="text-sm text-muted-foreground py-10 text-center">
               暂无使用记录，去体验一下各项功能吧
             </p>
           ) : (
-            <ChartContainer config={chartConfig} className="h-full w-full min-h-0">
+            // 图表定高：页面不锁高度后父链无确定高度，ResponsiveContainer 必须给显式高度
+            <ChartContainer config={chartConfig} className="h-64 w-full">
               <AreaChart data={stats.trend} margin={{ left: 8, right: 8, top: 8 }}>
                 <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis

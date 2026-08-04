@@ -92,6 +92,14 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <Link href="/dashboard/reactdic" passHref legacyBehavior>
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto h-12 px-8 text-base shadow-lg"
+                  >
+                    立即体验
+                  </Button>
+                </Link>
                 <Link href="/signin" passHref legacyBehavior>
                   <Button
                     size="lg"
@@ -104,7 +112,8 @@ export default function Home() {
                 <Link href="/signup" passHref legacyBehavior>
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto h-12 px-8 text-base shadow-lg"
+                    variant="outline"
+                    className="w-full sm:w-auto h-12 px-8 text-base shadow-sm"
                   >
                     注册
                   </Button>
@@ -252,6 +261,14 @@ export default function Home() {
                   登录即可体验教材同步检索与分子可视化的双重功能，能让有机反应学习更系统、更直观。
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/dashboard/reactdic" passHref legacyBehavior>
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto text-base shadow-lg"
+                    >
+                      立即体验
+                    </Button>
+                  </Link>
                   <Link href="/signin" passHref legacyBehavior>
                     <Button
                       size="lg"
@@ -264,7 +281,8 @@ export default function Home() {
                   <Link href="/signup" passHref legacyBehavior>
                     <Button
                       size="lg"
-                      className="w-full sm:w-auto text-base shadow-lg"
+                      variant="outline"
+                      className="w-full sm:w-auto text-base"
                     >
                       注册
                     </Button>

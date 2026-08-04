@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { randomInt } from "node:crypto";
 import { prisma } from "../../lib/prisma";
 import { auth } from "../../lib/auth";
 import { sendMail, renderOtpEmail } from "../../lib/mailer";
@@ -124,7 +125,7 @@ const CHANGE_EMAIL_PREFIX = "change-email:";
 const OTP_TTL_MS = 5 * 60 * 1000; // 5 分钟
 
 function genOtp(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 // 第一步：发送验证码到新邮箱

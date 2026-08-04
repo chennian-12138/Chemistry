@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
 import { auth } from "../../lib/auth";
+import { requireAdmin } from "../../lib/guard";
 
 const router = Router();
 
@@ -122,6 +123,9 @@ router.get("/rejected", async (req, res) => {
 
 router.get("/list", async (req, res) => {
   try {
+    const userId = await requireAdmin(req, res);
+    if (!userId) return;
+
     const entries = await prisma.reaction.findMany({
       include: {
         author: {
@@ -150,6 +154,9 @@ router.get("/list", async (req, res) => {
 // 删除词条
 router.delete("/:id", async (req, res) => {
   try {
+    const userId = await requireAdmin(req, res);
+    if (!userId) return;
+
     await prisma.reaction.delete({
       where: { id: req.params.id },
     });
@@ -163,6 +170,9 @@ router.delete("/:id", async (req, res) => {
 // 获取单个词条详情（审核页用）
 router.get("/:id", async (req, res) => {
   try {
+    const userId = await requireAdmin(req, res);
+    if (!userId) return;
+
     const entry = await prisma.reaction.findUnique({
       where: { id: req.params.id },
       include: {
@@ -237,11 +247,8 @@ router.get("/:id", async (req, res) => {
 // 审核通过
 router.post("/:id/approve", async (req, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any),
-    });
-    const reviewerId = session?.user?.id;
-    if (!reviewerId) return res.status(401).json({ error: "Unauthorized" });
+    const reviewerId = await requireAdmin(req, res);
+    if (!reviewerId) return;
 
     await prisma.$transaction([
       prisma.reaction.update({
@@ -266,11 +273,8 @@ router.post("/:id/approve", async (req, res) => {
 router.post("/:id/reject", async (req, res) => {
   try {
     const { reason } = req.body;
-    const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any),
-    });
-    const reviewerId = session?.user?.id;
-    if (!reviewerId) return res.status(401).json({ error: "Unauthorized" });
+    const reviewerId = await requireAdmin(req, res);
+    if (!reviewerId) return;
 
     await prisma.$transaction([
       prisma.reaction.update({

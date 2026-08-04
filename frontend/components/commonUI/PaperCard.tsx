@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Bookmark, ExternalLink, Calendar, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { togglePaperLike, togglePaperBookmark, recordHistory } from "@/lib/api";
+import { togglePaperLike, togglePaperBookmark } from "@/lib/api";
 import type { Paper } from "@/lib/api";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { useRecordHistory } from "@/hooks/use-record-history";
 
 interface PaperCardProps {
   paper: Paper;
@@ -78,6 +80,9 @@ export default function PaperCard({ paper, onUpdate }: PaperCardProps) {
   const [likeLoading, setLikeLoading] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
+  const { session, requireAuth, loginPrompt } = useRequireAuth();
+  const { record, registrationWall } = useRecordHistory();
+
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const bucket = getDateBucket(paper.publishedDate);
@@ -88,12 +93,22 @@ export default function PaperCard({ paper, onUpdate }: PaperCardProps) {
   const handleLink = () => {
     const url = paper.landingPageUrl;
     if (!url) return;
-    recordHistory("PAPER", url, paper.title).catch(() => {});
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (session) {
+      // 登录用户保持原行为：立即打开外链，历史异步落库
+      void record("PAPER", url, paper.title);
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    // 匿名：本地历史已满时弹注册墙，且不打开外链
+    void record("PAPER", url, paper.title).then((result) => {
+      if (result === "quota-blocked") return;
+      window.open(url, "_blank", "noopener,noreferrer");
+    });
   };
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!requireAuth()) return;
     if (likeLoading) return;
     setLikeLoading(true);
     try {
@@ -112,6 +127,7 @@ export default function PaperCard({ paper, onUpdate }: PaperCardProps) {
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!requireAuth()) return;
     if (bookmarkLoading) return;
     setBookmarkLoading(true);
     try {
@@ -265,6 +281,8 @@ export default function PaperCard({ paper, onUpdate }: PaperCardProps) {
           </div>
         </div>
       </CardContent>
+      {loginPrompt}
+      {registrationWall}
     </Card>
   );
 }

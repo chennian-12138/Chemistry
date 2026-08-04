@@ -1,4 +1,5 @@
 import React, { Suspense } from "react"
+import type { JSX } from "react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -185,9 +186,8 @@ const COMPONENTS = {
 }
 
 function withClass(Tag: keyof JSX.IntrinsicElements, classes: string) {
-  const Component = ({ node, ...props }: any) => (
-    <Tag className={classes} {...props} />
-  )
+  const Component = ({ node, ...props }: any) =>
+    React.createElement(Tag, { className: classes, ...props })
   Component.displayName = Tag
   return Component
 }

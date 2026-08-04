@@ -1,26 +1,29 @@
 import React from "react";
 import styled from "styled-components";
 
+// rung 数量：12 根均匀分布，每根相位差 30°
+const RUNG_COUNT = 12;
+
 const Loader = () => {
   return (
     <StyledWrapper>
-      <div aria-label="Circular DNA double helix rotating" role="img" className="dna">
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
-        <div className="rung" />
+      <div
+        aria-label="Circular DNA double helix rotating"
+        role="img"
+        className="dna"
+      >
+        <div className="dna__axis" />
+        <div className="dna__guide" />
+        {Array.from({ length: RUNG_COUNT }, (_, i) => (
+          <span
+            key={i}
+            className="rung"
+            style={{ "--i": i } as React.CSSProperties}
+          >
+            <span className="rung__half rung__half--a" />
+            <span className="rung__half rung__half--b" />
+          </span>
+        ))}
       </div>
     </StyledWrapper>
   );
@@ -28,171 +31,98 @@ const Loader = () => {
 
 const StyledWrapper = styled.div`
   .dna {
-    --size: 120px;
-    --speed: 2.4s;
-    --step: calc(var(--speed) / -16);
-    --radius: 48px;
-    --rung-length: 16px;
-    --strand-a: #1f1f1f;
-    --strand-b: #a3a3a3;
+    --dur: 1.8s;
+    font-size: 14px;
+    --size: 9.6em;
+    --radius: 3.1em;
+    --rung-len: 1.8em;
+    --rung-w: 0.38em;
+    --strand-a: var(--chart-1);
+    --strand-b: var(--chart-2);
     position: relative;
     width: var(--size);
     height: var(--size);
-    margin: auto;
   }
 
-  .dna::before,
-  .dna::after {
-    content: "";
+  /* 中心轴：给旋转一个锚点，强化“绕轴转动”的读数 */
+  .dna__axis {
     position: absolute;
-    border: 1.5px solid #dcdcdc;
+    left: 50%;
+    top: 50%;
+    width: 0.45em;
+    height: 0.45em;
+    margin: -0.225em 0 0 -0.225em;
+    border-radius: 50%;
+    background: var(--foreground);
+    opacity: 0.85;
+  }
+
+  /* 螺旋横截面轮廓 */
+  .dna__guide {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--radius) * 2);
+    height: calc(var(--radius) * 2);
+    margin: calc(var(--radius) * -1) 0 0 calc(var(--radius) * -1);
+    border: 1px solid var(--border);
     border-radius: 50%;
   }
 
-  .dna::before {
-    width: calc((var(--radius) + var(--rung-length) / 2) * 2);
-    height: calc((var(--radius) + var(--rung-length) / 2) * 2);
-    top: calc(50% - (var(--radius) + var(--rung-length) / 2));
-    left: calc(50% - (var(--radius) + var(--rung-length) / 2));
-  }
-
-  .dna::after {
-    width: calc((var(--radius) - var(--rung-length) / 2) * 2);
-    height: calc((var(--radius) - var(--rung-length) / 2) * 2);
-    top: calc(50% - (var(--radius) - (var(--rung-length) / 2)));
-    left: calc(50% - (var(--radius) - (var(--rung-length) / 2)));
-  }
-
+  /* 每根碱基对：锚在内侧端点，绕环轴摆动。
+     基础 transform 只做定位（旋转 + 平移），动画用独立的 scale 属性
+     与之叠加，摆动时从内侧向外伸出 → 翻转为 -1 时缩向中心 = 转到背面。 */
   .rung {
     position: absolute;
-    top: 50%;
     left: 50%;
-    width: 4px;
-    height: var(--rung-length);
-    margin: calc(var(--rung-length) / -2) 0 0 -2px;
-    animation: twist var(--speed) ease-in-out infinite;
+    top: 50%;
+    width: var(--rung-len);
+    height: var(--rung-w);
+    margin-top: calc(var(--rung-w) / -2);
+    transform: rotate(calc(var(--i) * 30deg))
+      translateX(calc(var(--radius) - var(--rung-len) / 2));
+    transform-origin: 0 50%;
+    animation: swing var(--dur) linear infinite;
+    animation-delay: calc(var(--dur) * -0.0833333 * var(--i));
   }
 
-  .rung::before,
-  .rung::after {
-    content: "";
+  .rung__half {
     position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50%;
-  }
-
-  .rung::before {
     top: 0;
-    background-color: var(--strand-a);
-    border-radius: 2px 2px 1px 1px;
+    height: 100%;
+    width: 50%;
   }
 
-  .rung::after {
-    bottom: 0;
-    background-color: var(--strand-b);
-    border-radius: 1px 1px 2px 2px;
+  .rung__half--a {
+    left: 0;
+    background: var(--strand-a);
+    border-radius: 0.3em 0 0 0.3em;
   }
 
-  .rung:nth-child(1) {
-    transform: rotate(0deg) translateY(calc(var(--radius) * -1));
+  .rung__half--b {
+    right: 0;
+    background: var(--strand-b);
+    border-radius: 0 0.3em 0.3em 0;
   }
 
-  .rung:nth-child(2) {
-    transform: rotate(22.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: var(--step);
-  }
-
-  .rung:nth-child(3) {
-    transform: rotate(45deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 2);
-  }
-
-  .rung:nth-child(4) {
-    transform: rotate(67.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 3);
-  }
-
-  .rung:nth-child(5) {
-    transform: rotate(90deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 4);
-  }
-
-  .rung:nth-child(6) {
-    transform: rotate(112.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 5);
-  }
-
-  .rung:nth-child(7) {
-    transform: rotate(135deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 6);
-  }
-
-  .rung:nth-child(8) {
-    transform: rotate(157.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 7);
-  }
-
-  .rung:nth-child(9) {
-    transform: rotate(180deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 8);
-  }
-
-  .rung:nth-child(10) {
-    transform: rotate(202.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 9);
-  }
-
-  .rung:nth-child(11) {
-    transform: rotate(225deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 10);
-  }
-
-  .rung:nth-child(12) {
-    transform: rotate(247.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 11);
-  }
-
-  .rung:nth-child(13) {
-    transform: rotate(270deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 12);
-  }
-
-  .rung:nth-child(14) {
-    transform: rotate(292.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 13);
-  }
-
-  .rung:nth-child(15) {
-    transform: rotate(315deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 14);
-  }
-
-  .rung:nth-child(16) {
-    transform: rotate(337.5deg) translateY(calc(var(--radius) * -1));
-    animation-delay: calc(var(--step) * 15);
-  }
-
-  @keyframes twist {
+  /* 匀速三角波：正面全长高亮，背面缩到中心并变暗，构成绕轴旋转的螺旋 */
+  @keyframes swing {
     0%,
     100% {
       scale: 1 1;
       opacity: 1;
     }
 
-    25% {
-      scale: 1 0;
-      opacity: 0.75;
-    }
-
     50% {
-      scale: 1 -1;
-      opacity: 0.55;
+      scale: -1 1;
+      opacity: 0.25;
     }
+  }
 
-    75% {
-      scale: 1 0;
-      opacity: 0.75;
+  @media (prefers-reduced-motion: reduce) {
+    .dna,
+    .rung {
+      animation: none;
     }
   }
 `;

@@ -20,6 +20,7 @@ model User {
   paperLikes      PaperLike[]
   paperBookmarks  PaperBookmark[]
   conversations   Conversation[]
+  llmConfig       UserLlmConfig?
   retroRoutes     RetroRoute[]
   stepRatings     StepRating[]
   routeComments   RouteComment[]

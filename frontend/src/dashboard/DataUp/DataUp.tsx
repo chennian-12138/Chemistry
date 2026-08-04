@@ -5,6 +5,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,7 @@ const defaultValues: DataupSchema = {
 
 export default function DataUp() {
   const { data: session } = useSession();
+  const { requireAuth, loginPrompt } = useRequireAuth();
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export default function DataUp() {
   );
 
   const handleSubmit = useCallback(async () => {
+    if (!requireAuth()) return;
     const data = methods.getValues();
 
     if (!data.meta.name?.trim()) {
@@ -203,7 +206,7 @@ export default function DataUp() {
     } catch {
       toast.error("提交失败，请检查网络", { position: "top-center" });
     }
-  }, [methods]);
+  }, [methods, requireAuth]);
 
   const handleExport = useCallback(() => {
     const data = methods.getValues();
@@ -253,6 +256,8 @@ export default function DataUp() {
       localStorage.setItem(storageKey, JSON.stringify(drafts));
 
       if (!silent) {
+        // 本地草稿已在上方保存；只有云端暂存需要登录
+        if (!requireAuth()) return;
         try {
           // Also upload to DB
           await uploadDraft(data.id, reactionName, data);
@@ -262,7 +267,7 @@ export default function DataUp() {
         }
       }
     },
-    [methods, session],
+    [methods, session, requireAuth],
   );
 
   useEffect(() => {
@@ -312,6 +317,7 @@ export default function DataUp() {
 
   return (
     <>
+      {loginPrompt}
       {showWelcome && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md text-center space-y-6 mx-4">

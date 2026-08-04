@@ -33,22 +33,17 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
 
 // Create or update a draft
 router.post("/", async (req: Request, res: Response): Promise<void> => {
-  console.log("[Drafts API] Received draft POST request");
   try {
     const session = await auth.api.getSession({
       headers: new Headers(req.headers as any),
     });
 
     if (!session || !session.user) {
-      console.log("[Drafts API] No session or user found via getSession");
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
     const { id, name, data } = req.body; // Full JSON data
-    console.log(
-      `[Drafts API] Payload: id=${id}, name=${name}, sessionUserId=${session.user.id}`,
-    );
 
     if (!data) {
       res.status(400).json({ error: "Data is required" });
@@ -76,10 +71,6 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     }
 
     if (existingDraft) {
-      console.log(
-        "[Drafts API] Found existing draft, updating:",
-        existingDraft.id,
-      );
       const updated = await prisma.draft.update({
         where: { id: existingDraft.id },
         data: {
@@ -89,10 +80,6 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
       });
       res.json(updated);
     } else {
-      console.log(
-        "[Drafts API] No existing draft, creating new under name:",
-        reactionName,
-      );
       const created = await prisma.draft.create({
         data: {
           authorId: session.user.id,
@@ -100,7 +87,6 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
           data: data,
         },
       });
-      console.log("[Drafts API] Created DB draft with ID:", created.id);
       res.status(201).json(created);
     }
     return;

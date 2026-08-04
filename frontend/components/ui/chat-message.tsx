@@ -3,7 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { motion } from "framer-motion"
-import { Ban, Brain, ChevronRight, Code2, Loader2, Terminal } from "lucide-react"
+import { Ban, Brain, CalendarClock, ChevronRight, Code2, Loader2, Terminal } from "lucide-react"
+import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import {
@@ -127,6 +128,10 @@ export interface Message {
   content: string
   /** 思考链（仅 assistant）：非空时在气泡上方渲染可折叠的「思考」块 */
   reasoning?: string
+  /** 用户主动停止（仅 assistant，会话内展示用，不落库）：渲染「用户停止回答」且不再转圈 */
+  stopped?: boolean
+  /** 当日限额态，仅会话内展示不落库（仅 assistant）：渲染「明天再来看看吧」与配置入口链接 */
+  limited?: boolean
   createdAt?: Date
   experimental_attachments?: Attachment[]
   toolInvocations?: ToolInvocation[]
@@ -145,6 +150,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   role,
   content,
   reasoning,
+  stopped,
+  limited,
   createdAt,
   showTimeStamp = false,
   animation = "scale",
@@ -259,12 +266,41 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       {avatar ? <div className="shrink-0 pt-0.5">{avatar}</div> : null}
       <div className="flex w-full flex-col items-start max-w-[70%]">
         {reasoning ? (
-          <ThinkingBlock reasoning={reasoning} isThinking={!content} />
+          <ThinkingBlock
+            reasoning={reasoning}
+            isThinking={!content && !stopped}
+            stopped={stopped && !content}
+          />
         ) : null}
 
         {content ? (
           <div className={cn(chatBubbleVariants({ isUser, animation }))}>
             <MarkdownRenderer>{content}</MarkdownRenderer>
+          </div>
+        ) : null}
+
+        {/* 停止标记：有部分正文时跟在气泡下方；正文与思考链都没有时作为整条消息主体。
+            「有思考链但无正文」由 ThinkingBlock 的停止态标题承担，这里不重复渲染 */}
+        {stopped && (content || !reasoning) ? (
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Ban className="h-3 w-3" />
+            <span>用户停止回答</span>
+          </div>
+        ) : null}
+
+        {/* 限额标记：与停止标记同位置同样式；下方跟一行设置页入口，引导配置自己的 API */}
+        {limited ? (
+          <div className="mt-1 flex flex-col items-start gap-1">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <CalendarClock className="h-3 w-3" />
+              <span>明天再来看看吧</span>
+            </div>
+            <Link
+              href="/dashboard/settings"
+              className="text-xs text-muted-foreground/80 underline-offset-2 hover:text-foreground hover:underline"
+            >
+              配置自己的 API 继续使用 →
+            </Link>
           </div>
         ) : null}
 
@@ -336,18 +372,22 @@ const ReasoningBlock = ({ part }: { part: ReasoningPart }) => {
 /**
  * 思考链折叠块（DeepSeek reasoning_content 用）：
  * 思考中自动展开、标题显示「思考中…」带转圈；正文开始后自动折叠成「已深度思考」，
- * 用户可随时手动展开/收起。
+ * 用户可随时手动展开/收起。思考阶段被用户停止时（stopped）标题变为「用户停止回答」，
+ * 不转圈、默认收起（停止视同思考结束）。
  */
 const ThinkingBlock = ({
   reasoning,
   isThinking,
+  stopped = false,
 }: {
   reasoning: string
   isThinking: boolean
+  stopped?: boolean
 }) => {
   const [isOpen, setIsOpen] = useState(isThinking)
 
-  // 思考态切换时同步：进入思考→展开；思考结束→自动收起（此后用户可再手动开）
+  // 思考态切换时同步：进入思考→展开；思考结束→自动收起（此后用户可再手动开）。
+  // stopped 视同思考结束：调用方在 stopped 时必传 isThinking=false，故此处无需再判
   useEffect(() => {
     setIsOpen(isThinking)
   }, [isThinking])
@@ -363,7 +403,12 @@ const ThinkingBlock = ({
           <CollapsibleTrigger asChild>
             <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
-              {isThinking ? (
+              {stopped ? (
+                <>
+                  <Ban className="h-3.5 w-3.5" />
+                  <span>用户停止回答</span>
+                </>
+              ) : isThinking ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   <span>思考中…</span>

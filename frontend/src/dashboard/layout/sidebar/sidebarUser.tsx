@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
+  LogIn,
   LogOut,
-  Sparkles,
+  UserPlus,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,22 +25,36 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { useEffect } from "react";
 import { signOut, useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AppSidebarUser() {
   const { data: session, isPending, error } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/");
-    }
-  }, [session, isPending, router]);
 
   if (isPending) return <div>Loading...</div>;
-  if (!session) return null;
+  // 匿名用户：展示登录/注册入口，不再强制跳走
+  if (!session) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip="登录">
+            <Link href="/signin">
+              <LogIn />
+              <span>登录</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip="注册">
+            <Link href="/signup">
+              <UserPlus />
+              <span>注册</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -104,7 +118,11 @@ export default function AppSidebarUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => signOut()}
+              onClick={async () => {
+                await signOut();
+                // 登出后回到主页面，而不是留在 dashboard 进入匿名态
+                window.location.href = "/";
+              }}
             >
               <LogOut />
               登出

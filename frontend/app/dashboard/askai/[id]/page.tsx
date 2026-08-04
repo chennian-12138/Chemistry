@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { type Message } from "@/components/ui/chat-message";
 import { getConversation, recordHistory } from "@/lib/api";
 import { useHistoryStore } from "@/store/history-store";
+import { useSession } from "@/lib/auth-client";
 import AskAi from "@/src/dashboard/AskAi/AskAi";
 
 export default function AskAiConversationPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+
+  const { data: session, isPending } = useSession();
 
   const [initialMessages, setInitialMessages] = useState<Message[] | null>(null);
   const [title, setTitle] = useState<string>("");
@@ -21,6 +24,12 @@ export default function AskAiConversationPage() {
 
   useEffect(() => {
     if (!id) return;
+    // 等 session 就绪再决定是否拉取；匿名用户的历史会话不请求接口，直接展示登录引导
+    if (isPending) return;
+    if (!session) {
+      setLoading(false);
+      return;
+    }
     // 切到不同会话时先回到加载态并清空旧消息：AskAi 用 useState 初始化 initialMessages，
     // 同一 [id] 段之间导航不会自动重挂载，不重置会残留上一个会话的消息。
     setLoading(true);
@@ -69,9 +78,42 @@ export default function AskAiConversationPage() {
       }
     };
     load();
-  }, [id]);
+  }, [id, session, isPending]);
 
-  if (loading) return null;
+  if (loading || isPending) return null;
+
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+        <div className="bg-muted/30 p-8 rounded-full mb-6">
+          <MessageSquare className="w-16 h-16 text-muted-foreground opacity-60" />
+        </div>
+        <h2 className="text-3xl font-bold tracking-tight mb-3">
+          登录后查看历史对话
+        </h2>
+        <p className="text-muted-foreground text-lg mb-10 max-w-md">
+          历史对话仅保存在账号中，登录后即可继续之前的交流。
+        </p>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => router.push("/signin")}
+            size="lg"
+            className="px-8 shadow-md"
+          >
+            登录
+          </Button>
+          <Button
+            onClick={() => router.push("/signup")}
+            size="lg"
+            variant="outline"
+            className="px-8"
+          >
+            注册
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (notFound) {
     return (

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getReactionById, recordHistory } from "@/lib/api";
-import { useHistoryStore } from "@/store/history-store";
+import { getReactionById } from "@/lib/api";
+import { useRecordHistory } from "@/hooks/use-record-history";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Beaker, Loader2 } from "lucide-react";
 
@@ -18,6 +18,7 @@ export default function ReactionDetailPage() {
 
   const [reaction, setReaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { record, registrationWall } = useRecordHistory();
 
   useEffect(() => {
     if (!id) return;
@@ -27,22 +28,7 @@ export default function ReactionDetailPage() {
         if (res.success) {
           setReaction(res.data);
           // 记录浏览历史并同步更新侧边栏状态
-          recordHistory("REACTDIC", id, res.data.name)
-            .then((newRecord) => {
-              if (newRecord?.success && newRecord.data) {
-                useHistoryStore.getState().addRecord(newRecord.data);
-              } else {
-                // Fallback if API response doesn't return the full object
-                useHistoryStore.getState().addRecord({
-                  id: Date.now().toString(),
-                  type: "REACTDIC",
-                  targetId: id,
-                  title: res.data.name,
-                  createdAt: new Date().toISOString(),
-                });
-              }
-            })
-            .catch(() => {});
+          void record("REACTDIC", id, res.data.name);
         }
       } catch (err) {
         console.error("Failed to fetch reaction details", err);
@@ -51,7 +37,7 @@ export default function ReactionDetailPage() {
       }
     };
     fetchDetail();
-  }, [id]);
+  }, [id, record]);
 
   if (loading) {
     // 根据你的要求移除了这里的加载动画。
@@ -86,6 +72,7 @@ export default function ReactionDetailPage() {
 
   return (
     <div className="flex-1 w-full space-y-6 pt-6 pb-24 px-6 md:px-10 lg:px-14 animate-in fade-in zoom-in-95 duration-700 ease-out">
+      {registrationWall}
       <Header reaction={reaction} />
       <MainContent reaction={reaction} />
       <ReactionPredict reaction={reaction} />

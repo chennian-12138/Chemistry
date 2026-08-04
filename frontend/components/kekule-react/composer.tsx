@@ -79,7 +79,7 @@ const Composer = forwardRef<KekuleChemWidgetRef, ComposerProps>(
 
           if (!onChange) return;
 
-          let exportValue: string;
+          let exportValue: string | null | undefined;
           switch (exportFormat) {
             case "smiles":
               exportValue = widgetRef.current?.exportToSmiles?.();

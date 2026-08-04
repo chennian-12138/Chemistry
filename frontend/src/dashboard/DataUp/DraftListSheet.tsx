@@ -50,10 +50,13 @@ export default function DraftListSheet({
         }
       }
 
-      getDraftsList()
+      // 匿名用户没有云端草稿，只合并本地草稿
+      const dbPromise = session ? getDraftsList() : Promise.resolve(null);
+
+      dbPromise
         .then((dbData) => {
           let dbDrafts: DraftEntry[] = [];
-          if (Array.isArray(dbData)) {
+          if (session && Array.isArray(dbData)) {
             dbDrafts = dbData.map((d: any) => ({
               draftId: d.id,
               name: d.name,
@@ -80,7 +83,7 @@ export default function DraftListSheet({
           setEntries(localDrafts);
         });
     }
-  }, [open, storageKey]);
+  }, [open, storageKey, session]);
 
   const handleCardClick = (entry: DraftEntry) => {
     if (actions.isAvailable) {
@@ -146,6 +149,12 @@ export default function DraftListSheet({
             )}
           </div>
         </SheetHeader>
+
+        {!session && (
+          <p className="mt-2 mr-1 ml-1 text-xs text-muted-foreground">
+            登录以使用云端草稿
+          </p>
+        )}
 
         <div className="mt-4 mr-1 ml-1 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {entries.length === 0 ? (

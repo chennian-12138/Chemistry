@@ -19,7 +19,7 @@ function parseCSV(filePath: string): TemplateRow[] {
 
   // 跳过表头
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
+    const line = lines[i]?.trim();
     if (!line) continue;
 
     // CSV 格式: template_name,smarts
@@ -48,8 +48,8 @@ function parseSmartsReaction(smarts: string): {
     return null;
   }
 
-  const reactants = parts[0].split(".").map((s) => s.trim()).filter(Boolean);
-  const products = parts[1].split(".").map((s) => s.trim()).filter(Boolean);
+  const reactants = parts[0]!.split(".").map((s) => s.trim()).filter(Boolean);
+  const products = parts[1]!.split(".").map((s) => s.trim()).filter(Boolean);
 
   if (reactants.length === 0 || products.length === 0) {
     console.warn(`Invalid SMARTS: empty reactants or products`);

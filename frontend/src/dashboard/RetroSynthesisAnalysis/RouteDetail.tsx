@@ -6,12 +6,12 @@ import {
   getRetroRoute,
   rateRetroStep,
   addRetroComment,
-  recordHistory,
   deleteRetroRoute,
   deleteRetroComment,
 } from "@/lib/api";
-import { useHistoryStore } from "@/store/history-store";
 import { useSession } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { useRecordHistory } from "@/hooks/use-record-history";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -72,6 +72,8 @@ export default function RouteDetail() {
   const id = params.id as string;
 
   const { data: session } = useSession();
+  const { requireAuth, loginPrompt } = useRequireAuth();
+  const { record, registrationWall } = useRecordHistory();
   const userId = session?.user?.id;
   const role = ((session?.user as any)?.role ?? "").toUpperCase();
   const isAdmin = role === "ADMIN" || role === "SUPERADMIN";
@@ -102,25 +104,11 @@ export default function RouteDetail() {
 
       // 记入浏览历史（侧边栏 RETRO_SYNTHESIS，targetId 用 routes/<id> 以拼出详情页链接）
       const histTitle = res.title || "逆合成路线";
-      recordHistory("RETRO_SYNTHESIS", `routes/${id}`, histTitle)
-        .then((r) => {
-          if (r?.success && r.data) {
-            useHistoryStore.getState().addRecord(r.data);
-          } else {
-            useHistoryStore.getState().addRecord({
-              id: `hist-retro-${id}`,
-              type: "RETRO_SYNTHESIS",
-              targetId: `routes/${id}`,
-              title: histTitle,
-              createdAt: new Date().toISOString(),
-            });
-          }
-        })
-        .catch(() => {});
+      void record("RETRO_SYNTHESIS", `routes/${id}`, histTitle);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, record]);
 
   useEffect(() => {
     if (id) load();
@@ -128,6 +116,7 @@ export default function RouteDetail() {
 
   // ---------- 单步打分 ----------
   const vote = async (stepId: string, target: 1 | -1) => {
+    if (!requireAuth()) return;
     const step = route?.steps.find((s) => s.id === stepId);
     if (!step) return;
     const value = step.myVote === target ? 0 : target;
@@ -158,6 +147,7 @@ export default function RouteDetail() {
 
   // ---------- 评论 ----------
   const submitComment = async (content: string, parentId?: string) => {
+    if (!requireAuth()) return;
     if (!content.trim()) return;
     const res = await addRetroComment(id, content.trim(), parentId);
     if (!res.success) {
@@ -246,6 +236,8 @@ export default function RouteDetail() {
 
   return (
     <div className="w-full py-6 px-6 space-y-6">
+      {loginPrompt}
+      {registrationWall}
       {/* 头部 */}
       <div className="flex items-start gap-4">
         <div className="w-[200px] h-[150px] flex items-center justify-center bg-gray-50 rounded-lg border shrink-0">

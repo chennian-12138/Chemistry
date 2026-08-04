@@ -26,7 +26,8 @@ export default function AppSidebarApplication() {
           const user = session?.user as unknown as { role?: string };
           const role = user?.role?.toLowerCase();
           if (
-            route.name === "Review" &&
+            (route.Path === "/dashboard/review" ||
+              route.Path === "/dashboard/dataup") &&
             role !== "admin" &&
             role !== "superadmin"
           ) {

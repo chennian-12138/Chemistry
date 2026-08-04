@@ -76,7 +76,9 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (hasFetched) return; // 已缓存，不重复请求
-    fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/list`)
+    fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/list`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then(setData);
   }, [hasFetched, setData]);

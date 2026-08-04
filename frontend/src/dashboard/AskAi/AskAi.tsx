@@ -7,7 +7,7 @@ import { AskAiChat } from "./AskAiChat";
 import { type Message } from "@/components/ui/chat-message";
 import { useChat } from "@/hooks/use-chat";
 import { useAskAiActions } from "@/hooks/use-askai-action";
-import { useSession } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 import { useHistoryStore } from "@/store/history-store";
 
 // 冷启动引导问题池（空会话时随机抽 3 条展示，刷新即换一批）。
@@ -53,7 +53,7 @@ export default function AskAi({
   initialMessages,
   title,
 }: AskAiProps) {
-  const { data: session } = useSession();
+  const { session, requireAuth, loginPrompt } = useRequireAuth();
   // 记录当前会话 id（新会话创建后回填），仅用于本组件内的历史同步判断
   const [, setActiveId] = useState<string | undefined>(conversationId);
   // 顶部标题：新会话初始为空（显示默认名），首轮落库拿到标题后回填
@@ -94,13 +94,36 @@ export default function AskAi({
     toast.error(message);
   }, []);
 
+  // 非错误提示（如平台额度用尽静默回退到自定义 API）：中性 toast，不打断对话
+  const handleNotice = useCallback((message: string) => {
+    toast.info(message);
+  }, []);
+
   const chat = useChat({
     conversationId,
     initialMessages,
     onConversationCreated: handleConversationCreated,
     onFinish: handleFinish,
     onError: handleError,
+    onNotice: handleNotice,
   });
+
+  // 匿名可看完整聊天界面，但发送动作被拦截：弹登录提示，不出气泡、不发请求
+  const { handleSubmit, append } = chat;
+  const guardedHandleSubmit = useCallback(
+    (event?: { preventDefault?: () => void }) => {
+      if (!requireAuth()) return;
+      handleSubmit(event);
+    },
+    [requireAuth, handleSubmit],
+  );
+  const guardedAppend = useCallback(
+    (message: { role: "user"; content: string }) => {
+      if (!requireAuth()) return;
+      append(message);
+    },
+    [requireAuth, append],
+  );
 
   // 「新对话」：不能靠 router.push 重挂载组件来清状态。新会话是用 replaceState 改的 URL、
   // 没走 Next 路由，当前挂载的仍是基础路由段，push 回基础路由会落到同一个已挂载段上、
@@ -130,14 +153,20 @@ export default function AskAi({
         input={chat.input}
         isGenerating={chat.isGenerating}
         handleInputChange={chat.handleInputChange}
-        handleSubmit={chat.handleSubmit}
-        append={chat.append}
+        handleSubmit={guardedHandleSubmit}
+        append={guardedAppend}
         stop={chat.stop}
         coldStartSuggestions={coldStart}
         dynamicSuggestions={chat.suggestions}
+        deepThinking={chat.deepThinking}
+        onToggleDeepThinking={chat.toggleDeepThinking}
+        provider={chat.provider}
+        onProviderChange={chat.setProvider}
+        byokAvailable={chat.byokAvailable}
         userImage={session?.user?.image || ""}
         userName={session?.user?.name || ""}
       />
+      {loginPrompt}
     </div>
   );
 }

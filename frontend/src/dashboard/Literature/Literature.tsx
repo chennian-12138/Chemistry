@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,7 +65,7 @@ export default function Literature() {
 
   const hasMore = papers.length < total;
 
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const isSuperAdmin =
     (session?.user as { role?: string } | undefined)?.role === "SUPERADMIN";
 
@@ -137,6 +138,13 @@ export default function Literature() {
           }
         }
       } else {
+        // 我的收藏需要登录：匿名时不请求接口，展示登录引导空态；
+        // session 未就绪时先不动作，等就绪后 load 随依赖重建再触发
+        if (!session) {
+          if (isPending) return;
+          setPapers([], 0);
+          return;
+        }
         const res = await getBookmarkedPapers(page, limit);
         if (res.success) {
           if (wasAppend) appendPapers(res.data, res.total);
@@ -149,7 +157,7 @@ export default function Literature() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, page, limit, keyword, sort, articleType, datePreset]);
+  }, [activeTab, page, limit, keyword, sort, articleType, datePreset, session, isPending]);
 
   useEffect(() => {
     load();
@@ -290,13 +298,22 @@ export default function Literature() {
         ) : papers.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-100 gap-2 text-muted-foreground">
             <Newspaper className="size-10 opacity-30" />
-            <p className="text-sm">
-              {activeTab === "bookmarks"
-                ? "暂无收藏的文献"
-                : keyword
-                  ? `未找到与「${keyword}」相关的文献`
-                  : "暂无文献数据，请先触发初始化爬取"}
-            </p>
+            {activeTab === "bookmarks" && !session && !isPending ? (
+              <>
+                <p className="text-sm">登录后即可查看收藏的文献</p>
+                <Button asChild size="sm" className="mt-2">
+                  <Link href="/signin">去登录</Link>
+                </Button>
+              </>
+            ) : (
+              <p className="text-sm">
+                {activeTab === "bookmarks"
+                  ? "暂无收藏的文献"
+                  : keyword
+                    ? `未找到与「${keyword}」相关的文献`
+                    : "暂无文献数据，请先触发初始化爬取"}
+              </p>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

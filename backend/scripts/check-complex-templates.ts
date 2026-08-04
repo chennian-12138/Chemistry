@@ -92,6 +92,10 @@ async function checkComplexReactions() {
 
   if (firstTemplate) {
     const pattern = firstTemplate.patterns[0];
+    if (!pattern) {
+      console.log("   ❌ 模板没有任何 pattern");
+      return;
+    }
     const reactants = pattern.molecules.filter((m) => m.role === "反应物");
     const products = pattern.molecules.filter((m) => m.role === "产物");
 

@@ -24,6 +24,7 @@ import {
 import MoleculeNode from "./MoleculeNode";
 import ReactionNode from "./ReactionNode";
 import MolImg from "./MolImg";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 import { layoutGraph } from "./layout";
 import type {
   MoleculeEntry,
@@ -51,6 +52,7 @@ const nextId = (prefix: string) => `${prefix}-${counter++}`;
 const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "");
 
 export default function RetroSynthesisAnalysis() {
+  const { requireAuth, loginPrompt } = useRequireAuth();
   const [phase, setPhase] = useState<"input" | "graph">("input");
   const [molBlock, setMolBlock] = useState("");
   const [starting, setStarting] = useState(false);
@@ -300,6 +302,7 @@ export default function RetroSynthesisAnalysis() {
   };
 
   const handleSave = async () => {
+    if (!requireAuth()) return;
     setSaving(true);
     setStatus(null);
     try {
@@ -398,6 +401,7 @@ export default function RetroSynthesisAnalysis() {
 
   return (
     <div className="w-full h-[calc(100vh-120px)] flex flex-col">
+      {loginPrompt}
       {/* 顶部工具栏 */}
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
         <div className="flex items-center gap-2">

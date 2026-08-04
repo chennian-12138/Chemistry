@@ -65,7 +65,9 @@ export default function SignIn() {
         onSuccess: () => {
           window.location.href = "/dashboard/reactdic";
         },
-        onError: (ctx) => toast.error(authErrorMessage(ctx.error, "登录失败")),
+        onError: (ctx) => {
+          toast.error(authErrorMessage(ctx.error, "登录失败"));
+        },
       },
     });
   };
@@ -218,15 +220,6 @@ export default function SignIn() {
           <p>Login</p>
         )}
       </Button>
-      {needsVerification && (
-        <button
-          type="button"
-          onClick={resendVerification}
-          className="text-sm text-indigo-600 hover:underline text-center"
-        >
-          没收到验证邮件？点此重新发送
-        </button>
-      )}
       {/* <FieldSeparator>其他登录方式</FieldSeparator>
       <div
         className={cn(

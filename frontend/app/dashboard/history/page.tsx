@@ -24,6 +24,8 @@ import {
 import { zhCN } from "date-fns/locale";
 
 import { getHistoryList, deleteHistory } from "@/lib/api";
+import { getGuestHistory, deleteGuestHistory, syncGuestHistoryToServer } from "@/lib/guest-history";
+import { useSession } from "@/lib/auth-client";
 import { HistoryItem, useHistoryStore } from "@/store/history-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,11 +78,21 @@ export default function HistoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { records, setRecords, removeRecord } = useHistoryStore();
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session, isPending } = useSession();
 
   useEffect(() => {
+    if (isPending) return;
+    // 匿名用户的历史只存在于 localStorage，不请求后端
+    if (!session) {
+      setRecords(getGuestHistory());
+      setIsLoading(false);
+      return;
+    }
     const fetchFullHistory = async () => {
       try {
         setIsLoading(true);
+        // 先合并匿名期的本地历史，再拉取，保证首屏就包含合并结果
+        await syncGuestHistoryToServer();
         const res = await getHistoryList(200); // Fetch a larger chunk for the full page
         if (res.success) {
           setRecords(res.data);
@@ -93,11 +105,17 @@ export default function HistoryPage() {
       }
     };
     fetchFullHistory();
-  }, [setRecords]);
+  }, [setRecords, session, isPending]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!session) {
+      deleteGuestHistory(id);
+      removeRecord(id);
+      toast.success("记录已删除");
+      return;
+    }
     try {
       const res = await deleteHistory(id);
       if (res.success) {

@@ -20,6 +20,8 @@ import {
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { getHistoryList } from "@/lib/api";
+import { getGuestHistory, syncGuestHistoryToServer } from "@/lib/guest-history";
+import { useSession } from "@/lib/auth-client";
 import { useHistoryStore } from "@/store/history-store";
 
 // 根据 history type 返回对应的图标和路径前缀
@@ -39,11 +41,20 @@ const typeConfig: Record<
 
 export default function AppSidebarHistory() {
   const { records, setRecords } = useHistoryStore();
+  const { data: session, isPending } = useSession();
 
   useEffect(() => {
+    if (isPending) return;
+    // 匿名用户的历史只存在于 localStorage，不请求后端
+    if (!session) {
+      setRecords(getGuestHistory());
+      return;
+    }
     let cancelled = false;
     const fetchHistory = async () => {
       try {
+        // 先合并匿名期的本地历史，再拉取，保证首屏就包含合并结果
+        await syncGuestHistoryToServer();
         const res = await getHistoryList(20);
         if (!cancelled && res.success) {
           setRecords(res.data);
@@ -56,7 +67,7 @@ export default function AppSidebarHistory() {
     return () => {
       cancelled = true;
     };
-  }, [setRecords]);
+  }, [setRecords, session, isPending]);
 
   if (records.length === 0) {
     return null;

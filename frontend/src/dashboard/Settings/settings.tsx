@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { authClient, useSession } from "@/lib/auth-client";
 import { authErrorMessage, isValidEmail } from "@/lib/auth-errors";
 import {
@@ -50,6 +51,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { StatsCards } from "./StatsCards";
+import { ByokCard } from "./ByokCard";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
@@ -83,7 +85,7 @@ function SettingRow({
 }
 
 export default function UserSettings() {
-  const { data: session, refetch } = useSession();
+  const { data: session, isPending, refetch } = useSession();
   const user = session?.user as any;
 
   // ── 头像上传
@@ -126,11 +128,13 @@ export default function UserSettings() {
   }, [user?.name, user?.image]);
 
   useEffect(() => {
+    // 匿名不请求统计接口，避免无意义的 401
+    if (!session) return;
     getAccountStats().then((res) => {
       if (res.success && res.data) setStats(res.data);
       setStatsLoading(false);
     });
-  }, []);
+  }, [session]);
 
   // ── 上传头像
   const uploadAvatar = async (file: File) => {
@@ -283,7 +287,23 @@ export default function UserSettings() {
     window.location.href = "/";
   };
 
-  if (!session) return null;
+  if (isPending) return null;
+  // 匿名：个人信息页替换为登录引导空态
+  if (!session) {
+    return (
+      <div className="px-6 py-4 w-full h-[calc(100svh-4rem)] flex flex-col items-center justify-center gap-4">
+        <p className="text-muted-foreground">登录后即可查看和编辑个人信息</p>
+        <div className="flex gap-3">
+          <Button asChild>
+            <Link href="/signin">登录</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/signup">注册</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const initials = (user?.name ?? user?.email ?? "U")
     .split(" ")
@@ -293,8 +313,7 @@ export default function UserSettings() {
     .toUpperCase();
 
   return (
-    <div className="px-6 py-4 w-full h-[calc(100svh-4rem)] overflow-hidden flex flex-col">
-      {/* 锁定为「视口 - 导航栏(h-16)」的确定高度，内部 flex-1 图表自适应收缩，整页不出滚动条 */}
+    <div className="px-6 py-4 w-full flex flex-col">
       {/* ── 顶部：头像 + 用户信息 + 账号编辑（同一行） */}
       <div className="flex items-start gap-6 mb-2">
         {/* 头像 */}
@@ -640,7 +659,7 @@ export default function UserSettings() {
                   className="text-muted-foreground size-10"
                   onClick={async () => {
                     await authClient.signOut();
-                    window.location.href = "/signin";
+                    window.location.href = "/";
                   }}
                 >
                   <LogOut className="size-5" />
@@ -703,8 +722,13 @@ export default function UserSettings() {
 
       <Separator />
 
+      {/* ── 自定义 API（BYOK）：平台每日额度用完后的自有 API 兜底 */}
+      <div className="mt-6 shrink-0">
+        <ByokCard />
+      </div>
+
       {/* ── 使用情况 */}
-      <div className="mt-6 flex-1 flex flex-col min-h-0">
+      <div className="mt-6 flex flex-col">
         <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 shrink-0">
           使用情况
         </p>
@@ -713,7 +737,7 @@ export default function UserSettings() {
             <Loader2 className="size-4 animate-spin" /> 加载中…
           </div>
         ) : stats ? (
-          <div className="flex-1 min-h-0">
+          <div>
             <StatsCards stats={stats} />
           </div>
         ) : (
