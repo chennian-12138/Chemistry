@@ -652,3 +652,232 @@ export async function getReviewStats() {
   });
   return res.json();
 }
+
+// ========== 问题反馈（论坛） ==========
+
+export type FeedbackPostType = "suggestion" | "bug" | "feature" | "other";
+export type FeedbackPostStatus = "OPEN" | "RESOLVED";
+
+export interface FeedbackAuthor {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: "USER" | "ADMIN" | "SUPERADMIN";
+}
+
+export interface FeedbackPostSummary {
+  id: string;
+  title: string;
+  type: FeedbackPostType;
+  status: FeedbackPostStatus;
+  isPrivate: boolean;
+  isAnnouncement: boolean;
+  isPinned: boolean;
+  likeCount: number;
+  replyCount: number;
+  liked: boolean;
+  createdAt: string;
+  author: FeedbackAuthor;
+}
+
+export interface FeedbackReplyItem {
+  id: string;
+  postId: string;
+  content: string;
+  likeCount: number;
+  liked: boolean;
+  createdAt: string;
+  author: FeedbackAuthor;
+}
+
+export interface FeedbackPostDetail extends Omit<FeedbackPostSummary, "liked"> {
+  content: string;
+  updatedAt: string;
+  liked: boolean;
+  replies: FeedbackReplyItem[];
+}
+
+async function parseJsonOrThrow(res: Response, fallback: string) {
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || `${fallback}（${res.status}）`);
+  return json;
+}
+
+export async function getFeedbackPosts(params?: {
+  page?: number;
+  pageSize?: number;
+  type?: FeedbackPostType;
+}): Promise<{
+  success: boolean;
+  data: { posts: FeedbackPostSummary[]; total: number; page: number; pageSize: number };
+}> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+  if (params?.type) query.set("type", params.type);
+  const res = await fetch(`${API_BASE}/api/feedback/posts?${query.toString()}`, {
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "获取帖子列表失败");
+}
+
+export async function createFeedbackPost(data: {
+  title: string;
+  type: FeedbackPostType;
+  content: string;
+  isPrivate?: boolean;
+  isAnnouncement?: boolean;
+}): Promise<{ success: boolean; data: { id: string } }> {
+  const res = await fetch(`${API_BASE}/api/feedback/posts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  return parseJsonOrThrow(res, "发布失败");
+}
+
+export async function getFeedbackPost(
+  id: string,
+): Promise<{ success: boolean; data: FeedbackPostDetail }> {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${id}`, {
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "获取帖子失败");
+}
+
+export async function deleteFeedbackPost(id: string) {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "删除失败");
+}
+
+export async function toggleFeedbackPostPin(
+  id: string,
+): Promise<{ success: boolean; data: { isPinned: boolean } }> {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${id}/pin`, {
+    method: "PATCH",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}
+
+export async function updateFeedbackPostStatus(
+  id: string,
+  status: FeedbackPostStatus,
+) {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ status }),
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}
+
+export async function toggleFeedbackPostLike(
+  id: string,
+): Promise<{ success: boolean; data: { liked: boolean; likeCount: number } }> {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${id}/like`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}
+
+export async function createFeedbackReply(
+  postId: string,
+  content: string,
+): Promise<{ success: boolean; data: FeedbackReplyItem }> {
+  const res = await fetch(`${API_BASE}/api/feedback/posts/${postId}/replies`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ content }),
+  });
+  return parseJsonOrThrow(res, "回复失败");
+}
+
+export async function deleteFeedbackReply(id: string) {
+  const res = await fetch(`${API_BASE}/api/feedback/replies/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "删除失败");
+}
+
+export async function toggleFeedbackReplyLike(
+  id: string,
+): Promise<{ success: boolean; data: { liked: boolean; likeCount: number } }> {
+  const res = await fetch(`${API_BASE}/api/feedback/replies/${id}/like`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}
+
+// ========== 系统消息 ==========
+
+export type NotificationType = "NEW_POST" | "REPLY" | "ANNOUNCEMENT";
+
+export interface NotificationItem {
+  id: string;
+  type: NotificationType;
+  postId: string | null;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export async function getNotifications(params?: {
+  page?: number;
+  pageSize?: number;
+}): Promise<{
+  success: boolean;
+  data: {
+    notifications: NotificationItem[];
+    total: number;
+    unreadCount: number;
+    page: number;
+    pageSize: number;
+  };
+}> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+  const res = await fetch(`${API_BASE}/api/notifications?${query.toString()}`, {
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "获取消息失败");
+}
+
+export async function getUnreadNotificationCount(): Promise<number> {
+  try {
+    const res = await fetch(`${API_BASE}/api/notifications/unread-count`, {
+      credentials: "include",
+    });
+    const json = await res.json();
+    return json?.data?.count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function markNotificationRead(id: string) {
+  const res = await fetch(`${API_BASE}/api/notifications/${id}/read`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}
+
+export async function markAllNotificationsRead() {
+  const res = await fetch(`${API_BASE}/api/notifications/read-all`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseJsonOrThrow(res, "操作失败");
+}

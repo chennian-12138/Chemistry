@@ -24,6 +24,12 @@ model User {
   retroRoutes     RetroRoute[]
   stepRatings     StepRating[]
   routeComments   RouteComment[]
+  feedbackPosts   FeedbackPost[]
+  feedbackReplies FeedbackReply[]
+  feedbackPostLikes    FeedbackPostLike[]
+  feedbackReplyLikes   FeedbackReplyLike[]
+  notifications   Notification[] @relation("NotificationRecipient")
+  triggeredNotifications Notification[] @relation("NotificationActor")
 
   @@map("user")
 }

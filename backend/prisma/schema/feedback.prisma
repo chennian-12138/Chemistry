@@ -1,0 +1,60 @@
+model FeedbackPost {
+  id             String           @id @default(cuid())
+  authorId       String
+  title          String
+  type           String // "suggestion" | "bug" | "feature" | "other"
+  content        String
+  status         String           @default("OPEN") // "OPEN" | "RESOLVED"
+  isPrivate      Boolean          @default(false) // 仅作者与管理员可见
+  isAnnouncement Boolean          @default(false) // 管理员公告
+  isPinned       Boolean          @default(false) // 管理员置顶
+  likeCount      Int              @default(0)
+  replyCount     Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  author         User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies        FeedbackReply[]
+  likes          FeedbackPostLike[]
+  notifications  Notification[]
+
+  @@index([isPinned, createdAt])
+  @@index([authorId])
+  @@map("feedback_post")
+}
+
+model FeedbackReply {
+  id        String              @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  likeCount Int                 @default(0)
+  createdAt DateTime            @default(now())
+  post      FeedbackPost        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes     FeedbackReplyLike[]
+
+  @@index([postId, createdAt])
+  @@map("feedback_reply")
+}
+
+model FeedbackPostLike {
+  id     String       @id @default(cuid())
+  userId String
+  postId String
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   FeedbackPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("feedback_post_like")
+}
+
+model FeedbackReplyLike {
+  id      String        @id @default(cuid())
+  userId  String
+  replyId String
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reply   FeedbackReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, replyId])
+  @@map("feedback_reply_like")
+}
