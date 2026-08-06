@@ -22,10 +22,67 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarDays, UsersRound, Info, X } from "lucide-react";
+import { CalendarDays, UsersRound, Info, X, Atom } from "lucide-react";
 import { format } from "date-fns";
 import { Fragment } from "react";
 import { DateRange } from "react-day-picker";
+
+// 与 dataup-shema.ts 的 mechanismTypes 保持一致
+const MECHANISM_TYPES = [
+  "其他",
+  "自由基反应",
+  "电性反应——亲电反应",
+  "电性反应——亲核反应",
+  "电环化反应",
+];
+
+/** 机理类型多选筛选 */
+export function MechanismFilter({ table }: { table: ReactTable<ReviewItem> }) {
+  const anchor = useComboboxAnchor();
+  const column = table.getColumn("mechanismType");
+  const selected = (column?.getFilterValue() as string[]) || [];
+
+  return (
+    <div className="flex items-center gap-2">
+      <Atom className="w-4 h-4 text-muted-foreground shrink-0" />
+      <Combobox
+        multiple
+        autoHighlight
+        items={MECHANISM_TYPES}
+        value={selected}
+        onValueChange={(values) => {
+          column?.setFilterValue(values.length ? values : undefined);
+        }}
+      >
+        <ComboboxChips ref={anchor} className="min-w-[150px] w-auto bg-background">
+          <ComboboxValue>
+            {(values) => (
+              <Fragment>
+                {values.length === 0 && (
+                  <span className="text-sm text-muted-foreground">机理类型</span>
+                )}
+                {values.map((value: string) => (
+                  <ComboboxChip key={value}>{value}</ComboboxChip>
+                ))}
+                <ComboboxChipsInput />
+              </Fragment>
+            )}
+          </ComboboxValue>
+        </ComboboxChips>
+        <ComboboxContent anchor={anchor}>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+          <ComboboxList>
+            {MECHANISM_TYPES.map((m) => (
+              <ComboboxItem key={m} value={m}>
+                {m}
+              </ComboboxItem>
+            ))}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </div>
+  );
+}
 
 /** 上传者多选筛选 */
 export function UploaderFilter({ table }: { table: ReactTable<ReviewItem> }) {

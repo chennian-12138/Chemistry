@@ -40,6 +40,8 @@ export type ReviewItem = {
   uploadedBy: string;
   status: string;
   createdAt: string;
+  mechanismType: string;
+  form: string;
 };
 
 declare module "@tanstack/react-table" {
@@ -172,6 +174,19 @@ export const columns: ColumnDef<ReviewItem>[] = [
     filterFn: (row, columnId, filterValue) => {
       if (!filterValue || filterValue.length === 0) return true;
       return filterValue.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "mechanismType",
+    header: () => <div className="text-center font-bold">机理类型</div>,
+    cell: ({ row }) => (
+      <div className="text-center text-xs text-muted-foreground max-w-40 truncate">
+        {row.getValue("mechanismType") || "—"}
+      </div>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue.length === 0) return true;
+      return filterValue.includes(row.getValue(columnId) as string);
     },
   },
   {

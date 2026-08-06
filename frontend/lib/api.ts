@@ -533,3 +533,122 @@ export async function deleteRetroComment(id: string) {
   });
   return res.json();
 }
+
+// ========== 管理后台（ADMIN / SUPERADMIN） ==========
+
+export interface AdminUser {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: "USER" | "ADMIN" | "SUPERADMIN";
+  roleName: string;
+  banned: boolean | null;
+  banReason: string | null;
+  banExpires: string | null;
+  createdAt: string;
+  emailVerified: boolean;
+  hasLlmConfig: boolean;
+  llmModel: string | null;
+  stats: {
+    reactions: number;
+    conversations: number;
+    paperLikes: number;
+    paperBookmarks: number;
+  };
+}
+
+export interface AdminUserListResult {
+  success: boolean;
+  data?: {
+    users: AdminUser[];
+    total: number;
+    page: number;
+    pageSize: number;
+  };
+  error?: string;
+}
+
+// 用户列表
+export async function getAdminUsers(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: string;
+  banned?: string;
+}): Promise<AdminUserListResult> {
+  const query = params
+    ? `?${new URLSearchParams(
+        Object.entries(params).reduce(
+          (acc, [k, v]) => {
+            if (v != null && v !== "") acc[k] = String(v);
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+      ).toString()}`
+    : "";
+  const res = await fetch(`${API_BASE}/api/admin/users${query}`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 修改用户角色（仅 SUPERADMIN）
+export async function updateAdminUserRole(id: string, role: string) {
+  const res = await fetch(`${API_BASE}/api/admin/users/${id}/role`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ role }),
+  });
+  return res.json();
+}
+
+// 封禁用户
+export async function banAdminUser(
+  id: string,
+  reason?: string,
+  banExpires?: string,
+) {
+  const res = await fetch(`${API_BASE}/api/admin/users/${id}/ban`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ reason, banExpires }),
+  });
+  return res.json();
+}
+
+// 解封用户
+export async function unbanAdminUser(id: string) {
+  const res = await fetch(`${API_BASE}/api/admin/users/${id}/unban`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 用户使用统计（管理员视角）
+export async function getAdminUserStats(id: string) {
+  const res = await fetch(`${API_BASE}/api/admin/users/${id}/stats`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 管理仪表盘概览
+export async function getAdminOverview() {
+  const res = await fetch(`${API_BASE}/api/admin/overview`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+// 审核统计（管理员看板）
+export async function getReviewStats() {
+  const res = await fetch(`${API_BASE}/api/review/stats`, {
+    credentials: "include",
+  });
+  return res.json();
+}

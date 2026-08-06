@@ -12,12 +12,16 @@ import {
 
 import { routes } from "./routes"
 import { usePathname } from "next/navigation"
-
-const items = routes.NavSecondary
+import { useSession } from "@/lib/auth-client"
 
 export default function AppSidebarSecondary() {
-
   const pathname = usePathname()
+  const { data: session } = useSession()
+
+  const user = session?.user as unknown as { role?: string } | undefined
+  const role = user?.role?.toLowerCase()
+  const isAdmin = role === "admin" || role === "superadmin"
+  const items = isAdmin ? routes.NavAdmin : routes.NavSecondary
 
   return (
     <SidebarGroup className="mt-auto">

@@ -8,6 +8,7 @@ import {
   Users,
   ShieldCheck,
   Newspaper,
+  LayoutDashboard,
 } from "lucide-react";
 
 export const routes = {
@@ -61,6 +62,25 @@ export const routes = {
       name: "关于我们",
       Path: "/dashboard/aboutourselves",
       icon: Users,
+    },
+  ],
+
+  // 管理员的 secondary navigation（"关于我们"替换为"管理后台"）
+  NavAdmin: [
+    {
+      name: "个人信息",
+      Path: "/dashboard/settings",
+      icon: Settings,
+    },
+    {
+      name: "问题反馈",
+      Path: "/dashboard/feedback",
+      icon: MailQuestionMark,
+    },
+    {
+      name: "管理后台",
+      Path: "/dashboard/admin",
+      icon: LayoutDashboard,
     },
   ],
 };

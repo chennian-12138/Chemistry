@@ -56,7 +56,7 @@
     "react-hook-form": "^7.71.1",
     "react-markdown": "^10.1.0",
     "reactflow": "^11.11.4",
-    "recharts": "^2.15.4",
+    "recharts": "^3.8.0",
     "remark-gfm": "^4.0.1",
     "remeda": "^2.39.0",
     "shiki": "^1.29.2",

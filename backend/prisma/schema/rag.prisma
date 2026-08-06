@@ -1,0 +1,19 @@
+/// RAG 检索块：教科书切片 / 反应库条目（向量检索的语料单元）。
+/// embedding 列为 pgvector 类型（bge-m3 输出 1024 维），Prisma 通过
+/// Unsupported() 仅登记其存在以防 db push 误删，实际类型与 HNSW 索引
+/// 由 scripts/rag_pgvector.sql 管理（Prisma 无法表达 vector 类型）。
+model RagChunk {
+  id         String   @id // 脚本生成 chunk_xxxx 或 reaction/paper 稳定 id
+  sourceType String // "TEXTBOOK" | "REACTION" | "PAPER"
+  source     String // 来源标识：文件名 / 表名
+  title      String // 标题（章节路径或反应名）
+  content    String // 切片正文
+  meta       Json    @default("{}")
+  embedding  Unsupported("vector(1024)")?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([sourceType])
+  @@index([source])
+  @@map("rag_chunk")
+}

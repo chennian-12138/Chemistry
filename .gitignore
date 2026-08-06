@@ -1,1 +1,8 @@
 .omo/
+backend/data/extracted
+backend/data/organized
+backend/data/raw
+backend/data/pilot_ch4_reactions.json
+organic_chemistry_001.md
+organic_chemistry_002.md
+data.gz

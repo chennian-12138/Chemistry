@@ -121,6 +121,7 @@ router.get("/rejected", async (req, res) => {
   }
 });
 
+// 审核列表
 router.get("/list", async (req, res) => {
   try {
     const userId = await requireAdmin(req, res);
@@ -142,11 +143,72 @@ router.get("/list", async (req, res) => {
       uploadedBy: entry.author?.name || entry.author?.email || "未知",
       status: entry.status,
       createdAt: entry.createdAt,
+      mechanismType: entry.mechanismType,
+      form: entry.form,
     }));
 
     res.json(list);
   } catch (error) {
     console.error("获取审核列表失败:", error);
+    res.status(500).json({ error: "获取失败" });
+  }
+});
+
+// 审核统计（管理员看板：状态分布 / 近期审核量 / 平均处理时长）
+router.get("/stats", async (req, res) => {
+  try {
+    const userId = await requireAdmin(req, res);
+    if (!userId) return;
+
+    const [pending, approved, rejected, total, reviews] = await Promise.all([
+      prisma.reaction.count({ where: { status: "PENDING" } }),
+      prisma.reaction.count({ where: { status: "APPROVED" } }),
+      prisma.reaction.count({ where: { status: "REJECTED" } }),
+      prisma.reaction.count(),
+      prisma.review.findMany({
+        include: {
+          reaction: { select: { name: true, status: true } },
+          reviewer: { select: { name: true, email: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      }),
+    ]);
+
+    // 近 7 天每天审核量
+    const since7d: { name: string; count: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = new Date();
+      dayStart.setDate(dayStart.getDate() - i);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setHours(23, 59, 59, 999);
+      const count = await prisma.review.count({
+        where: { createdAt: { gte: dayStart, lte: dayEnd } },
+      });
+      since7d.push({
+        name: `${dayStart.getMonth() + 1}/${dayStart.getDate()}`,
+        count,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        status: { pending, approved, rejected, total },
+        recentReviews: reviews.map((r) => ({
+          id: r.id,
+          status: r.status,
+          comment: r.comment,
+          createdAt: r.createdAt,
+          reactionName: r.reaction?.name ?? "未知",
+          reviewerName: r.reviewer?.name ?? r.reviewer?.email ?? "未知",
+        })),
+        last7d: since7d,
+      },
+    });
+  } catch (error) {
+    console.error("获取审核统计失败:", error);
     res.status(500).json({ error: "获取失败" });
   }
 });

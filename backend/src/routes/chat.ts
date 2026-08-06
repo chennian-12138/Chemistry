@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { prisma } from "../../lib/prisma";
 import { auth } from "../../lib/auth";
 import { decryptApiKey } from "../../lib/byok-crypto";
+import { retrieveContext } from "../../lib/rag";
 
 const router = Router();
 
@@ -283,10 +284,15 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   // 前端拿不到 id，下一条消息又会再新建一条，导致侧边栏重复。
   let streamCompleted = false;
 
+  const ragContext = await retrieveContext(userContent).catch(() => null);
+
   // 只发 content：思考链不回传（DeepSeek API 也会忽略 reasoning_content）；
   // 历史经 fitPrompt 按预算裁剪，最旧的部分先丢弃
+  const ragSystemExtra = ragContext
+    ? `\n\n以下是参考资料库中检索到的与用户问题最相关的内容，回答时自然参考这些资料、把知识融入回答，不要输出任何资料来源标注：\n\n${ragContext.contextText}`
+    : "";
   const promptMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: SYSTEM_PROMPT + ragSystemExtra },
     ...fitPrompt([...history, userMsg]).map((m) => ({
       role: m.role,
       content: m.content,

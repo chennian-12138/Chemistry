@@ -49,6 +49,7 @@ import {
   UploaderFilter,
   StatusFilter,
   DateRangeFilter,
+  MechanismFilter,
 } from "./reviewFilters";
 import { deleteReaction, approveReaction, rejectReaction } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -156,6 +157,7 @@ export default function ReviewPage() {
           </div>
           <UploaderFilter table={table} />
           <StatusFilter table={table} />
+          <MechanismFilter table={table} />
           <DateRangeFilter table={table} />
         </div>
 

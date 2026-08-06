@@ -17,6 +17,7 @@ import papersRouter from "./routes/papers";
 import chatRouter from "./routes/chat";
 import chatByokRouter from "./routes/chat-byok";
 import retroRouter from "./routes/retrosynthesis";
+import adminRouter from "./routes/admin";
 
 const app = express();
 const port = 8000;
@@ -48,6 +49,7 @@ app.use("/api/papers", papersRouter);
 app.use("/api/chat/byok", chatByokRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/retro", retroRouter);
+app.use("/api/admin", adminRouter);
 
 // 提供静态文件访问 (头像等)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

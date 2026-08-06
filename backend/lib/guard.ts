@@ -38,3 +38,37 @@ export async function requireAdmin(req: any, res: any): Promise<string | null> {
   }
   return userId;
 }
+
+// 要求超级管理员：先 requireUser；角色非 SUPERADMIN → 403，返回 null
+// 用于角色升降级、平台级配置等仅限 SUPERADMIN 的操作
+export async function requireSuperAdmin(
+  req: any,
+  res: any,
+): Promise<string | null> {
+  const userId = await requireUser(req, res);
+  if (!userId) return null;
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (currentUser?.role !== "SUPERADMIN") {
+    res.status(403).json({ error: "仅超级管理员可执行此操作" });
+    return null;
+  }
+  return userId;
+}
+
+// 获取当前登录用户角色（USER/ADMIN/SUPERADMIN），未登录返回 null
+export async function getCurrentRole(req: any): Promise<string | null> {
+  const session = await getSession(req);
+  const userId = session?.user?.id;
+  if (!userId) return null;
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  return currentUser?.role ?? null;
+}
