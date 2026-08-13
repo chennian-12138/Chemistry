@@ -8,12 +8,14 @@ interface ReviewState {
   dateFilter: { from?: Date; to?: Date } | undefined;
   pageIndex: number;
   hasFetched: boolean;
+  loading: boolean;
 
   setData: (data: ReviewItem[]) => void;
   setColumnFilters: (filters: ColumnFiltersState) => void;
   setDateFilter: (filter: { from?: Date; to?: Date } | undefined) => void;
   setPageIndex: (index: number) => void;
   setHasFetched: (fetched: boolean) => void;
+  setLoading: (loading: boolean) => void;
   updateItem: (id: string, updates: Partial<ReviewItem>) => void;
   removeItem: (id: string) => void;
   removeItems: (ids: string[]) => void;
@@ -25,12 +27,14 @@ export const useReviewStore = create<ReviewState>((set) => ({
   dateFilter: undefined,
   pageIndex: 0,
   hasFetched: false,
+  loading: false,
 
   setData: (data) => set({ data, hasFetched: true }),
   setColumnFilters: (columnFilters) => set({ columnFilters }),
   setDateFilter: (dateFilter) => set({ dateFilter }),
   setPageIndex: (pageIndex) => set({ pageIndex }),
   setHasFetched: (hasFetched) => set({ hasFetched }),
+  setLoading: (loading) => set({ loading }),
   updateItem: (id, updates) =>
     set((state) => ({
       data: state.data.map((item) =>

@@ -2,9 +2,13 @@ import React, { Suspense } from "react"
 import type { JSX } from "react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
+import "katex/contrib/mhchem"
 
 import { cn } from "@/lib/utils"
 import { CopyButton } from "@/components/ui/copy-button"
+import { SmilesMolecule } from "@/components/ui/smiles-molecule"
 
 interface MarkdownRendererProps {
   children: string
@@ -13,7 +17,11 @@ interface MarkdownRendererProps {
 export function MarkdownRenderer({ children }: MarkdownRendererProps) {
   return (
     <div className="space-y-3">
-      <Markdown remarkPlugins={[remarkGfm]} components={COMPONENTS}>
+      <Markdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[[rehypeKatex, { strict: false }]]}
+        components={COMPONENTS}
+      >
         {children}
       </Markdown>
     </div>
@@ -149,6 +157,13 @@ const COMPONENTS = {
   blockquote: withClass("blockquote", "border-l-2 border-primary pl-4"),
   code: ({ children, className, node, ...rest }: any) => {
     const match = /language-(\w+)/.exec(className || "")
+    if (match && match[1] === "smiles") {
+      const code =
+        typeof children === "string"
+          ? children
+          : childrenTakeAllStringContents(children)
+      return <SmilesMolecule smiles={code.trim()} />
+    }
     return match ? (
       <CodeBlock className={className} language={match[1]} {...rest}>
         {children}

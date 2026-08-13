@@ -64,6 +64,7 @@ export default function ReactionPredictDialog({
   const [isPredicting, setIsPredicting] = useState(false);
   const [productMolBlocks, setProductMolBlocks] = useState<string[][]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<string[]>([]);
   const [hasResult, setHasResult] = useState(false);
   const [validated, setValidated] = useState(false);
 
@@ -92,6 +93,7 @@ export default function ReactionPredictDialog({
   useEffect(() => {
     if (open) {
       setError(null);
+      setDiagnostics([]);
       setProductMolBlocks([]);
       setHasResult(false);
       setValidated(false);
@@ -100,6 +102,7 @@ export default function ReactionPredictDialog({
 
   const handlePredict = useCallback(async () => {
     setError(null);
+    setDiagnostics([]);
     setProductMolBlocks([]);
     setHasResult(false);
 
@@ -133,18 +136,22 @@ export default function ReactionPredictDialog({
 
       const result = await predictProducts(reactionSmarts, smilesList);
 
-      if (result.success && result.data?.productSets) {
-        setProductMolBlocks(result.data.productSets);
-        setHasResult(true);
+      if (result.success && result.data) {
+        setDiagnostics(result.data.diagnostics ?? []);
 
-        if (result.data.productSets.length === 0) {
-          setError("未能推断出产物，请检查反应物是否匹配该反应模式");
-        } else {
-          // Prediction succeeded with products!
+        if (result.data.productSets && result.data.productSets.length > 0) {
+          setProductMolBlocks(result.data.productSets);
+          setHasResult(true);
           setValidated(true);
           onValidate(true);
+        } else {
+          setError(
+            result.data.error ||
+              "未能推断出产物，请检查反应物是否匹配该反应模式",
+          );
         }
       } else {
+        setDiagnostics(result.data?.diagnostics ?? []);
         setError(result.error || "预测失败，请检查反应物是否正确");
       }
     } catch (err: unknown) {
@@ -278,6 +285,23 @@ export default function ReactionPredictDialog({
               )}
             </Button>
           </div>
+
+          {/* Diagnostics */}
+          {diagnostics.length > 0 && (
+            <div className="space-y-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/50 dark:border-amber-900 dark:text-amber-200">
+              <p className="text-sm font-semibold flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4" />
+                SMARTS 模板诊断
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                {diagnostics.map((d, i) => (
+                  <li key={i} className="text-sm">
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Error */}
           {error && (

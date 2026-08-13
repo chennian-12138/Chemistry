@@ -1,0 +1,14 @@
+[Unit]
+Description=Chemistry Backend (Express, port 8000)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+EnvironmentFile=/www/chemistry.env
+WorkingDirectory=/www/wwwroot/current/backend
+ExecStart=/www/wwwroot/current/backend/node_modules/.bin/tsx src/app.ts
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

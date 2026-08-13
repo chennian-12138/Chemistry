@@ -13,7 +13,7 @@ import { DataupSchema } from "@/types/dataup-shema";
 import { useDataUpActions } from "@/hooks/use-dataup-action";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { Trash2, Cloud } from "lucide-react";
+import { Trash2, Cloud, Loader2 } from "lucide-react";
 import { getDraftsList, deleteDraftItem } from "@/lib/api";
 
 export interface DraftEntry {
@@ -33,6 +33,7 @@ export default function DraftListSheet({
   const { data: session } = useSession();
   const [entries, setEntries] = useState<DraftEntry[]>([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const storageKey = session?.user?.id
     ? `dataup_draft_history_${session.user.id}`
@@ -40,6 +41,7 @@ export default function DraftListSheet({
 
   useEffect(() => {
     if (open) {
+      setLoading(true);
       let localDrafts: DraftEntry[] = [];
       const draftsStr = localStorage.getItem(storageKey);
       if (draftsStr) {
@@ -81,7 +83,8 @@ export default function DraftListSheet({
           console.error("Failed fetching db drafts", e);
           localDrafts.sort((a, b) => b.updatedAt - a.updatedAt);
           setEntries(localDrafts);
-        });
+        })
+        .finally(() => setLoading(false));
     }
   }, [open, storageKey, session]);
 
@@ -157,7 +160,12 @@ export default function DraftListSheet({
         )}
 
         <div className="mt-4 mr-1 ml-1 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {entries.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center gap-2 text-gray-500 py-12">
+              <Loader2 className="h-6 w-6 animate-spin opacity-50" />
+              <p className="text-sm">加载中...</p>
+            </div>
+          ) : entries.length === 0 ? (
             <p className="text-center text-gray-500 py-8">草稿箱空空如也</p>
           ) : (
             entries.map((entry) => (

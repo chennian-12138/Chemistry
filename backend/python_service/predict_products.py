@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     try:
         result = predict_products_of_reaction_smiles(smart, smiles_list)
-        print(json.dumps({"productSets": result}))
+        print(json.dumps(result))
     except Exception as e:
         print(json.dumps({"error": str(e)}))
         sys.exit(1)

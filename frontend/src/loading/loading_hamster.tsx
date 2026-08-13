@@ -27,6 +27,13 @@ const Loader = () => {
 }
 
 const StyledWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  min-height: 60vh;
+
   .wheel-and-hamster {
     --dur: 1s;
     position: relative;

@@ -115,6 +115,7 @@ class PredictRequest(BaseModel):
 class PredictResponse(BaseModel):
     productSets: List[List[str]] = []
     error: Optional[str] = None
+    diagnostics: List[str] = []
 
 
 @app.post("/api/match-smarts")
@@ -140,8 +141,7 @@ async def match_smarts_batch_route(request: MatchBatchRequest):
 @app.post("/api/predict-products")
 async def predict_products_route(request: PredictRequest):
     try:
-        result = predict_products_of_reaction_smiles(request.reactionSmarts, request.smilesList)
-        return {"productSets": result}
+        return predict_products_of_reaction_smiles(request.reactionSmarts, request.smilesList)
     except Exception as e:
          raise HTTPException(status_code=500, detail=str(e))
 

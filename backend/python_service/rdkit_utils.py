@@ -3,6 +3,7 @@ from rdkit.Chem import Draw, AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
 from itertools import permutations
 import json
+import re
 
 def smiles_to_kekule_json(smiles: str) -> str:
     """将SMILES转换为Kekule JSON格式"""
@@ -122,11 +123,90 @@ def match_smarts_batch(smarts_list: list, mol_blocks: list) -> list:
     return matched
 
 
-def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) -> list:
+def _query_atom_charge(atom):
+    """从 RDKit 查询原子提取「显式声明的形式电荷」；未声明电荷返回 None。
+
+    关键区分：SMARTS 里 `[N]`（方括号但未写电荷）表示「电荷不指定」，会沿用
+    反应物原子电荷；而 `[N+0]` 表示「显式声明电荷为 0」。二者在 DescribeQuery
+    中的区别是是否出现 `AtomFormalCharge` 子句。
+    """
+    try:
+        descr = atom.DescribeQuery()
+    except Exception:
+        return None
+    m = re.search(r"AtomFormalCharge\s+([+-]?\d+)", descr)
+    return int(m.group(1)) if m else None
+
+
+def _query_atom_has_h_count(atom) -> bool:
+    """判断查询原子是否显式声明了 H 计数（如 `[N;H2]`、`[cH]`）。"""
+    try:
+        smarts = atom.GetSmarts()
+    except Exception:
+        return False
+    return bool(re.search(r"H\d", smarts))
+
+
+def validate_reaction_smarts(rxn) -> list:
+    """对 Reaction SMARTS 模板做确定性诊断，返回中文警告列表。
+
+    重点检测两类反直觉的 SMARTS 书写问题：
+    1. 反应物原子带电荷、产物同映射原子未声明电荷 —— RDKit 的 RunReactants 会把
+       反应物电荷原样带到产物，导致超价态（如氨基负离子 N⁻ 生成中性 N 时，产物
+       写成 `[N:3]` 而非 `[N+0:3]`）。
+    2. 产物侧映射原子写了 H 计数（Hn）—— 后端对反应物 AddHs 后，显式 H 与 Hn
+       叠加导致价态溢出。
+    """
+    warnings = []
+
+    # 收集反应物各映射原子「显式声明的电荷」
+    reactant_charge = {}
+    for i in range(rxn.GetNumReactantTemplates()):
+        tmpl = rxn.GetReactantTemplate(i)
+        for a in tmpl.GetAtoms():
+            mn = a.GetAtomMapNum()
+            if mn <= 0:
+                continue
+            chg = _query_atom_charge(a)
+            if chg is not None:
+                reactant_charge[mn] = chg
+
+    # 检查产物模板
+    for i in range(rxn.GetNumProductTemplates()):
+        tmpl = rxn.GetProductTemplate(i)
+        for a in tmpl.GetAtoms():
+            mn = a.GetAtomMapNum()
+            if mn <= 0:
+                continue
+            sym = a.GetSymbol()
+            chg = _query_atom_charge(a)
+
+            # 1) 电荷沿用：反应物显式带电、产物未声明电荷
+            if chg is None and mn in reactant_charge and reactant_charge[mn] != 0:
+                warnings.append(
+                    f"产物侧原子 {sym}(映射{mn}) 未声明电荷，会沿用反应物侧的 "
+                    f"{reactant_charge[mn]:+d} 电荷，可能造成价态溢出；"
+                    f"若该原子反应后为中性，请改写为 [{sym}+0:{mn}]。"
+                )
+
+            # 2) H 计数冗余：产物侧映射原子写了 Hn
+            if _query_atom_has_h_count(a):
+                warnings.append(
+                    f"产物侧原子 {sym}(映射{mn}) 声明了 H 计数，会与后端 AddHs 产生的显式 "
+                    f"氢原子叠加导致价态溢出，建议移除该 H 计数（如 [{sym}+0:{mn}]）。"
+                )
+
+    return warnings
+
+
+def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) -> dict:
     """
     使用 Reaction SMARTS 和反应物 SMILES 列表推断产物。
-    返回产物 MolBlock 的二维列表：[[molblock, ...], ...]
-    每个内层列表代表一组可能的产物。
+
+    返回 dict:
+      productSets: [[molblock, ...], ...]  每个内层列表代表一组可能的产物
+      error:       出错原因（SMARTS 无效 / 反应物无效 / 产物 sanitize 失败），成功为 None
+      diagnostics: 模板层面的诊断警告（电荷沿用 / H 计数冗余）
 
     位置无关：RunReactants 按模板 LHS 顺序严格匹配反应物，因此这里遍历输入
     反应物的**所有排列**，任一排列能匹配模板即产出，用户无需按特定顺序摆放分子。
@@ -134,17 +214,28 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
     """
     rxn = AllChem.ReactionFromSmarts(smart)
     if rxn is None:
-        raise ValueError(f"Invalid Reaction SMARTS: {smart}")
+        return {
+            "productSets": [],
+            "error": f"无效的 Reaction SMARTS：{smart}",
+            "diagnostics": [],
+        }
+
+    diagnostics = validate_reaction_smarts(rxn)
 
     reactants = []
     for smi in reactant_smiles_list:
         mol = Chem.MolFromSmiles(smi)
         if mol is None:
-            raise ValueError(f"Invalid reactant SMILES: {smi}")
+            return {
+                "productSets": [],
+                "error": f"无效的反应物 SMILES：{smi}",
+                "diagnostics": diagnostics,
+            }
         reactants.append(Chem.AddHs(mol))
 
     seen = set()   # 已产出产物集的规范化指纹，用于去重
     result = []
+    last_sanitize_error = None
     for perm in permutations(reactants):
         try:
             product_series = rxn.RunReactants(list(perm))
@@ -157,7 +248,8 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
                 # RemoveHs 默认会 sanitize；RunReactants 的产物偶有价键异常，跳过
                 cleaned = [Chem.RemoveHs(p) for p in products]
                 key = tuple(Chem.MolToSmiles(m) for m in cleaned)
-            except Exception:
+            except Exception as e:
+                last_sanitize_error = str(e)
                 continue
 
             if key in seen:
@@ -165,4 +257,15 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
             seen.add(key)
             result.append([Chem.MolToMolBlock(m) for m in cleaned])
 
-    return result
+    error = None
+    if not result:
+        if last_sanitize_error:
+            error = (
+                f"产物生成失败（{last_sanitize_error}）。"
+                f"若反应涉及带电物种，请检查产物侧是否显式声明了电荷（如 [N+0:3]），"
+                f"以及是否写了多余的 H 计数。"
+            )
+        else:
+            error = "未能推断出产物，请检查反应物是否匹配该反应模式。"
+
+    return {"productSets": result, "error": error, "diagnostics": diagnostics}

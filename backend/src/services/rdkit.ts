@@ -44,6 +44,7 @@ export async function matchSmartsPattern(
 export interface PredictResult {
   productSets: string[][];
   error?: string;
+  diagnostics?: string[];
 }
 
 /**

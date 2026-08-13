@@ -35,6 +35,8 @@ export interface PredictProductsResult {
   success: boolean;
   data?: {
     productSets: string[][];
+    error?: string;
+    diagnostics?: string[];
   };
   error?: string;
 }

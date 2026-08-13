@@ -43,6 +43,7 @@ import {
   CheckIcon,
   XIcon,
   ClipboardList,
+  Loader2,
 } from "lucide-react";
 import { columns } from "./reviewColumns";
 import {
@@ -70,6 +71,9 @@ export default function ReviewPage() {
     removeItem,
     removeItems,
     updateItem,
+    loading,
+    setLoading,
+    setHasFetched,
   } = useReviewStore();
 
   const [rowSelection, setRowSelection] = useState({});
@@ -77,12 +81,18 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (hasFetched) return; // 已缓存，不重复请求
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/review/list`, {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(setData);
-  }, [hasFetched, setData]);
+      .then(setData)
+      .catch((err) => {
+        console.error("加载审查列表失败:", err);
+        setHasFetched(true); // 失败也标记已请求，避免反复重试
+      })
+      .finally(() => setLoading(false));
+  }, [hasFetched, setData, setLoading, setHasFetched]);
 
   const table = useReactTable({
     data,
@@ -314,7 +324,16 @@ export default function ReviewPage() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-48">
+                  <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                    <Loader2 className="h-8 w-8 animate-spin opacity-40" />
+                    <span className="text-sm">加载中...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
