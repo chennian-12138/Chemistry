@@ -37,6 +37,7 @@ export interface PredictProductsResult {
     productSets: string[][];
     error?: string;
     diagnostics?: string[];
+    unmatchedReactants?: number[];
   };
   error?: string;
 }

@@ -16,6 +16,7 @@ import {
 import Viewer from "@/components/kekule-react/viewer";
 import { KekuleChemWidgetRef } from "@/components/kekule-react/kekule-react";
 import { predictProducts } from "@/lib/rdkit";
+import { molBlockToSmiles } from "@/lib/rdkit-wasm";
 import { Component } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
@@ -59,6 +60,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
   const [productMolBlocks, setProductMolBlocks] = useState<string[][]>([]);
   const [error, setError] = useState<string | null>(null);
   const [diagnostics, setDiagnostics] = useState<string[]>([]);
+  const [unmatched, setUnmatched] = useState<number[]>([]);
   const [hasResult, setHasResult] = useState(false);
   const [selectedPatternIdx, setSelectedPatternIdx] = useState(0);
 
@@ -74,6 +76,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
   useEffect(() => {
     setError(null);
     setDiagnostics([]);
+    setUnmatched([]);
     setProductMolBlocks([]);
     setHasResult(false);
   }, [selectedPatternIdx]);
@@ -81,6 +84,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
   const handlePredict = useCallback(async () => {
     setError(null);
     setDiagnostics([]);
+    setUnmatched([]);
     setProductMolBlocks([]);
     setHasResult(false);
 
@@ -95,9 +99,15 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           return;
         }
 
-        const smiles = ref.exportToSmiles?.();
+        // 走 molblock -> RDKit 转 SMILES：Kekule 自带的 SMILES 导出会
+        // 丢失氢计数（NH2- 会被导成 [N-]），导致后端模板匹配失败
+        const molBlock = ref.exportToMolBlock?.();
+        const smiles = molBlock ? await molBlockToSmiles(molBlock) : null;
         if (!smiles) {
-          setError(`请在反应物 ${i + 1} 中绘制分子结构（点击工具栏编辑按钮绘制）`);
+          setError(
+            `请在反应物 ${i + 1} 中绘制分子结构（点击工具栏编辑按钮绘制）`,
+          );
+          setUnmatched([i]);
           return;
         }
         smilesList.push(smiles);
@@ -123,6 +133,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           setProductMolBlocks(result.data.productSets);
           setHasResult(true);
         } else {
+          setUnmatched(result.data.unmatchedReactants ?? []);
           setError(
             result.data.error ||
               "未能推断出产物，请检查反应物是否匹配该反应模式",
@@ -130,6 +141,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
         }
       } else {
         setDiagnostics(result.data?.diagnostics ?? []);
+        setUnmatched(result.data?.unmatchedReactants ?? []);
         setError(result.error || "预测失败，请检查反应物是否正确");
       }
     } catch (err: any) {
@@ -229,12 +241,24 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           >
             {Array.from({ length: reactantCount }).map((_, idx) => {
               const refKey = `${selectedPatternIdx}-${idx}`;
+              const isUnmatched = unmatched.includes(idx);
               return (
                 <div key={refKey}>
-                  <div className="text-xs text-muted-foreground font-medium mb-1.5 pl-1">
+                  <div
+                    className={`text-xs font-medium mb-1.5 pl-1 ${
+                      isUnmatched ? "text-destructive" : "text-muted-foreground"
+                    }`}
+                  >
                     反应物 {idx + 1}
+                    {isUnmatched && "（与反应模式不匹配）"}
                   </div>
-                  <div className="w-full h-[200px] rounded-lg overflow-hidden border border-muted/60 bg-background">
+                  <div
+                    className={`w-full h-[200px] rounded-lg overflow-hidden border bg-background ${
+                      isUnmatched
+                        ? "border-destructive ring-2 ring-destructive/40"
+                        : "border-muted/60"
+                    }`}
+                  >
                     <Viewer
                       ref={(node) => {
                         if (node) {

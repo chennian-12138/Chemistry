@@ -6,8 +6,9 @@ After=network.target
 Type=simple
 EnvironmentFile=/www/chemistry.env
 WorkingDirectory=/www/wwwroot/current/frontend
-# 不用 pnpm start（有兼容问题），直接 node 跑 next 二进制
-ExecStart=${NODE_BIN} /www/wwwroot/current/frontend/node_modules/next/dist/bin/next start -p 3000
+# 不用 pnpm start（有兼容问题），直接 node 跑 next 二进制。
+# 注意：不同机器的 node 路径可能不同，部署时按实际情况替换。
+ExecStart=/www/server/nodejs/v22.18.0/bin/node /www/wwwroot/current/frontend/node_modules/next/dist/bin/next start -p 3000
 Restart=always
 RestartSec=3
 

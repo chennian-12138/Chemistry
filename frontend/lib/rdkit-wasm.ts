@@ -77,10 +77,41 @@ export interface LocalMatchResult {
 }
 
 /**
+ * 预处理 Kekule 导出的 V2000 MolBlock：把原子块里的 H 计数字段清零。
+ *
+ * 背景：Kekule 把"NH2⁻"这类原子的氢数存在 atom.hydrogenCount 属性上，
+ * 导出 mol 时写进 V2000 原子行的 H 计数字段（值 = 氢数 + 1）。RDKit 读到
+ * 该字段后会设置 NoImplicit 并丢弃氢（NH2⁻ 被解析成 [N-]，氢全部丢失），
+ * 导致带 H 计数要求的 SMARTS（如 [N;H2-:3]）无法匹配。清零该字段后
+ * RDKit 按价态模型自行补氢，得到正确的 [NH2-]。
+ *
+ * 显式画出的 H 是独立原子行，不受此处理影响。V3000 不处理（Kekule 不导出）。
+ */
+export function normalizeMolBlockForRDKit(molBlock: string): string {
+  const lines = molBlock.split("\n");
+  const countsIdx = lines.findIndex((l) => l.includes("V2000"));
+  if (countsIdx < 0) return molBlock;
+
+  const atomCount = parseInt(lines[countsIdx].slice(0, 3), 10);
+  if (!Number.isFinite(atomCount) || atomCount <= 0) return molBlock;
+
+  for (let i = 0; i < atomCount; i++) {
+    const idx = countsIdx + 1 + i;
+    const line = lines[idx];
+    // V2000 原子行为定宽格式，H 计数字段在 1-based 第 44-46 列
+    if (!line || line.length < 46) continue;
+    lines[idx] = `${line.slice(0, 43)}  0${line.slice(46)}`;
+  }
+  return lines.join("\n");
+}
+
+/**
  * 在分子 (MolBlock) 中查找 SMARTS 模式，返回匹配的原子索引。
  *
- * 与原后端实现的一个区别：这里不做 AddHs，索引基于重原子，
- * 因此可直接交给 Kekule 的 highlightAtoms 高亮，不会出现氢原子导致的索引错位。
+ * 匹配在 AddHs 后的副本上进行（WASM 版 add_hs 返回 molblock 字符串，
+ * 需重新 get_mol），使含显式 [H] 的 SMARTS（如 C([H])#[C;H0]）也能命中。
+ * RDKit 的 AddHs 把氢原子追加在原子表末尾、重原子索引保持不变，
+ * 因此过滤掉 >= 原原子数的索引后，结果仍与 Kekule 画板高亮对齐。
  */
 export async function matchSmartsLocal(
   smarts: string,
@@ -89,10 +120,11 @@ export async function matchSmartsLocal(
   const rdkit = await getRDKit();
 
   let mol: ReturnType<RDKitModule["get_mol"]> = null;
+  let molH: ReturnType<RDKitModule["get_mol"]> = null;
   let qmol: ReturnType<RDKitModule["get_qmol"]> = null;
 
   try {
-    mol = rdkit.get_mol(molBlock);
+    mol = rdkit.get_mol(normalizeMolBlockForRDKit(molBlock));
     qmol = rdkit.get_qmol(smarts);
 
     if (!mol) {
@@ -102,12 +134,31 @@ export async function matchSmartsLocal(
       throw new Error("SMARTS 模式无效");
     }
 
-    const raw = JSON.parse(mol.get_substruct_matches(qmol) || "[]") as Array<{
+    const heavyAtomCount: number = JSON.parse(mol.get_json()).molecules?.[0]
+      ?.atoms?.length;
+
+    // 加氢副本；失败（如已达合理价态）时退回原分子
+    let matchSource = mol;
+    const addedMolBlock = mol.add_hs();
+    if (addedMolBlock) {
+      molH = rdkit.get_mol(addedMolBlock);
+      if (molH) matchSource = molH;
+    }
+
+    // 注意：RDKit WASM 零匹配时返回 "{}" 而非 "[]"，直接 flatMap 会崩溃
+    const parsed = JSON.parse(matchSource.get_substruct_matches(qmol) || "[]");
+    const raw = (Array.isArray(parsed) ? parsed : []) as Array<{
       atoms: number[];
       bonds: number[];
     }>;
 
-    const atomIndices = [...new Set(raw.flatMap((group) => group.atoms ?? []))];
+    const atomIndices = [
+      ...new Set(
+        raw.flatMap((group) =>
+          (group.atoms ?? []).filter((i) => i < heavyAtomCount),
+        ),
+      ),
+    ];
 
     return {
       matched: raw.length > 0,
@@ -117,6 +168,7 @@ export async function matchSmartsLocal(
   } finally {
     // WASM 对象必须手动释放，否则反复调用会泄漏堆内存
     mol?.delete();
+    molH?.delete();
     qmol?.delete();
   }
 }
@@ -153,7 +205,7 @@ export async function molBlockToSmiles(
   const rdkit = await getRDKit();
   let mol: ReturnType<RDKitModule["get_mol"]> = null;
   try {
-    mol = rdkit.get_mol(molBlock);
+    mol = rdkit.get_mol(normalizeMolBlockForRDKit(molBlock));
     if (!mol) return null;
     const smiles = mol.get_smiles();
     return smiles || null;

@@ -204,9 +204,10 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
     使用 Reaction SMARTS 和反应物 SMILES 列表推断产物。
 
     返回 dict:
-      productSets: [[molblock, ...], ...]  每个内层列表代表一组可能的产物
-      error:       出错原因（SMARTS 无效 / 反应物无效 / 产物 sanitize 失败），成功为 None
-      diagnostics: 模板层面的诊断警告（电荷沿用 / H 计数冗余）
+      productSets:        [[molblock, ...], ...]  每个内层列表代表一组可能的产物
+      error:              出错原因（SMARTS 无效 / 反应物无效 / 产物 sanitize 失败），成功为 None
+      diagnostics:        模板层面的诊断警告（电荷沿用 / H 计数冗余）
+      unmatchedReactants: 与所有反应物模板都不匹配的输入分子下标（前端用于红色标注）
 
     位置无关：RunReactants 按模板 LHS 顺序严格匹配反应物，因此这里遍历输入
     反应物的**所有排列**，任一排列能匹配模板即产出，用户无需按特定顺序摆放分子。
@@ -218,18 +219,20 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
             "productSets": [],
             "error": f"无效的 Reaction SMARTS：{smart}",
             "diagnostics": [],
+            "unmatchedReactants": [],
         }
 
     diagnostics = validate_reaction_smarts(rxn)
 
     reactants = []
-    for smi in reactant_smiles_list:
+    for idx, smi in enumerate(reactant_smiles_list):
         mol = Chem.MolFromSmiles(smi)
         if mol is None:
             return {
                 "productSets": [],
                 "error": f"无效的反应物 SMILES：{smi}",
                 "diagnostics": diagnostics,
+                "unmatchedReactants": [idx],
             }
         reactants.append(Chem.AddHs(mol))
 
@@ -258,14 +261,38 @@ def predict_products_of_reaction_smiles(smart: str, reactant_smiles_list: list) 
             result.append([Chem.MolToMolBlock(m) for m in cleaned])
 
     error = None
+    unmatched: list = []
     if not result:
+        # 定位问题分子：与所有反应物模板都不匹配的输入分子即为嫌疑分子。
+        # 只报"确定不匹配"的；分子都匹配但产物异常的情况交给 sanitize 报错。
+        templates = [
+            rxn.GetReactantTemplate(i) for i in range(rxn.GetNumReactantTemplates())
+        ]
+        for idx, mol in enumerate(reactants):
+            try:
+                if not any(mol.HasSubstructMatch(t) for t in templates):
+                    unmatched.append(idx)
+            except Exception:
+                continue
+
         if last_sanitize_error:
             error = (
                 f"产物生成失败（{last_sanitize_error}）。"
                 f"若反应涉及带电物种，请检查产物侧是否显式声明了电荷（如 [N+0:3]），"
                 f"以及是否写了多余的 H 计数。"
             )
+        elif unmatched:
+            joined = "、".join(str(i + 1) for i in unmatched)
+            error = (
+                f"未能推断出产物：反应物 {joined} 与该反应模式中的任何反应物模板都不匹配，"
+                f"请检查所绘结构（注意氢原子与电荷是否完整）。"
+            )
         else:
             error = "未能推断出产物，请检查反应物是否匹配该反应模式。"
 
-    return {"productSets": result, "error": error, "diagnostics": diagnostics}
+    return {
+        "productSets": result,
+        "error": error,
+        "diagnostics": diagnostics,
+        "unmatchedReactants": unmatched,
+    }

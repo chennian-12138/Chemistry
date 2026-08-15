@@ -116,6 +116,7 @@ class PredictResponse(BaseModel):
     productSets: List[List[str]] = []
     error: Optional[str] = None
     diagnostics: List[str] = []
+    unmatchedReactants: List[int] = []
 
 
 @app.post("/api/match-smarts")
