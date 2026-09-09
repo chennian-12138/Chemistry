@@ -1,31 +1,35 @@
+"use client";
+
 import { Lock, Megaphone, Pin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/src/i18n/language-provider";
 import type {
   FeedbackPostStatus,
   FeedbackPostSummary,
   FeedbackPostType,
 } from "@/lib/api";
 
-export const FEEDBACK_TYPE_LABELS: Record<FeedbackPostType, string> = {
-  suggestion: "建议",
-  bug: "Bug 报错",
-  feature: "功能需求",
-  other: "其他",
-};
-
 export function FeedbackTypeBadge({ type }: { type: FeedbackPostType }) {
-  return <Badge variant="secondary">{FEEDBACK_TYPE_LABELS[type]}</Badge>;
+  const { t } = useI18n();
+  const labels: Record<FeedbackPostType, string> = {
+    suggestion: t("fb.suggestion"),
+    bug: t("fb.bug"),
+    feature: t("fb.feature"),
+    other: t("fb.other"),
+  };
+  return <Badge variant="secondary">{labels[type]}</Badge>;
 }
 
 export function FeedbackStatusBadge({ status }: { status: FeedbackPostStatus }) {
+  const { t } = useI18n();
   if (status === "RESOLVED") {
     return (
       <Badge
         variant="outline"
         className="border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
       >
-        已解决
+        {t("fb.resolved")}
       </Badge>
     );
   }
@@ -34,7 +38,7 @@ export function FeedbackStatusBadge({ status }: { status: FeedbackPostStatus }) 
       variant="outline"
       className="border-amber-600/30 bg-amber-600/10 text-amber-700 dark:text-amber-400"
     >
-      待回复
+      {t("fb.pending")}
     </Badge>
   );
 }
@@ -45,24 +49,25 @@ type PostFlagFields = Pick<
 >;
 
 export function FeedbackFlagBadges({ post }: { post: PostFlagFields }) {
+  const { t } = useI18n();
   return (
     <>
       {post.isAnnouncement && (
         <Badge variant="default">
           <Megaphone />
-          公告
+          {t("fb.announcement")}
         </Badge>
       )}
       {post.isPinned && (
         <Badge variant="outline">
           <Pin />
-          置顶
+          {t("fb.pinned")}
         </Badge>
       )}
       {post.isPrivate && (
         <Badge variant="outline">
           <Lock />
-          私密
+          {t("fb.private")}
         </Badge>
       )}
     </>

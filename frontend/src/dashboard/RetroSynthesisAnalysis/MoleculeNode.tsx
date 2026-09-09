@@ -3,8 +3,10 @@
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
 import type { MoleculeNodeData } from "./types";
+import { useI18n } from "@/src/i18n/language-provider";
 
 function MoleculeNode({ id, data }: NodeProps<MoleculeNodeData>) {
+  const { t } = useI18n();
   const canExpand = !data.expanded && !data.loading && !data.noPrecursors;
 
   return (
@@ -19,7 +21,7 @@ function MoleculeNode({ id, data }: NodeProps<MoleculeNodeData>) {
 
       {data.isTarget && (
         <div className="px-2 py-1 text-[11px] font-medium text-indigo-600 bg-indigo-50 border-b border-indigo-100">
-          目标分子
+          {t("mn.target")}
         </div>
       )}
 
@@ -31,7 +33,7 @@ function MoleculeNode({ id, data }: NodeProps<MoleculeNodeData>) {
             dangerouslySetInnerHTML={{ __html: data.svg }}
           />
         ) : (
-          <span className="text-xs text-gray-400">渲染中…</span>
+          <span className="text-xs text-gray-400">{t("mn.rendering")}</span>
         )}
       </div>
 
@@ -49,22 +51,22 @@ function MoleculeNode({ id, data }: NodeProps<MoleculeNodeData>) {
             onClick={() => data.onExpand(id)}
             className="w-full text-xs py-1 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
           >
-            展开前驱体
+            {t("mn.expand")}
           </button>
         )}
         {data.loading && (
           <div className="w-full text-xs py-1 text-center text-gray-500">
-            分析中…
+            {t("mn.analyzing")}
           </div>
         )}
         {data.noPrecursors && (
           <div className="w-full text-[11px] py-1 text-center text-emerald-600">
-            无更多拆法（可视为原料）
+            {t("mn.leaf")}
           </div>
         )}
         {data.expanded && !data.noPrecursors && (
           <div className="w-full text-[11px] py-1 text-center text-gray-400">
-            已展开
+            {t("mn.expanded")}
           </div>
         )}
       </div>

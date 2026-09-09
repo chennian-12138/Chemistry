@@ -9,10 +9,11 @@ import { useChat } from "@/hooks/use-chat";
 import { useAskAiActions } from "@/hooks/use-askai-action";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { useHistoryStore } from "@/store/history-store";
+import { useI18n } from "@/src/i18n/language-provider";
 
 // 冷启动引导问题池（空会话时随机抽 3 条展示，刷新即换一批）。
 // 主流做法：空对话无上下文可依据，冷启动不实时调 LLM，用人工问题池随机抽样。
-const COLD_START_POOL = [
+const COLD_START_POOL_ZH = [
   "什么是 SN2 反应的立体化学特征？",
   "帮我分析阿司匹林的逆合成路线",
   "解释一下 Diels-Alder 反应的机理",
@@ -28,6 +29,24 @@ const COLD_START_POOL = [
   "如何解析一张红外光谱图？",
   "催化氢化的立体选择性由什么决定？",
   "对映体和非对映体有什么区别？",
+];
+
+const COLD_START_POOL_EN = [
+  "What are the stereochemical features of an SN2 reaction?",
+  "Help me analyze the retrosynthesis of aspirin",
+  "Explain the mechanism of the Diels-Alder reaction",
+  "What are the directing rules for electrophilic aromatic substitution on benzene?",
+  "How can NMR distinguish ortho and para substitution?",
+  "Why must Grignard reagents be handled under anhydrous conditions?",
+  "What is the difference between E1 and E2 elimination?",
+  "How do you determine R/S configuration of chiral centers?",
+  "What are common types of nucleophilic addition to carbonyls?",
+  "What is Hückel's rule for aromaticity?",
+  "Help me design a synthesis route for ibuprofen",
+  "Explain carbocation rearrangement in SN1 reactions",
+  "How do I interpret an IR spectrum?",
+  "What determines the stereoselectivity of catalytic hydrogenation?",
+  "What is the difference between enantiomers and diastereomers?",
 ];
 
 // 从池中随机抽 n 条（Fisher-Yates 洗牌前 n 个）
@@ -54,12 +73,15 @@ export default function AskAi({
   title,
 }: AskAiProps) {
   const { session, requireAuth, loginPrompt } = useRequireAuth();
+  const { locale } = useI18n();
   // 记录当前会话 id（新会话创建后回填），仅用于本组件内的历史同步判断
   const [, setActiveId] = useState<string | undefined>(conversationId);
   // 顶部标题：新会话初始为空（显示默认名），首轮落库拿到标题后回填
   const [displayTitle, setDisplayTitle] = useState<string>(title || "");
   // 冷启动建议：挂载时抽一次并固定（用 initializer，避免每次渲染重抽导致闪动）
-  const [coldStart] = useState<string[]>(() => sampleSuggestions(COLD_START_POOL, 3));
+  const [coldStart] = useState<string[]>(() =>
+    sampleSuggestions(locale === "en" ? COLD_START_POOL_EN : COLD_START_POOL_ZH, 3),
+  );
 
   // 新会话首次落库：更新 URL（不重挂载）+ 同步侧边栏历史
   const handleConversationCreated = useCallback(

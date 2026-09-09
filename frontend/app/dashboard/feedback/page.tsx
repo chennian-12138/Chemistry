@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, ChevronUp, Heart, MessageSquare, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/src/i18n/language-provider";
 import {
   getFeedbackPosts,
   toggleFeedbackPostLike,
@@ -23,7 +24,6 @@ import { formatRelativeTime } from "@/lib/time";
 
 import ExpandedPost from "./expanded-post";
 import {
-  FEEDBACK_TYPE_LABELS,
   FeedbackFlagBadges,
   FeedbackStatusBadge,
   FeedbackTypeBadge,
@@ -32,14 +32,6 @@ import {
 const PAGE_SIZE = 10;
 
 type TypeFilter = "all" | FeedbackPostType;
-
-const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
-  { value: "all", label: "全部" },
-  { value: "suggestion", label: FEEDBACK_TYPE_LABELS.suggestion },
-  { value: "bug", label: FEEDBACK_TYPE_LABELS.bug },
-  { value: "feature", label: FEEDBACK_TYPE_LABELS.feature },
-  { value: "other", label: FEEDBACK_TYPE_LABELS.other },
-];
 
 export default function FeedbackPage() {
   return (
@@ -61,6 +53,7 @@ export default function FeedbackPage() {
 function FeedbackForum() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
   const locatedId = searchParams.get("post");
 
   const [posts, setPosts] = useState<FeedbackPostSummary[]>([]);
@@ -139,6 +132,13 @@ function FeedbackForum() {
     setExpandedId((cur) => (cur === id ? null : cur));
   };
 
+  const typeFilters: { value: TypeFilter; label: string }[] = [
+    { value: "all", label: t("fb.all") },
+    { value: "suggestion", label: t("fb.suggestion") },
+    { value: "bug", label: t("fb.bug") },
+    { value: "feature", label: t("fb.feature") },
+    { value: "other", label: t("fb.other") },
+  ];
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const locatedInList =
     locatedId !== null && posts.some((p) => p.id === locatedId);
@@ -149,34 +149,33 @@ function FeedbackForum() {
       <section className="mb-10 flex flex-wrap items-end justify-between gap-6">
         <div>
           <h1 className="mb-4 text-3xl font-medium tracking-tight text-foreground md:text-4xl">
-            问题反馈
+            {t("fb.title")}
           </h1>
           <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-            在这里提交问题、建议与功能需求，也可以浏览和点赞其他用户的帖子，
-            我们会持续关注并回复。
+            {t("fb.hint")}
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/feedback/new">
             <Plus />
-            发布新帖
+            {t("fb.new")}
           </Link>
         </Button>
       </section>
 
       <section className="mb-8 flex flex-wrap gap-2">
-        {TYPE_FILTERS.map((t) => (
+        {typeFilters.map((f) => (
           <button
-            key={t.value}
+            key={f.value}
             type="button"
-            onClick={() => handleTypeChange(t.value)}
+            onClick={() => handleTypeChange(f.value)}
             className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
-              typeFilter === t.value
+              typeFilter === f.value
                 ? "border-foreground/40 bg-foreground text-background"
                 : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground"
             }`}
           >
-            {t.label}
+            {f.label}
           </button>
         ))}
       </section>
@@ -216,7 +215,7 @@ function FeedbackForum() {
         <div className="rounded-lg border border-border bg-card px-8 py-16 text-center">
           <p className="text-lg font-medium text-foreground">暂无帖子</p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            成为第一个发声的人——点击右上角「发布新帖」提交你的问题或建议。
+            {t("fb.emptyHint")}
           </p>
         </div>
       ) : (
@@ -247,17 +246,17 @@ function FeedbackForum() {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            上一页
+            {t("fb.prev")}
           </Button>
           <p className="text-sm text-muted-foreground">
-            第 {page} / {totalPages} 页 · 共 {total} 条
+            {t("fb.pageInfo").replace("{page}", String(page)).replace("{totalPages}", String(totalPages)).replace("{total}", String(total))}
           </p>
           <Button
             variant="outline"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            下一页
+            {t("fb.next")}
           </Button>
         </section>
       )}

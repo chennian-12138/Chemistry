@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type ChatProvider } from "@/hooks/use-chat";
+import { useI18n } from "@/src/i18n/language-provider";
 import { cn } from "@/lib/utils";
 
 // AI 头像：Next 把 app/favicon.ico 映射到根路径
@@ -88,6 +89,7 @@ function ChatInputDock({
   stop,
   reduceMotion,
 }: ChatInputDockProps) {
+  const { t } = useI18n();
   return (
     <motion.div
       layoutId={INPUT_LAYOUT_ID}
@@ -103,7 +105,7 @@ function ChatInputDock({
             id={ASKAI_INPUT_ID}
             value={input}
             onChange={handleInputChange}
-            placeholder="输入你的化学问题…"
+            placeholder={t("ask.placeholder")}
             allowAttachments={false}
             stop={stop}
             isGenerating={isGenerating}
@@ -124,12 +126,13 @@ interface DeepThinkingToggleProps {
  * shrink-0 保证自身不被挤压换行
  */
 function DeepThinkingToggle({ deepThinking, onToggle }: DeepThinkingToggleProps) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
       aria-pressed={deepThinking}
       onClick={onToggle}
-      title="开启后模型先输出思考链，回答更深入，但更慢、更费 token"
+      title={t("ask.deepThinkingTitle")}
       className={cn(
         "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors",
         deepThinking
@@ -138,7 +141,7 @@ function DeepThinkingToggle({ deepThinking, onToggle }: DeepThinkingToggleProps)
       )}
     >
       <Brain className="h-3.5 w-3.5" />
-      深度思考
+      {t("ask.deepThinking")}
     </button>
   );
 }
@@ -153,13 +156,14 @@ interface ProviderSelectProps {
  * 与右侧深度思考 pill 同一视觉量级（text-xs、h-7、rounded-full）
  */
 function ProviderSelect({ provider, onProviderChange }: ProviderSelectProps) {
+  const { t } = useI18n();
   return (
     <Select
       value={provider}
       onValueChange={(v) => onProviderChange(v as ChatProvider)}
     >
       <SelectTrigger
-        aria-label="API 来源"
+        aria-label={t("ask.apiSource")}
         className="shrink-0 gap-1.5 rounded-full border-transparent bg-transparent px-2.5 py-1 text-xs text-muted-foreground shadow-none hover:bg-muted hover:text-foreground focus-visible:border-transparent focus-visible:ring-1 data-[size=default]:h-7 dark:bg-transparent dark:hover:bg-muted"
       >
         <SelectValue />
@@ -167,11 +171,11 @@ function ProviderSelect({ provider, onProviderChange }: ProviderSelectProps) {
       <SelectContent position="popper" align="end" className="min-w-32">
         <SelectItem value="platform" className="text-xs">
           <Sparkles className="size-3.5" />
-          平台额度
+          {t("ask.platformQuota")}
         </SelectItem>
         <SelectItem value="byok" className="text-xs">
           <KeyRound className="size-3.5" />
-          自定义 API
+          {t("ask.customApi")}
         </SelectItem>
       </SelectContent>
     </Select>
@@ -254,6 +258,7 @@ export function AskAiChat({
   userImage = "",
   userName = "",
 }: AskAiChatProps) {
+  const { t } = useI18n();
   const lastMessage = messages.at(-1);
   const isTyping = lastMessage?.role === "user";
   const reduceMotion = useReducedMotion();
@@ -270,7 +275,7 @@ export function AskAiChat({
     : !isGenerating && !isTyping
       ? dynamicSuggestions
       : [];
-  const suggestionLabel = isEmpty ? "猜你想问" : "继续追问";
+  const suggestionLabel = isEmpty ? t("ask.guess") : t("ask.followUp");
 
   // 首条消息发出后输入框从 hero 迁移到底部：React 会把 textarea 卸载重挂、焦点丢失，
   // 这里在 messages 从空翻转为非空时把焦点还给停靠输入框
@@ -302,7 +307,7 @@ export function AskAiChat({
       actions: (
         <CopyButton
           content={message.content}
-          copyMessage="已复制到剪贴板"
+          copyMessage={t("ask.copy")}
         />
       ),
     }),
@@ -334,10 +339,10 @@ export function AskAiChat({
           >
             <header className="flex flex-col items-center gap-2 text-center">
               <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
-                {GREETING_HEADING}
+                {t("ask.greeting")}
               </h1>
               <p className="text-sm text-muted-foreground sm:text-base">
-                {GREETING_SUBHEADING}
+                {t("ask.greetingSub")}
               </p>
             </header>
             {inputDock}

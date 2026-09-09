@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useI18n } from "@/src/i18n/language-provider";
 import KeywordSearch from "./keywordSearch";
 import MolSearch from "./MolSearch";
 import ReactionCard from "./ReactCard";
@@ -12,6 +13,7 @@ import { useReactDicStore } from "@/store/reactdic-store";
 
 export default function ReactDic() {
   const router = useRouter();
+  const { t } = useI18n();
   const [isSearching, setIsSearching] = useState(false);
 
   // Zustand Store variables
@@ -73,10 +75,10 @@ export default function ReactDic() {
       <div className="flex flex-col space-y-2 mb-8 animate-in fade-in duration-700">
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <BookSearch className="w-8 h-8 text-primary" />
-          反应查询
+          {t("nav.reactionSearch")}
         </h1>
         <p className="text-muted-foreground text-lg">
-          从数据库中查寻，探索与分析化学反应
+          Search, explore and analyze chemical reactions from the database
         </p>
       </div>
 
@@ -86,11 +88,11 @@ export default function ReactDic() {
           <TabsList className="grid w-full max-w-[400px] grid-cols-2 mx-auto mb-8">
             <TabsTrigger value="keyword" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
-              文本搜索
+              {t("search.title")}
             </TabsTrigger>
             <TabsTrigger value="structure" className="flex items-center gap-2">
               <Dna className="w-4 h-4" />
-              结构搜索
+              {t("structure.title")}
             </TabsTrigger>
           </TabsList>
 
@@ -132,7 +134,7 @@ export default function ReactDic() {
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold tracking-tight">
-              搜索结果
+              {t("result.title")}
             </h2>
           </div>
           {searchResults.length === 0 ? (
@@ -142,10 +144,10 @@ export default function ReactDic() {
                 <Search className="w-8 h-8 text-muted-foreground/60" />
               </div>
               <h3 className="text-lg font-medium text-foreground">
-                暂无结果
+                {t("result.empty")}
               </h3>
               <p className="text-muted-foreground text-sm max-w-sm mt-2">
-                我们暂时没有找到符合条件的反应，请尝试更换搜索条件。
+                {t("result.emptyHint")}
               </p>
             </div>
           ) : (

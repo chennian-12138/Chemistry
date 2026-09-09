@@ -21,12 +21,12 @@ import {
   type FeedbackPostType,
 } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
-
-import { FEEDBACK_TYPE_LABELS } from "../shared";
+import { useI18n } from "@/src/i18n/language-provider";
 
 export default function NewFeedbackPostPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useI18n();
 
   const user = session?.user as unknown as { role?: string } | undefined;
   const role = user?.role?.toLowerCase();
@@ -62,7 +62,7 @@ export default function NewFeedbackPostPage() {
       });
       router.push(`/dashboard/feedback?post=${res.data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "发布失败，请稍后重试");
+      setError(err instanceof Error ? err.message : t("fb.publishFailed"));
       setSubmitting(false);
     }
   };
@@ -75,13 +75,13 @@ export default function NewFeedbackPostPage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
-          返回反馈列表
+          {t("fb.backToList")}
         </Link>
         <h1 className="mb-4 text-3xl font-medium tracking-tight text-foreground md:text-4xl">
-          发布新帖
+          {t("fb.new")}
         </h1>
         <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-          描述你遇到的问题、建议或功能需求，我们会尽快查看并回复。
+          {t("fb.newHint")}
         </p>
       </section>
 
@@ -97,7 +97,7 @@ export default function NewFeedbackPostPage() {
             id="title"
             required
             maxLength={100}
-            placeholder="一句话概括你的问题或建议"
+            placeholder={t("fb.titlePlaceholder")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -106,7 +106,7 @@ export default function NewFeedbackPostPage() {
         {!isAnnouncement && (
           <div className="flex flex-col gap-2">
             <label htmlFor="type" className="text-sm font-medium text-foreground">
-              类型
+              {t("fb.type")}
               <span className="ml-0.5 text-destructive" aria-hidden="true">
                 *
               </span>
@@ -116,15 +116,15 @@ export default function NewFeedbackPostPage() {
               onValueChange={(v) => setType(v as FeedbackPostType)}
             >
               <SelectTrigger id="type" className="w-full">
-                <SelectValue placeholder="请选择反馈类型" />
+                <SelectValue placeholder={t("fb.selectType")} />
               </SelectTrigger>
               <SelectContent>
-                {(
-                  Object.entries(FEEDBACK_TYPE_LABELS) as [
-                    FeedbackPostType,
-                    string,
-                  ][]
-                ).map(([value, label]) => (
+                {[
+                  ["suggestion", t("fb.suggestion")],
+                  ["bug", t("fb.bug")],
+                  ["feature", t("fb.feature")],
+                  ["other", t("fb.other")],
+                ].map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
@@ -139,7 +139,7 @@ export default function NewFeedbackPostPage() {
             htmlFor="content"
             className="text-sm font-medium text-foreground"
           >
-            详细内容
+            {t("fb.content")}
             <span className="ml-0.5 text-destructive" aria-hidden="true">
               *
             </span>
@@ -149,7 +149,7 @@ export default function NewFeedbackPostPage() {
             required
             rows={8}
             maxLength={10000}
-            placeholder="请尽量详细描述：复现步骤、期望行为、截图链接等"
+            placeholder={t("fb.contentPlaceholder")}
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -164,7 +164,7 @@ export default function NewFeedbackPostPage() {
                   setIsAnnouncement(checked === true)
                 }
               />
-              发布公告（所有用户可见，并推送系统消息）
+              {t("fb.announcementLabel")}
             </label>
           )}
           {!isAnnouncement && (
@@ -173,7 +173,7 @@ export default function NewFeedbackPostPage() {
                 checked={isPrivate}
                 onCheckedChange={(checked) => setIsPrivate(checked === true)}
               />
-              仅管理员可见（私密帖不会出现在公共列表中）
+              {t("fb.privateLabel")}
             </label>
           )}
         </div>
@@ -185,7 +185,7 @@ export default function NewFeedbackPostPage() {
         )}
 
         <Button type="submit" disabled={!canSubmit}>
-          {submitting ? "发布中…" : "发布"}
+          {submitting ? t("fb.publishing") : t("fb.new")}
         </Button>
       </form>
     </main>

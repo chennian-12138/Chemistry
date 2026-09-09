@@ -9,7 +9,8 @@
     "dev": "concurrently \"npm run dev:python\" \"npm run dev:node\"",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "translate:db": "tsx scripts/translate-db.ts"
   },
   "keywords": [],
   "author": "",

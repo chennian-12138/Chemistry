@@ -13,10 +13,12 @@ import {
 import { routes } from "./routes"
 import { usePathname } from "next/navigation"
 import { useSession } from "@/lib/auth-client"
+import { useI18n } from "@/src/i18n/language-provider"
 
 export default function AppSidebarSecondary() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { t } = useI18n()
 
   const user = session?.user as unknown as { role?: string } | undefined
   const role = user?.role?.toLowerCase()
@@ -36,7 +38,7 @@ export default function AppSidebarSecondary() {
                 <SidebarMenuButton asChild isActive={isActive}>
                   <Link href={item.Path}>
                     <item.icon />
-                    <span>{item.name}</span>
+                    <span>{item.i18nKey ? t(item.i18nKey as any) : item.name}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

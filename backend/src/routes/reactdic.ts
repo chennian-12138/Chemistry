@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
 import { matchSmartsBatch } from "../services/rdkit";
+import { getLocale, localizeEnum, localizeField } from "../../lib/i18n";
 
 const router = Router();
 
@@ -8,6 +9,7 @@ const router = Router();
 router.get("/search/keyword", async (req, res) => {
   try {
     const { term } = req.query;
+    const locale = getLocale(req.query.lang);
 
     // We fetch all APPROVED reactions by default if no term is provided
     const whereClause = term
@@ -16,12 +18,25 @@ router.get("/search/keyword", async (req, res) => {
           OR: [
             { name: { contains: String(term), mode: "insensitive" as const } },
             {
+              translations: {
+                path: ["en", "name"],
+                string_contains: String(term),
+              },
+            },
+            {
               tags: {
                 some: {
-                  name: {
-                    contains: String(term),
-                    mode: "insensitive" as const,
-                  },
+                  OR: [
+                    {
+                      name: { contains: String(term), mode: "insensitive" as const },
+                    },
+                    {
+                      translations: {
+                        path: ["en", "name"],
+                        string_contains: String(term),
+                      },
+                    },
+                  ],
                 },
               },
             },
@@ -30,10 +45,20 @@ router.get("/search/keyword", async (req, res) => {
                 some: {
                   descriptions: {
                     some: {
-                      description: {
-                        contains: String(term),
-                        mode: "insensitive" as const,
-                      },
+                      OR: [
+                        {
+                          description: {
+                            contains: String(term),
+                            mode: "insensitive" as const,
+                          },
+                        },
+                        {
+                          translations: {
+                            path: ["en", "description"],
+                            string_contains: String(term),
+                          },
+                        },
+                      ],
                     },
                   },
                 },
@@ -50,26 +75,43 @@ router.get("/search/keyword", async (req, res) => {
       select: {
         id: true,
         name: true,
-        tags: true,
+        translations: true,
+        tags: {
+          select: {
+            name: true,
+            translations: true,
+          },
+        },
         status: true,
         sections: {
           select: {
             reactions: { select: { value: true } },
-            descriptions: { select: { description: true } },
+            descriptions: {
+              select: {
+                description: true,
+                translations: true,
+              },
+            },
           },
         },
       },
       take: 50, // Limit results for performance
     });
 
-    const formattedData = reactions.map((reaction) => ({
+    const formattedData = reactions.map((reaction: any) => ({
       id: reaction.id,
-      name: reaction.name,
+      name: localizeField(reaction, "name", locale),
       structureData: reaction.sections?.[0]?.reactions?.[0]?.value || null,
-      tags: reaction.tags.map((t: any) => t.name),
+      tags: reaction.tags.map((t: any) =>
+        localizeField(t, "name", locale),
+      ),
       description:
         reaction.sections
-          ?.flatMap((s: any) => s.descriptions?.map((d: any) => d.description))
+          ?.flatMap((s: any) =>
+            s.descriptions?.map((d: any) =>
+              localizeField(d, "description", locale),
+            ),
+          )
           .filter(Boolean)
           .join("; ") || "",
     }));
@@ -82,15 +124,16 @@ router.get("/search/keyword", async (req, res) => {
 });
 
 // 2. 结构搜索
-// 二部完美匹配（Kuhn 增广路）：判断 roleSmartsList 中每个角色能否被
-// 一个「不同的」用户分子命中（覆盖全部角色）。用于「组合匹配」判定。
+// 二部完美匹配（Kuhn 增广路）：判断 roleSmartsList 中每个「非空反应物」能否被
+// 一个「不同的」用户分子命中。用于「组合匹配」判定。
+// 调用方需保证 roleSmartsList.length === 用户分子数，才会形成真正的完美匹配。
 // isMatch(smarts, molIdx) = 该 smarts 是否为第 molIdx 个用户分子的子结构。
 function coversAllRoles(
   roleSmartsList: string[],
   molCount: number,
   isMatch: (smarts: string, molIdx: number) => boolean,
 ): boolean {
-  if (roleSmartsList.length === 0) return false; // 无反应物/试剂角色，不构成组合
+  if (roleSmartsList.length === 0) return false; // 无反应物角色，不构成组合
   if (roleSmartsList.length > molCount) return false; // 分子数不足以覆盖
 
   const molToRole: number[] = new Array(molCount).fill(-1); // 分子 -> 已分配的角色下标
@@ -120,6 +163,7 @@ function coversAllRoles(
 router.post("/search/structure", async (req, res) => {
   try {
     const { molBlocks } = req.body as { molBlocks?: string[] };
+    const locale = getLocale(req.query.lang);
 
     if (!Array.isArray(molBlocks) || molBlocks.length === 0) {
       return res
@@ -133,8 +177,14 @@ router.post("/search/structure", async (req, res) => {
       select: {
         id: true,
         name: true,
+        translations: true,
         status: true,
-        tags: true,
+        tags: {
+          select: {
+            name: true,
+            translations: true,
+          },
+        },
         patterns: {
           select: {
             id: true,
@@ -144,7 +194,12 @@ router.post("/search/structure", async (req, res) => {
         sections: {
           select: {
             reactions: { select: { value: true } },
-            descriptions: { select: { description: true } },
+            descriptions: {
+              select: {
+                description: true,
+                translations: true,
+              },
+            },
           },
         },
       },
@@ -155,7 +210,9 @@ router.post("/search/structure", async (req, res) => {
       new Set(
         reactions.flatMap((r) =>
           r.patterns.flatMap((p) =>
-            p.molecules.map((m) => m.smarts).filter(Boolean),
+            p.molecules
+              .filter((m) => m.role === "反应物" && m.smarts)
+              .map((m) => m.smarts),
           ),
         ),
       ),
@@ -172,7 +229,7 @@ router.post("/search/structure", async (req, res) => {
     }
 
     const molCount = molBlocks.length;
-    const REACTANT_ROLES = new Set(["反应物", "反应试剂"]);
+    const REACTANT_ROLES = new Set(["反应物"]);
 
     type Tier = "combination" | "and" | "or";
     const tierRank: Record<Tier, number> = { combination: 3, and: 2, or: 1 };
@@ -181,26 +238,34 @@ router.post("/search/structure", async (req, res) => {
     const hits: Array<{ reaction: (typeof reactions)[number]; tier: Tier }> = [];
 
     for (const reaction of reactions) {
-      const allRoleSmarts = reaction.patterns.flatMap((p) =>
-        p.molecules.map((m) => m.smarts).filter(Boolean),
+      // 结构搜索只面向“反应物”：只有真正进入产物骨架的底物才参与结构匹配，
+      // 反应试剂/催化剂不作为搜索条件。
+      const allReactantSmarts = reaction.patterns.flatMap((p) =>
+        p.molecules
+          .filter((m) => REACTANT_ROLES.has(m.role) && m.smarts)
+          .map((m) => m.smarts),
       );
-      if (allRoleSmarts.length === 0) continue;
+      if (allReactantSmarts.length === 0) continue;
 
-      // 每个用户分子是否命中该反应里的任一角色
+      // 每个用户分子是否命中该反应里的任一反应物
       const molMatched = molBlocks.map((_, m) =>
-        allRoleSmarts.some((s) => lookup(s, m)),
+        allReactantSmarts.some((s) => lookup(s, m)),
       );
       const or = molMatched.some(Boolean);
       if (!or) continue; // 完全不相关
 
       const and = molMatched.every(Boolean);
 
-      // combination: 存在某 pattern，其「反应物+试剂」角色被用户分子完整覆盖(单射)
+      // combination: 存在某 pattern，其「非空反应物」与用户分子数量相等，
+      // 并且每个反应物都能被一个不同的用户分子命中（真正的完美匹配）。
       const combination = reaction.patterns.some((p) => {
         const roleSmarts = p.molecules
           .filter((m) => REACTANT_ROLES.has(m.role) && m.smarts)
           .map((m) => m.smarts);
-        return coversAllRoles(roleSmarts, molCount, lookup);
+        return (
+          roleSmarts.length === molCount &&
+          coversAllRoles(roleSmarts, molCount, lookup)
+        );
       });
 
       const tier: Tier = combination ? "combination" : and ? "and" : "or";
@@ -212,14 +277,18 @@ router.post("/search/structure", async (req, res) => {
 
     const formattedData = hits.map(({ reaction, tier }) => ({
       id: reaction.id,
-      name: reaction.name,
-      tags: reaction.tags.map((t: any) => t.name),
+      name: localizeField(reaction, "name", locale),
+      tags: reaction.tags.map((t: any) => localizeField(t, "name", locale)),
       status: reaction.status,
       matchTier: tier,
       structureData: reaction.sections?.[0]?.reactions?.[0]?.value || null,
       description:
         reaction.sections
-          ?.flatMap((s: any) => s.descriptions?.map((d: any) => d.description))
+          ?.flatMap((s: any) =>
+            s.descriptions?.map((d: any) =>
+              localizeField(d, "description", locale),
+            ),
+          )
           .filter(Boolean)
           .join("; ") || "",
     }));
@@ -235,6 +304,7 @@ router.post("/search/structure", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const locale = getLocale(req.query.lang);
 
     const reaction = await prisma.reaction.findUnique({
       where: { id },
@@ -261,10 +331,53 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Reaction not found." });
     }
 
-    // Format tags into an array of strings
+    // 返回前按语言本地化：中文原文是 fallback，英文翻译来自 translations JSON；
+    // 有限枚举值（mechanismType/form/sectionType/role）通过字典映射。
     const formattedReaction = {
       ...reaction,
-      tags: reaction.tags ? reaction.tags.map((t: any) => t.name) : [],
+      name: localizeField(reaction, "name", locale),
+      mechanismType: localizeEnum(reaction.mechanismType, locale) ?? reaction.mechanismType,
+      form: localizeEnum(reaction.form, locale) ?? reaction.form,
+      tags: reaction.tags
+        ? reaction.tags.map((t: any) => localizeField(t, "name", locale))
+        : [],
+      patterns: reaction.patterns?.map((pattern: any) => ({
+        ...pattern,
+        name: localizeField(pattern, "name", locale),
+        molecules: pattern.molecules?.map((m: any) => ({
+          ...m,
+          name: localizeField(m, "name", locale),
+          // role 是内部逻辑使用的稳定枚举值（反应物/反应试剂/产物），不能翻译
+        })) || [],
+      })) || [],
+      sections: reaction.sections?.map((section: any) => {
+        const CONDITION_FIELDS = [
+          "temperature",
+          "pressure",
+          "duration",
+          "concentration",
+          "solvent",
+          "microwave",
+          "acidityBasicity",
+          "hydro",
+        ] as const;
+        const localizedSection: any = { ...section };
+        for (const field of CONDITION_FIELDS) {
+          if (typeof section[field] === "string") {
+            localizedSection[field] =
+              localizeEnum(section[field], locale) ?? section[field];
+          }
+        }
+        return {
+          ...localizedSection,
+          sectionType:
+            localizeEnum(section.sectionType, locale) ?? section.sectionType,
+          descriptions: section.descriptions?.map((d: any) => ({
+            ...d,
+            description: localizeField(d, "description", locale),
+          })) || [],
+        };
+      }) || [],
     };
 
     res.json({ success: true, data: formattedReaction });

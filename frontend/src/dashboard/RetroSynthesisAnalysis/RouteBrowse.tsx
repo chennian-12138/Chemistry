@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MolImg from "./MolImg";
+import { useI18n } from "@/src/i18n/language-provider";
 
 const Composer = dynamic(() => import("@/components/kekule-react/composer"), {
   ssr: false,
@@ -46,6 +47,7 @@ const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "");
 
 export default function RouteBrowse() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const userId = session?.user?.id;
   const role = ((session?.user as any)?.role ?? "").toUpperCase();
   const isAdmin = role === "ADMIN" || role === "SUPERADMIN";
@@ -92,7 +94,7 @@ export default function RouteBrowse() {
     try {
       const smiles = await molBlockToSmiles(searchMol);
       if (!smiles) {
-        setMsg("无法解析所绘结构");
+        setMsg(t("retro.parseFailed"));
         return;
       }
       const res = await searchRetroRoutes(smiles, searchMode, mine);
@@ -103,7 +105,7 @@ export default function RouteBrowse() {
       setItems(res.items ?? []);
       setIsSearchResult(true);
     } catch (e: any) {
-      setMsg(`搜索失败：${e.message}`);
+      setMsg(t("retro.searchFailed") + e.message);
     } finally {
       setSearching(false);
     }
@@ -115,12 +117,12 @@ export default function RouteBrowse() {
   };
 
   const del = async (id: string) => {
-    if (!confirm("确定删除这条路线？此操作不可恢复。")) return;
+    if (!confirm(t("rb.deleteConfirm"))) return;
     const res = await deleteRetroRoute(id);
     if (res.success) {
       setItems((prev) => prev.filter((r) => r.id !== id));
     } else {
-      setMsg(res.error || "删除失败");
+      setMsg(res.error || t("rb.deleteFailed"));
     }
   };
 
@@ -128,9 +130,9 @@ export default function RouteBrowse() {
     <div className="w-full py-6 px-6">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">社区逆合成路线</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("rb.title")}</h1>
           <p className="text-muted-foreground text-sm">
-            浏览、按结构搜索合成路线，参与评论并为每一步断键打分。
+            {t("rb.hint")}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -139,14 +141,14 @@ export default function RouteBrowse() {
             size="sm"
             onClick={() => setSort("recent")}
           >
-            最新
+            {t("rb.recent")}
           </Button>
           <Button
             variant={sort === "top" ? "default" : "outline"}
             size="sm"
             onClick={() => setSort("top")}
           >
-            最高分
+            {t("rb.top")}
           </Button>
           {session && (
             <Button
@@ -157,7 +159,7 @@ export default function RouteBrowse() {
                 setIsSearchResult(false);
               }}
             >
-              只看我的
+              {t("rb.mine")}
             </Button>
           )}
           <Button
@@ -165,10 +167,10 @@ export default function RouteBrowse() {
             size="sm"
             onClick={() => setSearchOpen((v) => !v)}
           >
-            结构搜索
+            {t("rb.structureSearch")}
           </Button>
           <a href="/dashboard/retrosynthesisanalysis">
-            <Button size="sm">去探索</Button>
+            <Button size="sm">{t("rb.explore")}</Button>
           </a>
         </div>
       </div>
@@ -192,20 +194,20 @@ export default function RouteBrowse() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="substructure">子结构匹配</SelectItem>
-                <SelectItem value="exact">精确匹配</SelectItem>
+                <SelectItem value="substructure">{t("rb.substructure")}</SelectItem>
+                <SelectItem value="exact">{t("rb.exact")}</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={doSearch} disabled={!searchMol || searching}>
-              {searching ? "搜索中…" : "搜索路线"}
+              {searching ? t("rb.searching") : t("rb.searchRoutes")}
             </Button>
             {isSearchResult && (
               <Button variant="outline" onClick={clearSearch}>
-                清除搜索
+                {t("rb.clearSearch")}
               </Button>
             )}
             <span className="text-xs text-muted-foreground">
-              按目标分子结构匹配{mine ? "（仅我的）" : "社区"}路线
+              {t("rb.matchMode").replace("{mode}", mine ? t("rb.mineSuffix") : t("rb.communitySuffix"))}
             </span>
           </div>
         </div>
@@ -214,19 +216,19 @@ export default function RouteBrowse() {
       {msg && <p className="text-sm text-amber-600 mb-3">{msg}</p>}
       {isSearchResult && (
         <p className="text-sm text-muted-foreground mb-3">
-          结构搜索结果：{items.length} 条
+          {t("rb.searchResults").replace("{count}", String(items.length))}
         </p>
       )}
 
       {loading ? (
-        <p className="text-center text-muted-foreground py-12">加载中…</p>
+        <p className="text-center text-muted-foreground py-12">{t("rb.loading")}</p>
       ) : items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
           {isSearchResult
-            ? "没有匹配该结构的路线。"
+            ? t("rb.noMatch")
             : mine
-              ? "你还没有上传过路线。"
-              : "还没有已发布的路线，去探索并保存第一条吧！"}
+              ? t("rb.noMine")
+              : t("rb.noCommunity")}
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -246,17 +248,17 @@ export default function RouteBrowse() {
                   </div>
                   <div className="p-3 space-y-2">
                     <h3 className="font-medium text-sm truncate">
-                      {r.title || "未命名路线"}
+                      {r.title || t("retro.unnamed")}
                     </h3>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="truncate">{r.author?.name || "匿名"}</span>
+                      <span className="truncate">{r.author?.name || t("rb.anonymous")}</span>
                       <span>{fmtDate(r.createdAt)}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-500">
                       <span className="text-emerald-600">👍 {r.upvotes}</span>
                       <span className="text-rose-500">👎 {r.downvotes}</span>
                       <span>💬 {r.commentCount}</span>
-                      <span className="ml-auto">{r.stepCount} 步</span>
+                      <span className="ml-auto">{t("rb.steps").replace("{count}", String(r.stepCount))}</span>
                     </div>
                   </div>
                 </a>
@@ -265,7 +267,7 @@ export default function RouteBrowse() {
                     onClick={() => del(r.id)}
                     className="absolute top-2 right-2 text-xs px-2 py-0.5 rounded bg-white/90 border border-rose-200 text-rose-500 hover:bg-rose-50"
                   >
-                    删除
+                    {t("rb.delete")}
                   </button>
                 )}
               </div>

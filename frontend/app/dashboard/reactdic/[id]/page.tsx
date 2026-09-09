@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getReactionById } from "@/lib/api";
+import { useI18n } from "@/src/i18n/language-provider";
 import { useRecordHistory } from "@/hooks/use-record-history";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Beaker, Loader2 } from "lucide-react";
@@ -16,6 +17,7 @@ export default function ReactionDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
+  const { locale } = useI18n();
   const [reaction, setReaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { record, registrationWall } = useRecordHistory();
@@ -37,7 +39,7 @@ export default function ReactionDetailPage() {
       }
     };
     fetchDetail();
-  }, [id, record]);
+  }, [id, locale, record]);
 
   if (loading) {
     // 根据你的要求移除了这里的加载动画。

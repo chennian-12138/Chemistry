@@ -22,6 +22,7 @@ import {
   triggerDailyFetch,
 } from "@/lib/api";
 import { usePapersStore } from "@/store/papers-store";
+import { useI18n } from "@/src/i18n/language-provider";
 
 // localStorage key：记录用户上次访问文献速递的日期，用于每日首次访问提示
 const LAST_VISIT_KEY = "literature_last_visit";
@@ -37,6 +38,7 @@ function getDateFrom(preset: string): string | undefined {
 }
 
 export default function Literature() {
+  const { t } = useI18n();
   const {
     papers,
     total,
@@ -83,7 +85,7 @@ export default function Literature() {
     if (lastVisit !== today) {
       localStorage.setItem(LAST_VISIT_KEY, today);
       setTimeout(() => {
-        toast.info("文献数据每日自动更新，欢迎查阅最新进展");
+        toast.info(t("lit.dailyNotice"));
       }, 800);
     }
   }, []);
@@ -97,10 +99,10 @@ export default function Literature() {
       if (res.error) {
         toast.error(res.error);
       } else {
-        toast.success(res.message || "增量爬取已在后台启动");
+        toast.success(res.message || t("lit.fetchStarted"));
       }
     } catch {
-      toast.error("触发失败，请检查 Python 服务是否运行");
+      toast.error(t("lit.fetchFailed"));
     } finally {
       setFetching(false);
     }
@@ -130,8 +132,8 @@ export default function Literature() {
             setPapers(res.data, res.total);
           }
           if (wasSearch) {
-            if (res.total === 0) toast.info("未找到相关文献");
-            else toast.success(`找到 ${res.total} 篇文献`);
+            if (res.total === 0) toast.info(t("lit.notFound"));
+            else toast.success(t("lit.found").replace("{count}", String(res.total)));
           }
           if (!initialLoadDoneRef.current && !wasSearch && res.total > 0) {
             initialLoadDoneRef.current = true;
@@ -153,7 +155,7 @@ export default function Literature() {
       }
     } catch (e) {
       console.error("[Literature] load error:", e);
-      toast.error("加载失败，请稍后重试");
+      toast.error(t("lit.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -187,9 +189,9 @@ export default function Literature() {
       {/* 页头 */}
       <div className="flex items-center gap-2 w-full">
         <Newspaper className="size-5 text-primary shrink-0" />
-        <h1 className="text-xl font-semibold">文献速递</h1>
+        <h1 className="text-xl font-semibold">{t("lit.title")}</h1>
         <span className="text-sm text-muted-foreground ml-1 shrink-0">
-          {total > 0 && `共 ${total} 篇`}
+          {total > 0 && t("lit.total").replace("{count}", String(total))}
         </span>
 
         {isSuperAdmin && (
@@ -201,7 +203,7 @@ export default function Literature() {
             className="ml-auto h-8 gap-1 shrink-0"
           >
             <RefreshCw className={fetching ? "size-4 animate-spin" : "size-4"} />
-            {fetching ? "触发中…" : "触发增量爬取"}
+            {fetching ? t("lit.triggering") : t("lit.trigger")}
           </Button>
         )}
       </div>
@@ -213,8 +215,8 @@ export default function Literature() {
         className="w-full"
       >
         <TabsList>
-          <TabsTrigger value="feed">全部文献</TabsTrigger>
-          <TabsTrigger value="bookmarks">我的收藏</TabsTrigger>
+          <TabsTrigger value="feed">{t("lit.feed")}</TabsTrigger>
+          <TabsTrigger value="bookmarks">{t("lit.bookmarks")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -224,7 +226,7 @@ export default function Literature() {
           {/* 关键词搜索 */}
           <div className="flex gap-1 flex-1 min-w-50">
             <Input
-              placeholder="搜索标题或摘要…"
+              placeholder={t("lit.searchPlaceholder")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -246,10 +248,10 @@ export default function Literature() {
             onValueChange={(v) => setArticleType(v)}
           >
             <SelectTrigger className="h-9 w-32 shrink-0">
-              <SelectValue placeholder="全部类型" />
+              <SelectValue placeholder={t("lit.allTypes")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部类型</SelectItem>
+              <SelectItem value="all">{t("lit.allTypes")}</SelectItem>
               <SelectItem value="article">Article</SelectItem>
               <SelectItem value="review">Review</SelectItem>
             </SelectContent>
@@ -261,13 +263,13 @@ export default function Literature() {
             onValueChange={(v) => setDatePreset(v)}
           >
             <SelectTrigger className="h-9 w-32 shrink-0">
-              <SelectValue placeholder="全部时间" />
+              <SelectValue placeholder={t("lit.allTime")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部时间</SelectItem>
-              <SelectItem value="1m">近 1 个月</SelectItem>
-              <SelectItem value="6m">近 6 个月</SelectItem>
-              <SelectItem value="1y">近 1 年</SelectItem>
+              <SelectItem value="all">{t("lit.allTime")}</SelectItem>
+              <SelectItem value="1m">{t("lit.last1m")}</SelectItem>
+              <SelectItem value="6m">{t("lit.last6m")}</SelectItem>
+              <SelectItem value="1y">{t("lit.last1y")}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -281,9 +283,9 @@ export default function Literature() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="date">最新发布</SelectItem>
-              <SelectItem value="impact">影响因子</SelectItem>
-              <SelectItem value="likes">最多点赞</SelectItem>
+              <SelectItem value="date">{t("lit.sortDate")}</SelectItem>
+              <SelectItem value="impact">{t("lit.sortImpact")}</SelectItem>
+              <SelectItem value="likes">{t("lit.sortLikes")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -300,18 +302,18 @@ export default function Literature() {
             <Newspaper className="size-10 opacity-30" />
             {activeTab === "bookmarks" && !session && !isPending ? (
               <>
-                <p className="text-sm">登录后即可查看收藏的文献</p>
+                <p className="text-sm">{t("lit.needLogin")}</p>
                 <Button asChild size="sm" className="mt-2">
-                  <Link href="/signin">去登录</Link>
+                  <Link href="/signin">{t("lit.goLogin")}</Link>
                 </Button>
               </>
             ) : (
               <p className="text-sm">
                 {activeTab === "bookmarks"
-                  ? "暂无收藏的文献"
+                  ? t("lit.noBookmarks")
                   : keyword
-                    ? `未找到与「${keyword}」相关的文献`
-                    : "暂无文献数据，请先触发初始化爬取"}
+                    ? t("lit.noKeyword").replace("{keyword}", keyword)
+                    : t("lit.noData")}
               </p>
             )}
           </div>
@@ -335,9 +337,9 @@ export default function Literature() {
             className="min-w-32"
           >
             {isLoading ? (
-              <><Loader2 className="size-4 mr-2 animate-spin" />加载中…</>
+              <><Loader2 className="size-4 mr-2 animate-spin" />{t("common.loading")}</>
             ) : (
-              `显示更多（已显示 ${papers.length} / ${total}）`
+              t("lit.loadMore").replace("{shown}", String(papers.length)).replace("{total}", String(total))
             )}
           </Button>
         </div>

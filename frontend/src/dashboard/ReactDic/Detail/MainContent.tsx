@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useI18n } from "@/src/i18n/language-provider";
 import Viewer from "@/components/kekule-react/viewer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,14 +24,14 @@ interface MainContentProps {
 
 // 与 DataUp 表单 conditionFieldsConfig 保持一致的条件字段
 const CONDITION_FIELDS = [
-  { field: "temperature", label: "温度", icon: Thermometer },
-  { field: "solvent", label: "溶剂类型", icon: Droplets },
-  { field: "duration", label: "时间", icon: Clock },
-  { field: "pressure", label: "压力", icon: Activity },
-  { field: "concentration", label: "浓度", icon: Atom },
-  { field: "microwave", label: "微波", icon: Zap },
-  { field: "acidityBasicity", label: "酸碱性", icon: FlaskConical },
-  { field: "hydro", label: "水含量", icon: Droplet },
+  { field: "temperature", label: "cond.temperature", icon: Thermometer },
+  { field: "solvent", label: "cond.solvent", icon: Droplets },
+  { field: "duration", label: "cond.duration", icon: Clock },
+  { field: "pressure", label: "cond.pressure", icon: Activity },
+  { field: "concentration", label: "cond.concentration", icon: Atom },
+  { field: "microwave", label: "cond.microwave", icon: Zap },
+  { field: "acidityBasicity", label: "cond.acidityBasicity", icon: FlaskConical },
+  { field: "hydro", label: "cond.hydro", icon: Droplet },
 ];
 
 function isValidValue(value: string | undefined | null): value is string {
@@ -44,6 +45,7 @@ function isValidValue(value: string | undefined | null): value is string {
 
 /** 单个 section 的反应条件 chips（只展示有效值） */
 function ConditionChips({ section }: { section: any }) {
+  const { t } = useI18n();
   const chips = CONDITION_FIELDS.filter((c) => isValidValue(section[c.field]));
 
   if (chips.length === 0) return null;
@@ -56,7 +58,7 @@ function ConditionChips({ section }: { section: any }) {
           className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2.5 py-1 text-xs"
         >
           <Icon className="w-3.5 h-3.5 text-primary/70" />
-          <span className="text-muted-foreground">{label}</span>
+          <span className="text-muted-foreground">{t(label as any)}</span>
           <span className="font-medium text-foreground">
             {section[field].trim()}
           </span>
@@ -67,6 +69,7 @@ function ConditionChips({ section }: { section: any }) {
 }
 
 export default function MainContent({ reaction }: MainContentProps) {
+  const { t } = useI18n();
   const sections = reaction.sections || [];
 
   return (
@@ -130,7 +133,7 @@ export default function MainContent({ reaction }: MainContentProps) {
                         />
                         {desc.refPageNo && (
                           <div className="mt-2 text-xs font-mono text-primary/80 bg-primary/5 inline-block px-2 py-0.5 rounded">
-                            Ref: {desc.refPageNo}
+                            {t("detail.ref")}: {desc.refPageNo}
                           </div>
                         )}
                       </div>
@@ -144,7 +147,7 @@ export default function MainContent({ reaction }: MainContentProps) {
                     <div className="w-full h-[150px] flex items-center justify-center">
                       <div className="text-muted-foreground flex flex-col items-center">
                         <FileText className="w-8 h-8 opacity-20 mb-2" />
-                        <span className="text-sm">暂无内容</span>
+                        <span className="text-sm">{t("detail.noContent")}</span>
                       </div>
                     </div>
                   </div>

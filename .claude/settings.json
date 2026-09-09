@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(/home/chennian/miniconda3/envs/chemistry/bin/pip install *)"
-    ]
-  }
-}

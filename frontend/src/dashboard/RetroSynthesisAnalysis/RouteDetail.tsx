@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 import MolImg from "./MolImg";
 import RouteGraph from "./RouteGraph";
+import { useI18n } from "@/src/i18n/language-provider";
 
 // 统一日期显示：YYYY-MM-DD HH:mm（无时间信息时退化为 YYYY-MM-DD）
 const fmtDateTime = (iso?: string | null) => {
@@ -74,6 +75,7 @@ export default function RouteDetail() {
   const { data: session } = useSession();
   const { requireAuth, loginPrompt } = useRequireAuth();
   const { record, registrationWall } = useRecordHistory();
+  const { t } = useI18n();
   const userId = session?.user?.id;
   const role = ((session?.user as any)?.role ?? "").toUpperCase();
   const isAdmin = role === "ADMIN" || role === "SUPERADMIN";
@@ -122,7 +124,7 @@ export default function RouteDetail() {
     const value = step.myVote === target ? 0 : target;
     const res = await rateRetroStep(step.id, value);
     if (!res.success) {
-      setMsg(res.error || "打分失败（请先登录）");
+      setMsg(res.error || t("rd.voteFailed"));
       return;
     }
     setRoute((prev) =>
@@ -151,7 +153,7 @@ export default function RouteDetail() {
     if (!content.trim()) return;
     const res = await addRetroComment(id, content.trim(), parentId);
     if (!res.success) {
-      setMsg(res.error || "评论失败（请先登录）");
+      setMsg(res.error || t("rd.commentFailed"));
       return;
     }
     setRoute((prev) =>
@@ -170,18 +172,18 @@ export default function RouteDetail() {
     !!userId && (route?.author?.id === userId || isAdmin);
 
   const delRoute = async () => {
-    if (!confirm("确定删除这条路线？此操作不可恢复。")) return;
+    if (!confirm(t("rd.deleteRouteConfirm"))) return;
     const res = await deleteRetroRoute(id);
     if (res.success) {
       router.push("/dashboard/retrosynthesisanalysis/routes");
     } else {
-      setMsg(res.error || "删除失败");
+      setMsg(res.error || t("rd.deleteFailed"));
     }
   };
 
   // ---------- 删除评论（作者 / 管理员） ----------
   const delComment = async (commentId: string) => {
-    if (!confirm("确定删除这条评论？")) return;
+    if (!confirm(t("rd.deleteCommentConfirm"))) return;
     const res = await deleteRetroComment(commentId);
     if (res.success) {
       setRoute((prev) =>
@@ -195,7 +197,7 @@ export default function RouteDetail() {
           : prev,
       );
     } else {
-      setMsg(res.error || "删除失败");
+      setMsg(res.error || t("rd.deleteFailed"));
     }
   };
 
@@ -230,9 +232,9 @@ export default function RouteDetail() {
     return { topComments: top, repliesByParent: byParent };
   }, [route?.comments]);
 
-  if (loading) return <p className="text-center text-muted-foreground py-12">加载中…</p>;
+  if (loading) return <p className="text-center text-muted-foreground py-12">{t("rd.loading")}</p>;
   if (notFound || !route)
-    return <p className="text-center text-muted-foreground py-12">路线不存在或未公开。</p>;
+    return <p className="text-center text-muted-foreground py-12">{t("rd.notFound")}</p>;
 
   return (
     <div className="w-full py-6 px-6 space-y-6">
@@ -245,11 +247,10 @@ export default function RouteDetail() {
         </div>
         <div className="flex-1 space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {route.title || "未命名路线"}
+            {route.title || t("retro.unnamed")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            由 {route.author?.name || "匿名"} 发布 · {fmtDateTime(route.createdAt)}{" "}
-            · {route.steps.length} 步
+            {t("rd.publishedBy").replace("{author}", route.author?.name || t("rd.anonymous")).replace("{date}", fmtDateTime(route.createdAt)).replace("{steps}", String(route.steps.length))}
           </p>
           {route.description && (
             <p className="text-sm text-gray-700 whitespace-pre-wrap">
@@ -259,7 +260,7 @@ export default function RouteDetail() {
           <div className="flex items-center gap-2 pt-1">
             <a href="/dashboard/retrosynthesisanalysis/routes">
               <Button variant="outline" size="sm">
-                返回列表
+                {t("rd.backList")}
               </Button>
             </a>
 
@@ -267,17 +268,17 @@ export default function RouteDetail() {
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm">
-                  涉及的反应（{stepReactions.length}）
+                  {t("rd.involvedReactions").replace("{count}", String(stepReactions.length))}
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[380px] sm:w-[420px]">
                 <SheetHeader>
-                  <SheetTitle>本路线涉及的单步反应</SheetTitle>
+                  <SheetTitle>{t("rd.involvedTitle")}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-4 space-y-2 overflow-y-auto pr-1">
                   {stepReactions.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      暂无可识别的反应模板。
+                      {t("rd.noReactionTemplates")}
                     </p>
                   ) : (
                     stepReactions.map((rxn, i) => (
@@ -304,12 +305,12 @@ export default function RouteDetail() {
                             className="shrink-0"
                           >
                             <Button size="sm" variant="outline">
-                              反应介绍 ↗
+                              {t("rd.reactionIntro")}
                             </Button>
                           </a>
                         ) : (
                           <span className="text-xs text-muted-foreground shrink-0">
-                            暂无介绍
+                            {t("rd.noIntro")}
                           </span>
                         )}
                       </div>
@@ -321,7 +322,7 @@ export default function RouteDetail() {
 
             {canManageRoute && (
               <Button variant="destructive" size="sm" onClick={delRoute}>
-                删除路线
+                {t("rd.deleteRoute")}
               </Button>
             )}
           </div>
@@ -332,9 +333,9 @@ export default function RouteDetail() {
 
       {/* 完整反应路线图（起始原料 → 最终产物，反应节点可打分） */}
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">反应路线图</h2>
+        <h2 className="text-lg font-semibold">{t("rd.graphTitle")}</h2>
         <p className="text-xs text-muted-foreground">
-          从左侧起始原料到右侧最终产物；点击每个反应上的 👍/👎 为该步断键打分。
+          {t("rd.graphHint")}
         </p>
         <RouteGraph
           steps={route.steps}
@@ -346,7 +347,7 @@ export default function RouteDetail() {
       {/* 评论 */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">
-          评论（{route.comments.length}）
+          {t("rd.comments").replace("{count}", String(route.comments.length))}
         </h2>
 
         {/* 发表评论 */}
@@ -355,10 +356,10 @@ export default function RouteDetail() {
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={2}
-            placeholder="对这条路线说点什么…"
+            placeholder={t("rd.commentPlaceholder")}
             className="flex-1 border rounded-md px-3 py-2 text-sm resize-none"
           />
-          <Button onClick={() => submitComment(commentText)}>发表</Button>
+          <Button onClick={() => submitComment(commentText)}>{t("rd.post")}</Button>
         </div>
 
         {/* 评论列表 */}
@@ -368,7 +369,7 @@ export default function RouteDetail() {
               <div className="rounded-lg border bg-white p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">
-                    {c.user?.name || "匿名"}
+                    {c.user?.name || t("rd.anonymous")}
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
                       {fmtDateTime(c.createdAt)}
                     </span>
@@ -378,14 +379,14 @@ export default function RouteDetail() {
                       className="text-xs text-muted-foreground hover:text-indigo-600"
                       onClick={() => setReplyTo(replyTo === c.id ? null : c.id)}
                     >
-                      回复
+                      {t("rd.reply")}
                     </button>
                     {canManageComment(c) && (
                       <button
                         className="text-xs text-muted-foreground hover:text-rose-500"
                         onClick={() => delComment(c.id)}
                       >
-                        删除
+                        {t("rd.delete")}
                       </button>
                     )}
                   </div>
@@ -402,11 +403,11 @@ export default function RouteDetail() {
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     rows={1}
-                    placeholder="回复…"
+                    placeholder={t("rd.replyPlaceholder")}
                     className="flex-1 border rounded-md px-3 py-1.5 text-sm resize-none"
                   />
                   <Button size="sm" onClick={() => submitComment(replyText, c.id)}>
-                    回复
+                    {t("rd.reply")}
                   </Button>
                 </div>
               )}
@@ -416,7 +417,7 @@ export default function RouteDetail() {
                 <div key={r.id} className="ml-6 rounded-lg border bg-gray-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      {r.user?.name || "匿名"}
+                      {r.user?.name || t("rd.anonymous")}
                       <span className="ml-2 text-xs font-normal text-muted-foreground">
                         {fmtDateTime(r.createdAt)}
                       </span>
@@ -426,7 +427,7 @@ export default function RouteDetail() {
                         className="text-xs text-muted-foreground hover:text-rose-500"
                         onClick={() => delComment(r.id)}
                       >
-                        删除
+                        {t("rd.delete")}
                       </button>
                     )}
                   </div>

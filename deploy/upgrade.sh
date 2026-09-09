@@ -26,6 +26,24 @@ NEW_DIR="${1:?用法: sudo bash deploy/upgrade.sh /www/wwwroot/chemistry_新版�
 # 加载单点配置到当前 shell（引号会被 shell 正确处理）
 set -a; source /www/chemistry.env; set +a
 
+# ---------- 工具路径探测（sudo 环境 PATH 可能不含 pnpm/node） ----------
+NODE_BIN="$(command -v node 2>/dev/null || ls -d /www/server/nodejs/*/bin/node 2>/dev/null | head -1 || echo node)"
+NPM_BIN="$(command -v npm 2>/dev/null || ls -d /www/server/nodejs/*/bin/npm 2>/dev/null | head -1 || echo npm)"
+if command -v pnpm >/dev/null 2>&1; then
+  PNPM_BIN="$(command -v pnpm)"
+elif [ -x /www/server/nodejs/v22.18.0/bin/pnpm ]; then
+  PNPM_BIN=/www/server/nodejs/v22.18.0/bin/pnpm
+elif [ -x "$HOME/.local/share/pnpm/pnpm" ]; then
+  PNPM_BIN="$HOME/.local/share/pnpm/pnpm"
+else
+  PNPM_BIN="$(ls -d /www/server/nodejs/*/bin/pnpm 2>/dev/null | head -1 || true)"
+fi
+if [ -z "$PNPM_BIN" ]; then
+  echo "❌ 找不到 pnpm。请手动安装（npm install -g pnpm）后重跑，或设置 PNPM_BIN 环境变量"; exit 1
+fi
+export PATH="$(dirname "$NODE_BIN"):$PATH"
+echo "   工具: node=$(basename "$NODE_BIN") npm=$(basename "$NPM_BIN") pnpm=$PNPM_BIN"
+
 echo "================================================"
 echo "部署目标: $NEW_DIR"
 echo "域名: ${BETTER_AUTH_URL:-未知}"
@@ -46,19 +64,19 @@ npx prisma generate
 
 # ---------- 3. Python 依赖幂等补装 ----------
 echo "==> [3/6] Python 依赖补装"
-/www/venvs/chem-python/bin/pip install \
+/www/venvs/chem-python/bin/python -m pip install \
   -r /www/wwwroot/current/backend/python_service/requirements.txt \
   -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # ---------- 4. 前端 ----------
 echo "==> [4/6] 前端安装 + 构建"
 cd /www/wwwroot/current/frontend
-pnpm config get registry 2>/dev/null | grep -q npmmirror || \
-  pnpm config set registry https://registry.npmmirror.com
+"$PNPM_BIN" config get registry 2>/dev/null | grep -q npmmirror || \
+  "$PNPM_BIN" config set registry https://registry.npmmirror.com
 # 从单点配置提取域名生成 NEXT_PUBLIC_ 变量（构建时打进 JS 包）
 [ -n "${BETTER_AUTH_URL:-}" ] && echo "NEXT_PUBLIC_BETTER_AUTH_URL=$BETTER_AUTH_URL" > .env.production
-pnpm install
-pnpm build
+"$PNPM_BIN" install
+"$PNPM_BIN" build
 
 # ---------- 5. 注册 systemd 服务（幂等：ln -sf 覆盖旧链接） ----------
 echo "==> [5/6] 注册 systemd 服务"

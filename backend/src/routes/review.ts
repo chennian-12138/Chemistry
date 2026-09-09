@@ -5,6 +5,39 @@ import { requireAdmin } from "../../lib/guard";
 
 const router = Router();
 
+/**
+ * 将数据库中保存的 reaction pattern 恢复成 DataUp 的可编辑表单结构。
+ *
+ * 说明：上传提交前系统已经强制完成 SMARTS 校验和反应预测校验，因此凡是能够进入
+ * PENDING/REJECTED 状态的数据，都意味着提交当时的校验已通过。数据库为了精简没有
+ * 保存这些临时校验位，这里在“打回修改”场景下统一恢复为已校验，避免用户仅仅因为
+ * 被打回就需要把同一份已通过的数据再校验一遍。若用户在表单中实际修改了 SMARTS，
+ * 前端 SMARTSModuleData 的 onChange 会自动把对应 validated / reactionPredictValidated
+ * 置为 false，仍会要求重新校验。
+ */
+function toEditableSmartsPattern(pattern: any) {
+  const molecule = (m: any) => ({
+    smarts: m.smarts,
+    name: m.name,
+    role: m.role,
+    validated: true,
+  });
+
+  return {
+    name: pattern.name,
+    patternReactants: pattern.molecules
+      .filter((m: any) => m.role === "反应物")
+      .map(molecule),
+    patternRegents: pattern.molecules
+      .filter((m: any) => m.role === "反应试剂")
+      .map(molecule),
+    patternProducts: pattern.molecules
+      .filter((m: any) => m.role === "产物")
+      .map(molecule),
+    reactionPredictValidated: true,
+  };
+}
+
 // 获取拒绝词条
 router.get("/rejected", async (req, res) => {
   try {
@@ -80,20 +113,8 @@ router.get("/rejected", async (req, res) => {
           form: entry.form,
           tags: entry.tags.map((t: any) => t.name).join(", "),
         },
-        // 把 patterns 转换成 smartsPatterns 格式
-        smartsPatterns: entry.patterns.map((pattern) => ({
-          name: pattern.name,
-          patternReactants: pattern.molecules
-            .filter((m) => m.role === "反应物")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-          patternRegents: pattern.molecules
-            .filter((m) => m.role === "反应试剂")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-          patternProducts: pattern.molecules
-            .filter((m) => m.role === "产物")
-            .map((m) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-          // 反应条件从 pattern 里取
-        })),
+        // 把 patterns 转换成 smartsPatterns 格式（并恢复已校验状态）
+        smartsPatterns: entry.patterns.map(toEditableSmartsPattern),
         // 描述小节
         reactionSections: entry.sections.map((section: any) => ({
           sectionType: section.sectionType,
@@ -268,18 +289,7 @@ router.get("/:id", async (req, res) => {
           form: entry.form,
           tags: entry.tags.map((t: any) => t.name).join(", "),
         },
-        smartsPatterns: entry.patterns.map((pattern) => ({
-          name: pattern.name,
-          patternReactants: pattern.molecules
-            .filter((m: any) => m.role === "反应物")
-            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-          patternRegents: pattern.molecules
-            .filter((m: any) => m.role === "反应试剂")
-            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-          patternProducts: pattern.molecules
-            .filter((m: any) => m.role === "产物")
-            .map((m: any) => ({ smarts: m.smarts, name: m.name, role: m.role })),
-        })),
+        smartsPatterns: entry.patterns.map(toEditableSmartsPattern),
         reactionSections: entry.sections.map((section: any) => ({
           sectionType: section.sectionType,
           temperature: section.temperature || "-",

@@ -19,6 +19,7 @@ import { predictProducts } from "@/lib/rdkit";
 import { molBlockToSmiles } from "@/lib/rdkit-wasm";
 import { Component } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useI18n } from "@/src/i18n/language-provider";
 
 interface ReactionPredictProps {
   reaction: any;
@@ -55,6 +56,7 @@ function buildReactionSmarts(reaction: any): string[] {
 }
 
 export default function ReactionPredict({ reaction }: ReactionPredictProps) {
+  const { t } = useI18n();
   const viewerRefs = useRef<Map<string, KekuleChemWidgetRef>>(new Map());
   const [isPredicting, setIsPredicting] = useState(false);
   const [productMolBlocks, setProductMolBlocks] = useState<string[][]>([]);
@@ -95,7 +97,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
         const refKey = `${selectedPatternIdx}-${i}`;
         const ref = viewerRefs.current.get(refKey);
         if (!ref) {
-          setError(`反应物 ${i + 1} 的编辑器未就绪`);
+          setError(t("rp.errEditor").replace("{n}", String(i + 1)));
           return;
         }
 
@@ -105,7 +107,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
         const smiles = molBlock ? await molBlockToSmiles(molBlock) : null;
         if (!smiles) {
           setError(
-            `请在反应物 ${i + 1} 中绘制分子结构（点击工具栏编辑按钮绘制）`,
+            t("rp.errDraw").replace("{n}", String(i + 1)),
           );
           setUnmatched([i]);
           return;
@@ -115,7 +117,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
 
       const reactionSmarts = reactionSmartsList[selectedPatternIdx];
       if (!reactionSmarts) {
-        setError("该反应无可用的 SMARTS 模式");
+        setError(t("rp.errNoSmarts"));
         return;
       }
 
@@ -136,17 +138,17 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           setUnmatched(result.data.unmatchedReactants ?? []);
           setError(
             result.data.error ||
-              "未能推断出产物，请检查反应物是否匹配该反应模式",
+              t("rp.errInfer"),
           );
         }
       } else {
         setDiagnostics(result.data?.diagnostics ?? []);
         setUnmatched(result.data?.unmatchedReactants ?? []);
-        setError(result.error || "预测失败，请检查反应物是否正确");
+        setError(result.error || t("rp.errFailed"));
       }
     } catch (err: any) {
       console.error("Prediction failed:", err);
-      setError(err.message || "预测过程中发生错误");
+      setError(err.message || t("rp.errGeneric"));
     } finally {
       setIsPredicting(false);
     }
@@ -161,13 +163,13 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
       <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b pb-4 pt-5 px-6">
         <CardTitle className="text-lg flex items-center gap-2 font-bold">
           <FlaskConical className="w-5 h-5 text-primary" />
-          反应预测
+          {t("rp.title")}
         </CardTitle>
         <p className="text-muted-foreground text-sm mt-1">
-          绘制反应物分子，预测该反应的产物
+          {t("rp.subtitle")}
           {reactantCount > 0 && (
             <span className="text-primary font-medium ml-1">
-              （该反应需要 {reactantCount} 个反应物）
+              {t("rp.requires").replace("{count}", String(reactantCount))}
             </span>
           )}
         </p>
@@ -179,7 +181,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           {reactionSmartsList.length > 1 && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
-                选择反应模式
+                {t("rp.selectPattern")}
               </label>
               <div className="flex flex-wrap gap-2">
                 {reaction.patterns.map((pattern: any, idx: number) => (
@@ -205,7 +207,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                 <Atom className="w-3.5 h-3.5" />
-                反应物 试剂 产物
+                {t("rp.roles")}
               </label>
               <div className="flex flex-wrap gap-2">
                 {currentPattern.molecules.map((mol: any, mIdx: number) => (
@@ -230,7 +232,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
         <div className="space-y-3">
           <label className="text-sm font-semibold flex items-center gap-2">
             <Beaker className="w-4 h-4 text-primary/80" />
-            反应物 ({reactantCount})
+            {t("rp.reactants")} ({reactantCount})
           </label>
 
           <div
@@ -249,8 +251,8 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
                       isUnmatched ? "text-destructive" : "text-muted-foreground"
                     }`}
                   >
-                    反应物 {idx + 1}
-                    {isUnmatched && "（与反应模式不匹配）"}
+                    {t("rp.reactantN").replace("{n}", String(idx + 1))}
+                    {isUnmatched && t("rp.unmatched")}
                   </div>
                   <div
                     className={`w-full h-[200px] rounded-lg overflow-hidden border bg-background ${
@@ -288,12 +290,12 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
             {isPredicting ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                正在推断产物...
+                {t("rp.predicting")}
               </>
             ) : (
               <>
                 <Play className="w-5 h-5" />
-                预测产物
+                {t("rp.predict")}
               </>
             )}
           </Button>
@@ -304,7 +306,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
           <div className="space-y-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/50 dark:border-amber-900 dark:text-amber-200">
             <p className="text-sm font-semibold flex items-center gap-1.5">
               <AlertCircle className="w-4 h-4" />
-              SMARTS 模板诊断
+              {t("rp.diagnostics")}
             </p>
             <ul className="list-disc list-inside space-y-1">
               {diagnostics.map((d, i) => (
@@ -340,7 +342,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
                 <div key={setIdx} className="space-y-2">
                   {productMolBlocks.length > 1 && (
                     <p className="text-xs text-muted-foreground font-medium">
-                      Set {setIdx + 1}
+                      {t("rp.productSet")} {setIdx + 1}
                     </p>
                   )}
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -351,7 +353,7 @@ export default function ReactionPredict({ reaction }: ReactionPredictProps) {
                       >
                         <div className="p-1.5 bg-muted/20 border-b">
                           <p className="text-xs text-muted-foreground font-medium text-center">
-                            Product {molIdx + 1}
+                            {t("rp.product")} {molIdx + 1}
                           </p>
                         </div>
                         <div className="h-[180px] p-1">

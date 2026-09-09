@@ -15,12 +15,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ThemeSwitchButton from "@/src/dashboard/layout/navbar/navbar-ThemeSwitchButton";
+import LanguageSwitchButton from "@/src/dashboard/layout/navbar/navbar-LanguageSwitchButton";
+import { useI18n } from "@/src/i18n/language-provider";
 import ClicksChart from "@/components/commonUI/ClicksChart";
 import UsersChart from "@/components/commonUI/UsersChart";
 import ReactionsChart from "@/components/commonUI/ReactionsChart";
 
 export default function Home() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       {/* 板块 1：顶部导航栏 */}
@@ -28,29 +30,28 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-lg font-bold">化学辞典</h1>
+              <h1 className="text-lg font-bold">{t("app.name.short")}</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-2">
-              {/* <ThemeSwitchButton /> */}
-              {/* 暂时隐藏，待后续有需要再展开 */}
+              <LanguageSwitchButton />
               <Link href="/signin" passHref legacyBehavior>
                 <Button variant="ghost" className="font-medium">
-                  登录
+                  {t("auth.login")}
                 </Button>
               </Link>
               <Link href="/signup" passHref legacyBehavior>
-                <Button className="font-medium">注册</Button>
+                <Button className="font-medium">{t("auth.signup")}</Button>
               </Link>
             </nav>
             <div className="md:hidden flex items-center space-x-2">
-              <ThemeSwitchButton />
+              <LanguageSwitchButton />
               <Link href="/signin" passHref legacyBehavior>
                 <Button variant="outline" size="sm">
-                  登录
+                  {t("auth.login")}
                 </Button>
               </Link>
               <Link href="/signup" passHref legacyBehavior>
-                <Button size="sm">注册</Button>
+                <Button size="sm">{t("auth.signup")}</Button>
               </Link>
             </div>
           </div>
@@ -71,14 +72,14 @@ export default function Home() {
               <div className="flex justify-center mb-8">
                 <Image
                   src={LuoThink}
-                  alt="化学辞典 Logo"
+                  alt={`${t("app.name")} Logo`}
                   width={200}
                   height={200}
                   className="rounded-full shadow-lg"
                 />
               </div>
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 text-foreground">
-                化学辞典
+                {t("app.name")}
               </h1>
 
               <p className="text-2xl sm:text-3xl text-muted-foreground font-semibold mb-8">
@@ -86,9 +87,7 @@ export default function Home() {
               </p>
 
               <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl mx-auto">
-                中国药科大学创新训练项目成果，基于经典有机化学教材逐章整理反应数据，通过
-                SMARTS 规则结构化录入数据库，结合 Kekule.js 实现 Web
-                端分子结构可视化，为有机化学初学者提供直观的反应检索工具，解决反应记忆难、结构理解模糊的学习痛点
+                {t("home.heroIntro")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -97,7 +96,7 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto h-12 px-8 text-base shadow-lg"
                   >
-                    立即体验
+                    {t("home.experience")}
                   </Button>
                 </Link>
                 <Link href="/signin" passHref legacyBehavior>
@@ -106,7 +105,7 @@ export default function Home() {
                     variant="outline"
                     className="w-full sm:w-auto h-12 px-8 text-base shadow-sm"
                   >
-                    登录
+                    {t("auth.login")}
                   </Button>
                 </Link>
                 <Link href="/signup" passHref legacyBehavior>
@@ -115,7 +114,7 @@ export default function Home() {
                     variant="outline"
                     className="w-full sm:w-auto h-12 px-8 text-base shadow-sm"
                   >
-                    注册
+                    {t("auth.signup")}
                   </Button>
                 </Link>
               </div>
@@ -132,9 +131,9 @@ export default function Home() {
             <Badge variant="secondary" className="mb-4">
               PLATFORM DATA
             </Badge>
-            <h3 className="text-3xl sm:text-4xl font-bold">平台数据概览</h3>
+            <h3 className="text-3xl sm:text-4xl font-bold">{t("home.platformData")}</h3>
             <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
-              实时呈现化学辞典的使用情况与知识库增长，助力每一位有机化学学习者
+              {t("home.platformDataDesc")}
             </p>
           </AnimatedSection>
 
@@ -161,7 +160,7 @@ export default function Home() {
               CORE ADVANTAGES
             </Badge>
             <h3 className="text-3xl sm:text-4xl font-bold">
-              三大核心优势 赋能有机化学学习
+              {t("home.coreAdvantages")}
             </h3>
           </AnimatedSection>
 
@@ -174,13 +173,12 @@ export default function Home() {
                     <Atom className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-xl">
-                    Kekule.js 分子可视化交互
+                    {t("home.card1Title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base leading-relaxed">
-                    基于江辰副教授开发的 Kekule.js 化学信息学工具包，实现 Web
-                    端无插件分子结构展示、编辑与交互，直观理解反应中分子结构变化，突破传统文字检索的局限性
+                    {t("home.card1Desc")}
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -194,14 +192,12 @@ export default function Home() {
                     <BookOpen className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-xl">
-                    教材同步 SMARTS 精准检索
+                    {t("home.card2Title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base leading-relaxed">
-                    基于本科有机化学经典教材，人工整理反应并通过 SMARTS
-                    规则标准化录入 PostgreSQL
-                    数据库，检索结果与教材完全同步，结构匹配精准，无冗余信息
+                    {t("home.card2Desc")}
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -215,13 +211,12 @@ export default function Home() {
                     <Target className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-xl">
-                    专为学习者设计的多维度数据
+                    {t("home.card3Title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base leading-relaxed">
-                    不仅收录反应物 /
-                    生成物结构，更完整记录溶剂、温度、浓度等反应条件，贴合基础有机化学学习需求，区别于通用化工数据库，针对性更强
+                    {t("home.card3Desc")}
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -255,10 +250,10 @@ export default function Home() {
             <Card className="bg-primary/5 border-primary/10 p-8 sm:p-12 text-center overflow-hidden relative">
               <div className="relative z-10">
                 <h3 className="text-3xl font-bold mb-4">
-                  即刻开启分子可视化 + 反应检索新体验
+                  {t("home.ctaTitle")}
                 </h3>
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-                  登录即可体验教材同步检索与分子可视化的双重功能，能让有机反应学习更系统、更直观。
+                  {t("home.ctaDesc")}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/dashboard/reactdic" passHref legacyBehavior>
@@ -266,7 +261,7 @@ export default function Home() {
                       size="lg"
                       className="w-full sm:w-auto text-base shadow-lg"
                     >
-                      立即体验
+                      {t("home.experience")}
                     </Button>
                   </Link>
                   <Link href="/signin" passHref legacyBehavior>
@@ -275,7 +270,7 @@ export default function Home() {
                       variant="outline"
                       className="w-full sm:w-auto text-base"
                     >
-                      登录
+                      {t("auth.login")}
                     </Button>
                   </Link>
                   <Link href="/signup" passHref legacyBehavior>
@@ -284,7 +279,7 @@ export default function Home() {
                       variant="outline"
                       className="w-full sm:w-auto text-base"
                     >
-                      注册
+                      {t("auth.signup")}
                     </Button>
                   </Link>
                 </div>
@@ -299,13 +294,12 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="text-center space-y-4">
             <p className="text-muted-foreground text-sm">
-              © 2026 中国药科大学 版权所有
+              {t("home.footerCopyright")}
               <br className="hidden sm:inline" />
-              本项目为中国药科大学大学生创新训练项目成果，未经许可不得复制或传播。
+              {t("home.footerCopyrightNote")}
             </p>
             <p className="text-muted-foreground text-xs leading-relaxed opacity-75">
-              中国药科大学理学院大学生创新训练项目 | 指导教师：江辰 副教授 |
-              团队成员：陈祺睿，祁依卉，孙娅楠，刘若梅，张依琳
+              {t("home.footerCredits")}
             </p>
           </div>
         </div>

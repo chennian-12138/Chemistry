@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useI18n } from "@/src/i18n/language-provider";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
@@ -48,6 +49,7 @@ interface ByokConfig {
 type View = "loading" | "anonymous" | "error" | "form" | "summary";
 
 export function ByokCard() {
+  const { t } = useI18n();
   const [view, setView] = useState<View>("loading");
   const [config, setConfig] = useState<ByokConfig | null>(null);
 
@@ -97,7 +99,7 @@ export function ByokCard() {
   // ── 保存并测试：后端会先实测连接再落库，耗时可达 ~10s，期间禁用整个表单
   const saveByok = async () => {
     if (!apiKey.trim()) {
-      setFormError("请输入 API Key");
+      setFormError(t("byok.enterApiKey"));
       return;
     }
     setSaving(true);
@@ -119,7 +121,7 @@ export function ByokCard() {
       };
       if (!res.ok) {
         // 400 等失败：后端返回的 error 文案内联展示（不用 toast），表单保持可编辑
-        setFormError(data.error ?? "保存失败，请稍后重试");
+        setFormError(data.error ?? t("byok.saveError"));
         return;
       }
       setConfig({
@@ -131,9 +133,9 @@ export function ByokCard() {
       setView("summary");
       // 清除聊天页的每日限额锁存，配好自有 API 后用户无需刷新即可继续对话
       localStorage.removeItem("askai-quota-limited");
-      toast.success("自定义 API 已保存");
+      toast.success(t("byok.saved"));
     } catch {
-      setFormError("网络错误，请稍后重试");
+      setFormError(t("byok.networkError"));
     } finally {
       setSaving(false);
     }
@@ -154,9 +156,9 @@ export function ByokCard() {
       setModel("");
       setFormError(null);
       setView("form");
-      toast.success("自定义 API 配置已删除");
+      toast.success(t("byok.deleted"));
     } catch {
-      toast.error("删除失败，请稍后重试");
+      toast.error(t("byok.deleteError"));
     } finally {
       setDeleting(false);
     }
@@ -176,28 +178,27 @@ export function ByokCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">自定义 API</CardTitle>
+        <CardTitle className="text-base">{t("byok.title")}</CardTitle>
         <CardDescription className="text-sm">
-          每日 25 次平台额度用完后，自动使用你自己的 OpenAI 兼容 API
-          继续对话，不限次数。
+          {t("byok.desc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {view === "loading" && (
           <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> 加载中…
+            <Loader2 className="size-4 animate-spin" /> {t("byok.loading")}
           </div>
         )}
 
         {view === "anonymous" && (
           <p className="py-2 text-sm text-muted-foreground">
-            登录后可配置自定义 API
+            {t("byok.loginHint")}
           </p>
         )}
 
         {view === "error" && (
           <p className="py-2 text-sm text-muted-foreground">
-            加载失败，请刷新页面重试
+            {t("byok.loadError")}
           </p>
         )}
 
@@ -212,7 +213,7 @@ export function ByokCard() {
                 required
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder={isEdit ? "重新输入以更换" : "sk-..."}
+                placeholder={isEdit ? t("byok.reenterKey") : "sk-..."}
                 disabled={saving}
               />
             </div>
@@ -233,7 +234,7 @@ export function ByokCard() {
                 id="byok-model"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="如 deepseek-chat"
+                placeholder={t("byok.modelPlaceholder")}
                 disabled={saving}
               />
             </div>
@@ -245,10 +246,10 @@ export function ByokCard() {
               <Button onClick={saveByok} disabled={saving}>
                 {saving ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" /> 正在测试连接…
+                    <Loader2 className="size-4 animate-spin" /> {t("byok.testing")}
                   </>
                 ) : (
-                  "保存并测试"
+                  t("byok.saveTest")
                 )}
               </Button>
               {isEdit && (
@@ -260,7 +261,7 @@ export function ByokCard() {
                   }}
                   disabled={saving}
                 >
-                  取消
+                  {t("byok.cancel")}
                 </Button>
               )}
             </div>
@@ -277,19 +278,19 @@ export function ByokCard() {
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-muted-foreground shrink-0">Base URL</span>
                 <span className="font-mono truncate pl-4">
-                  {config.baseUrl || "默认"}
+                  {config.baseUrl || t("byok.default")}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-muted-foreground shrink-0">模型</span>
                 <span className="font-mono truncate pl-4">
-                  {config.model || "默认"}
+                  {config.model || t("byok.default")}
                 </span>
               </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={startEdit}>
-                更换配置
+                {t("byok.change")}
               </Button>
               {/* 删除沿用页面已有的 AlertDialog 确认模式 */}
               <AlertDialog>
@@ -299,18 +300,18 @@ export function ByokCard() {
                     className="text-destructive hover:text-destructive"
                     disabled={deleting}
                   >
-                    删除配置
+                    {t("byok.delete")}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>确认删除自定义 API 配置？</AlertDialogTitle>
+                    <AlertDialogTitle>{t("byok.deleteTitle")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      删除后，每日平台额度用完时将无法继续对话，直到额度重置或重新配置。
+                      {t("byok.deleteDesc")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>取消</AlertDialogCancel>
+                    <AlertDialogCancel>{t("byok.cancel")}</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-destructive hover:bg-destructive/90"
                       onClick={deleteByok}
@@ -319,7 +320,7 @@ export function ByokCard() {
                       {deleting ? (
                         <Loader2 className="size-4 animate-spin" />
                       ) : (
-                        "确认删除"
+                        t("byok.confirmDelete")
                       )}
                     </AlertDialogAction>
                   </AlertDialogFooter>

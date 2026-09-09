@@ -1,6 +1,7 @@
 model Reaction {
   id            String            @id @default(cuid())
   name          String
+  translations  Json?
   mechanismType String
   form          String
   status        ReviewStatus      @default(PENDING)
@@ -17,9 +18,10 @@ model Reaction {
 }
 
 model ReactionTag {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  reactions Reaction[]
+  id           String     @id @default(cuid())
+  name         String     @unique
+  translations Json?
+  reactions    Reaction[]
 
   @@map("reaction_tag")
 }
@@ -38,22 +40,24 @@ model Review {
 }
 
 model ReactionPattern {
-  id         String         @id @default(cuid())
-  name       String
-  reactionId String
-  molecules  MoleculeRole[]
-  reaction   Reaction       @relation(fields: [reactionId], references: [id], onDelete: Cascade)
+  id           String         @id @default(cuid())
+  name         String
+  translations Json?
+  reactionId   String
+  molecules    MoleculeRole[]
+  reaction     Reaction       @relation(fields: [reactionId], references: [id], onDelete: Cascade)
 
   @@map("reaction_pattern")
 }
 
 model MoleculeRole {
-  id        String          @id @default(cuid())
-  smarts    String
-  name      String
-  role      String
-  patternId String
-  pattern   ReactionPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  id           String          @id @default(cuid())
+  smarts       String
+  name         String
+  translations Json?
+  role         String
+  patternId    String
+  pattern      ReactionPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
 
   @@map("molecule_role")
 }
@@ -87,11 +91,12 @@ model SectionReaction {
 }
 
 model SectionDescription {
-  id          String          @id @default(cuid())
-  description String
-  refPageNo   String?
-  sectionId   String
-  section     ReactionSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  id           String          @id @default(cuid())
+  description  String
+  translations Json?
+  refPageNo    String?
+  sectionId    String
+  section      ReactionSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@map("section_description")
 }

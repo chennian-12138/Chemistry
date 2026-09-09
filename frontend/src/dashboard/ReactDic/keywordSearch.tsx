@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useI18n } from "@/src/i18n/language-provider";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
   initialKeyword = "",
 }) => {
   const [keyword, setKeyword] = useState(initialKeyword);
+  const { t } = useI18n();
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -33,10 +35,10 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center gap-6 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-2 mb-4">
         <h2 className="text-2xl font-semibold tracking-tight">
-          关键词搜索
+          {t("search.title")}
         </h2>
         <p className="text-muted-foreground text-sm">
-          通过反应名称，标签，或者是描述来查找
+          {t("search.hint")}
         </p>
       </div>
 
@@ -49,7 +51,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
         </div>
         <Input
           type="text"
-          placeholder="e.g. Suzuki coupling, oxidation..."
+          placeholder={t("search.placeholder")}
           className="flex-1 border-0 shadow-none focus-visible:ring-0 rounded-full h-14 text-base px-2 bg-transparent"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
@@ -62,7 +64,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
             className="rounded-full px-6 h-10 font-medium transition-transform active:scale-95"
             disabled={!keyword.trim() || isLoading}
           >
-            {isLoading ? "查找中..." : "查询"}
+            {isLoading ? t("search.searching") : t("search.button")}
           </Button>
         </div>
       </form>

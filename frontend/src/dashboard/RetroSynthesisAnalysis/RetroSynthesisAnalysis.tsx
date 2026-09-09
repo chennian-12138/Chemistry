@@ -33,6 +33,7 @@ import type {
   ReactionNodeData,
 } from "./types";
 import Link from "next/link";
+import { useI18n } from "@/src/i18n/language-provider";
 
 // Kekule 依赖 window/document，禁用 SSR
 const Composer = dynamic(() => import("@/components/kekule-react/composer"), {
@@ -53,6 +54,7 @@ const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "");
 
 export default function RetroSynthesisAnalysis() {
   const { requireAuth, loginPrompt } = useRequireAuth();
+  const { t } = useI18n();
   const [phase, setPhase] = useState<"input" | "graph">("input");
   const [molBlock, setMolBlock] = useState("");
   const [starting, setStarting] = useState(false);
@@ -335,9 +337,9 @@ export default function RetroSynthesisAnalysis() {
     return (
       <div className="w-full flex flex-col gap-6 py-6 px-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">逆合成分析</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("retro.title")}</h1>
           <p className="text-muted-foreground text-sm">
-            绘制目标分子，逐步逆推可行的合成路线。
+            {t("retro.hint")}
           </p>
         </div>
         <div className="h-[460px] w-full max-w-4xl mx-auto bg-white rounded-lg border overflow-hidden">
@@ -355,11 +357,11 @@ export default function RetroSynthesisAnalysis() {
             disabled={!molBlock || starting}
             className="px-8"
           >
-            {starting ? "分析中…" : "开始分析"}
+            {starting ? t("retro.analyzing") : t("retro.start")}
           </Button>
           <Link href="/dashboard/retrosynthesisanalysis/routes">
             <Button size="lg" variant="outline">
-              浏览社区路线
+              {t("retro.browse")}
             </Button>
           </Link>
         </div>
@@ -368,7 +370,7 @@ export default function RetroSynthesisAnalysis() {
         {recentRoutes.length > 0 && (
           <div className="pt-4 mt-2 border-t">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold">本周热门路线</h2>
+              <h2 className="text-base font-semibold">{t("retro.hotRoutes")}</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {recentRoutes.map((r) => (
@@ -382,7 +384,7 @@ export default function RetroSynthesisAnalysis() {
                   </div>
                   <div className="p-2 space-y-1">
                     <h3 className="text-xs font-medium truncate">
-                      {r.title || "未命名路线"}
+                      {r.title || t("retro.unnamed")}
                     </h3>
                     <div className="flex items-center gap-2 text-[11px] text-gray-500">
                       <span className="text-emerald-600">👍 {r.upvotes}</span>
@@ -406,17 +408,17 @@ export default function RetroSynthesisAnalysis() {
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={resetAll}>
-            重新绘制
+            {t("retro.redraw")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            已展开 {reactionCount} 步
+            {t("retro.expanded").replace("{count}", String(reactionCount))}
           </span>
         </div>
         <div className="flex items-center gap-2">
           {status && <span className="text-sm text-emerald-600">{status}</span>}
           <a href="/dashboard/retrosynthesisanalysis/routes">
             <Button variant="ghost" size="sm">
-              社区路线
+              {t("retro.community")}
             </Button>
           </a>
           <Button
@@ -424,7 +426,7 @@ export default function RetroSynthesisAnalysis() {
             onClick={() => setSaveOpen(true)}
             disabled={reactionCount === 0}
           >
-            保存路线
+            {t("retro.save")}
           </Button>
         </div>
       </div>
@@ -453,14 +455,13 @@ export default function RetroSynthesisAnalysis() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
             <div className="px-5 py-3 border-b flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold">选择一条断键方案</h2>
+                <h2 className="text-lg font-semibold">{t("retro.choosePlan")}</h2>
                 <p className="text-xs text-muted-foreground">
-                  共 {chooser.sets.length}{" "}
-                  种可行拆法，选一条并入你的路线，之后可继续往前推。
+                  {t("retro.choosePlanHint").replace("{count}", String(chooser.sets.length))}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={cancelChooser}>
-                取消
+                {t("retro.cancel")}
               </Button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -471,7 +472,7 @@ export default function RetroSynthesisAnalysis() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-600">
-                      方案 {i + 1} · {set.templateName}
+                      {t("retro.plan")} {i + 1} · {set.templateName}
                     </span>
                     <div className="flex items-center gap-2">
                       {set.reactionId && (
@@ -481,11 +482,11 @@ export default function RetroSynthesisAnalysis() {
                           rel="noopener noreferrer"
                           className="text-xs text-indigo-600 hover:underline"
                         >
-                          查看反应介绍 ↗
+                          {t("retro.viewReaction")}
                         </a>
                       )}
                       <Button size="sm" onClick={() => chooseSet(i)}>
-                        选择这条
+                        {t("retro.selectThis")}
                       </Button>
                     </div>
                   </div>
@@ -516,32 +517,32 @@ export default function RetroSynthesisAnalysis() {
       {saveOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-xl w-[440px] p-5 space-y-4">
-            <h2 className="text-lg font-semibold">保存并发布路线</h2>
+            <h2 className="text-lg font-semibold">{t("retro.saveTitle")}</h2>
             <p className="text-xs text-muted-foreground">
-              保存后其他用户可参考、评论，并对每一步断键打分。
+              {t("retro.saveHint")}
             </p>
             <div className="space-y-2">
-              <label className="text-sm font-medium">标题（可选）</label>
+              <label className="text-sm font-medium">{t("retro.titleLabel")}</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="例如：布洛芬的一条逆合成路线"
+                placeholder={t("retro.titlePlaceholder")}
                 className="w-full border rounded-md px-3 py-2 text-sm"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">说明（可选）</label>
+              <label className="text-sm font-medium">{t("retro.descLabel")}</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                placeholder="这条路线的思路、关键断键……"
+                placeholder={t("retro.descPlaceholder")}
                 className="w-full border rounded-md px-3 py-2 text-sm resize-none"
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <Button variant="outline" onClick={() => setSaveOpen(false)}>
-                取消
+                {t("retro.cancel")}
               </Button>
               <Button onClick={handleSave} disabled={saving}>
                 {saving ? "保存中…" : "发布"}

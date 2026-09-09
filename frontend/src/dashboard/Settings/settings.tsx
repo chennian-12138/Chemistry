@@ -51,6 +51,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { StatsCards } from "./StatsCards";
+import { useI18n } from "@/src/i18n/language-provider";
 import { ByokCard } from "./ByokCard";
 
 const API_BASE =
@@ -86,6 +87,7 @@ function SettingRow({
 
 export default function UserSettings() {
   const { data: session, isPending, refetch } = useSession();
+  const { t } = useI18n();
   const user = session?.user as any;
 
   // ── 头像上传
@@ -150,10 +152,10 @@ export default function UserSettings() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "上传失败");
       setAvatarUrl(data.url);
-      toast.success("头像已更新");
+      toast.success(t("st.avatarUpdated"));
       refetch();
     } catch (e: any) {
-      toast.error(e.message ?? "上传失败");
+      toast.error(e.message ?? t("st.uploadFailed"));
     } finally {
       setUploadingAvatar(false);
     }
@@ -162,14 +164,14 @@ export default function UserSettings() {
   // ── 保存用户名
   const saveName = async () => {
     if (!name.trim()) {
-      toast.error("用户名不能为空");
+      toast.error(t("st.usernameRequired"));
       return;
     }
     setSavingName(true);
     const { error } = await authClient.updateUser({ name: name.trim() });
     setSavingName(false);
     if (error) {
-      toast.error(authErrorMessage(error, "保存失败"));
+      toast.error(authErrorMessage(error, t("st.saveFailed")));
       return;
     }
     toast.success("用户名已更新");
@@ -292,7 +294,7 @@ export default function UserSettings() {
   if (!session) {
     return (
       <div className="px-6 py-4 w-full h-[calc(100svh-4rem)] flex flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">登录后即可查看和编辑个人信息</p>
+        <p className="text-muted-foreground">{t("st.loginHint")}</p>
         <div className="flex gap-3">
           <Button asChild>
             <Link href="/signin">登录</Link>
@@ -383,34 +385,34 @@ export default function UserSettings() {
                     </Button>
                   </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent>修改用户名</TooltipContent>
+                <TooltipContent>{t("st.editUsername")}</TooltipContent>
               </Tooltip>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>修改用户名</DialogTitle>
+                  <DialogTitle>{t("st.editUsername")}</DialogTitle>
                   <DialogDescription>
-                    修改后将在整个系统中生效
+                    {t("st.editUsernameDesc")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2 py-2">
-                  <Label htmlFor="dialog-name">新用户名</Label>
+                  <Label htmlFor="dialog-name">{t("st.newUsername")}</Label>
                   <Input
                     id="dialog-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="输入用户名"
+                    placeholder={t("st.usernamePlaceholder")}
                     onKeyDown={(e) => e.key === "Enter" && saveName()}
                   />
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setNameOpen(false)}>
-                    取消
+                    {t("st.cancel")}
                   </Button>
                   <Button onClick={saveName} disabled={savingName}>
                     {savingName ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "保存"
+                      t("st.save")
                     )}
                   </Button>
                 </DialogFooter>
@@ -441,13 +443,13 @@ export default function UserSettings() {
                     </Button>
                   </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent>修改邮箱</TooltipContent>
+                <TooltipContent>{t("st.editEmail")}</TooltipContent>
               </Tooltip>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>修改邮箱</DialogTitle>
+                  <DialogTitle>{t("st.editEmail")}</DialogTitle>
                   <DialogDescription>
-                    验证码将发送到新邮箱，确认后立即生效
+                    {t("st.editEmailDesc")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
@@ -512,7 +514,7 @@ export default function UserSettings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setEmailOpen(false)}>
-                    取消
+                    {t("st.cancel")}
                   </Button>
                   {emailStep === "otp" && (
                     <Button
@@ -555,13 +557,13 @@ export default function UserSettings() {
                     </Button>
                   </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent>修改密码</TooltipContent>
+                <TooltipContent>{t("st.editPassword")}</TooltipContent>
               </Tooltip>{" "}
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>修改密码</DialogTitle>
+                  <DialogTitle>{t("st.editPassword")}</DialogTitle>
                   <DialogDescription>
-                    需要邮箱验证码确认。修改成功后需用新密码重新登录。
+                    {t("st.editPasswordDesc")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
@@ -627,7 +629,7 @@ export default function UserSettings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setPwdOpen(false)}>
-                    取消
+                    {t("st.cancel")}
                   </Button>
                   {pwdStep === "input" ? (
                     <Button onClick={sendPwdOtpHandler} disabled={savingPwd}>
@@ -682,13 +684,13 @@ export default function UserSettings() {
                     </Button>
                   </AlertDialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent>注销账号</TooltipContent>
+                <TooltipContent>{t("st.deleteAccount")}</TooltipContent>
               </Tooltip>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>确认注销账号？</AlertDialogTitle>
+                  <AlertDialogTitle>{t("st.deleteConfirmTitle")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    此操作将永久删除你的账号和所有相关数据，无法恢复。请输入当前密码以确认。
+                    {t("st.deleteConfirmDesc")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <Input
@@ -730,18 +732,18 @@ export default function UserSettings() {
       {/* ── 使用情况 */}
       <div className="mt-6 flex flex-col">
         <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 shrink-0">
-          使用情况
+          {t("st.usage")}
         </p>
         {statsLoading ? (
           <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> 加载中…
+            <Loader2 className="size-4 animate-spin" /> {t("common.loading")}
           </div>
         ) : stats ? (
           <div>
             <StatsCards stats={stats} />
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground py-4">暂无数据</p>
+          <p className="text-sm text-muted-foreground py-4">{t("st.noData")}</p>
         )}
       </div>
 

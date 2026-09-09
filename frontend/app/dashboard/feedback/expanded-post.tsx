@@ -26,6 +26,7 @@ import {
   FeedbackStatusBadge,
   FeedbackTypeBadge,
 } from "./shared";
+import { useI18n } from "@/src/i18n/language-provider";
 
 interface ExpandedPostProps {
   postId: string;
@@ -46,6 +47,7 @@ export default function ExpandedPost({
   onReplyCountDelta,
 }: ExpandedPostProps) {
   const { data: session } = useSession();
+  const { t } = useI18n();
 
   const currentUser = session?.user as unknown as
     | { id?: string; role?: string }
@@ -70,7 +72,7 @@ export default function ExpandedPost({
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "获取帖子失败");
+          setError(err instanceof Error ? err.message : t("fbexp.loadError"));
         }
       })
       .finally(() => {
@@ -86,7 +88,7 @@ export default function ExpandedPost({
     try {
       await action();
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "操作失败");
+      setActionError(err instanceof Error ? err.message : t("fbexp.actionError"));
     }
   }, []);
 
@@ -114,13 +116,13 @@ export default function ExpandedPost({
 
   const handleDelete = async () => {
     if (!post) return;
-    if (!window.confirm("确定要删除这个帖子吗？删除后无法恢复。")) return;
+    if (!window.confirm(t("fbexp.deletePostConfirm"))) return;
     setActionError(null);
     try {
       await deleteFeedbackPost(post.id);
       onDeleted();
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "删除失败");
+      setActionError(err instanceof Error ? err.message : t("fbexp.deleteError"));
     }
   };
 
@@ -165,7 +167,7 @@ export default function ExpandedPost({
       setReplyContent("");
       onReplyCountDelta?.(1);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "回复失败");
+      setActionError(err instanceof Error ? err.message : t("fbexp.replyError"));
     } finally {
       setReplySubmitting(false);
     }
@@ -184,7 +186,7 @@ export default function ExpandedPost({
   if (error || !post) {
     return (
       <p className="py-2 text-sm text-destructive" role="alert">
-        {error ?? "帖子不存在或已被删除"}
+        {error ?? t("fbexp.notFound")}
       </p>
     );
   }
@@ -220,13 +222,13 @@ export default function ExpandedPost({
         <div className="mb-5 flex flex-wrap items-center gap-3">
           {canModerate && (
             <Button variant="outline" size="sm" onClick={handleToggleStatus}>
-              {post.status === "OPEN" ? "标记已解决" : "重新打开"}
+              {post.status === "OPEN" ? t("fbexp.markResolved") : t("fbexp.reopen")}
             </Button>
           )}
           {isAdmin && (
             <Button variant="outline" size="sm" onClick={handleTogglePin}>
               {post.isPinned ? <PinOff /> : <Pin />}
-              {post.isPinned ? "取消置顶" : "置顶"}
+              {post.isPinned ? t("fbexp.unpin") : t("fbexp.pin")}
             </Button>
           )}
           {canModerate && (
@@ -237,7 +239,7 @@ export default function ExpandedPost({
               className="text-destructive hover:text-destructive"
             >
               <Trash2 />
-              删除
+              {t("fbexp.delete")}
             </Button>
           )}
         </div>
@@ -251,7 +253,7 @@ export default function ExpandedPost({
 
       <div className="border-t border-border pt-5">
         <h3 className="mb-4 text-sm font-medium text-foreground">
-          回复（{replies.length}）
+          {t("fbexp.replies").replace("{count}", String(replies.length))}
         </h3>
 
         {replies.length > 0 && (
@@ -273,7 +275,7 @@ export default function ExpandedPost({
                     <span className="font-medium text-foreground">
                       {reply.author.name ?? reply.author.email}
                     </span>
-                    {isOfficial && <Badge variant="default">官方</Badge>}
+                    {isOfficial && <Badge variant="default">{t("fbexp.official")}</Badge>}
                     <span className="text-muted-foreground">
                       {formatRelativeTime(reply.createdAt)}
                     </span>
@@ -292,7 +294,7 @@ export default function ExpandedPost({
                           ? "text-destructive"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
-                      aria-label="点赞回复"
+                      aria-label={t("fbexp.likeReply")}
                     >
                       <Heart
                         className={`size-4 ${reply.liked ? "fill-current" : ""}`}
@@ -304,10 +306,10 @@ export default function ExpandedPost({
                         type="button"
                         onClick={() => handleDeleteReply(reply)}
                         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-destructive"
-                        aria-label="删除回复"
+                        aria-label={t("fbexp.deleteReply")}
                       >
                         <Trash2 className="size-4" />
-                        删除
+                        {t("fbexp.delete")}
                       </button>
                     )}
                   </div>
@@ -322,7 +324,7 @@ export default function ExpandedPost({
             required
             rows={3}
             maxLength={5000}
-            placeholder="友善交流，理性讨论……"
+            placeholder={t("fbexp.replyPlaceholder")}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
           />
@@ -331,7 +333,7 @@ export default function ExpandedPost({
             size="sm"
             disabled={!replyContent.trim() || replySubmitting}
           >
-            {replySubmitting ? "提交中…" : "提交回复"}
+            {replySubmitting ? t("fbexp.submitting") : t("fbexp.submitReply")}
           </Button>
         </form>
       </div>

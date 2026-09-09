@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import ThemeSwitchButton from "./navbar-ThemeSwitchButton";
 import DataupNavbar from "./navbar-Dataup";
+import LanguageSwitchButton from "./navbar-LanguageSwitchButton";
 import NavbarAskAiActions from "./navbar-AskAi";
 import NavbarReactDicActions from "./navbar-ReactDic";
 import { useAskAiActions } from "@/hooks/use-askai-action";
@@ -63,6 +63,7 @@ export default function Navbar() {
       <div className="ml-auto flex items-center px-4">
         <NavbarAskAiActions />
         <DataupNavbar />
+        <LanguageSwitchButton />
         {/* <ThemeSwitchButton /> */}
         {/* 同理，暂时隐藏，待后续再行使用 */}
       </div>

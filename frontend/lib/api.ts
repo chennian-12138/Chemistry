@@ -1,4 +1,5 @@
 import { DataupSchema } from "@/types/dataup-shema";
+import { languageQuery } from "@/src/i18n/locale-utils";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
@@ -63,7 +64,7 @@ export async function deleteReaction(id: string) {
 
 export async function searchReactDicKeyword(term: string) {
   const res = await fetch(
-    `${API_BASE}/api/reactdic/search/keyword?term=${encodeURIComponent(term)}`,
+    `${API_BASE}/api/reactdic/search/keyword?term=${encodeURIComponent(term)}&lang=${languageQuery()}`,
     {
       credentials: "include",
     },
@@ -72,7 +73,7 @@ export async function searchReactDicKeyword(term: string) {
 }
 
 export async function searchReactDicStructure(molBlocks: string[]) {
-  const res = await fetch(`${API_BASE}/api/reactdic/search/structure`, {
+  const res = await fetch(`${API_BASE}/api/reactdic/search/structure?lang=${languageQuery()}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -82,7 +83,7 @@ export async function searchReactDicStructure(molBlocks: string[]) {
 }
 
 export async function getReactionById(id: string) {
-  const res = await fetch(`${API_BASE}/api/reactdic/${id}`, {
+  const res = await fetch(`${API_BASE}/api/reactdic/${id}?lang=${languageQuery()}`, {
     credentials: "include",
   });
   return res.json();

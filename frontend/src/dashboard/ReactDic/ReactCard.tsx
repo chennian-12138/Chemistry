@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useI18n } from "@/src/i18n/language-provider";
 import Viewer from "@/components/kekule-react/viewer";
 import {
   Card,
@@ -44,6 +45,7 @@ const TIER_BADGE: Record<
 };
 
 const ReactionCard: React.FC<ReactionCardProps> = ({ data, onClick }) => {
+  const { t } = useI18n();
   // 控制 Viewer 是否加载的状态
   const [isHovered, setIsHovered] = useState(false);
 
@@ -102,7 +104,7 @@ const ReactionCard: React.FC<ReactionCardProps> = ({ data, onClick }) => {
                 </svg>
               </div>
               <span className="text-xs font-medium tracking-wide">
-                Hover to view structure
+                {t("common.hoverToView")}
               </span>
             </div>
           )}
