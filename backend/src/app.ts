@@ -20,6 +20,7 @@ import retroRouter from "./routes/retrosynthesis";
 import adminRouter from "./routes/admin";
 import feedbackRouter from "./routes/feedback";
 import notificationsRouter from "./routes/notifications";
+import wordsyncRouter from "./routes/wordsync";
 
 const app = express();
 const port = 8000;
@@ -54,6 +55,8 @@ app.use("/api/retro", retroRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/notifications", notificationsRouter);
+// 文献生词同步中转：Zotero 推、手机拉（全局令牌认证，不走会话）
+app.use("/api/wordsync", wordsyncRouter);
 
 // 提供静态文件访问 (头像等)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

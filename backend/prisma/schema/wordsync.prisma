@@ -1,0 +1,29 @@
+/// 文献生词同步：待取队列。
+///
+/// 全局单租户——只有你一个人用，所以不带 userId。
+/// 语义是「还没被手机取走的词」，手机 ack 之后整行删掉。
+/// 因此 wordKey 唯一：同一个词在 ack 前被推第二次时是**合并**而不是新增，
+/// 与插件/App 两侧的规则一致（补空字段、原句累积）。
+model SyncWord {
+  id              String   @id @default(cuid())
+  /// 归一化后的词（trim + 小写），用于去重与 ack 匹配
+  wordKey         String
+  word            String
+  meaning         String   @default("")
+  phonetic        String   @default("")
+  example         String   @default("")
+  phrases         String   @default("")
+  /// 来源文献，多条用 " · " 连接
+  sourceRef       String   @default("")
+  /// 原句语境，多条用空行连接
+  contextSentence String   @default("")
+  /// 手机取走后放进哪个词书；空则用 App 的默认「文献生词」
+  bookName        String   @default("")
+  /// 本行最后一次被更新的时间，pull 时按它排序保证先来先取
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@unique([wordKey])
+  @@index([createdAt])
+  @@map("sync_word")
+}
